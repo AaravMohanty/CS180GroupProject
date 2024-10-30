@@ -1,28 +1,50 @@
-// The Message class represents a message exchanged between users in the social network.
-public class Message {
-    private String sender;    // The username of the message sender
-    private String receiver;  // The username of the message receiver
-    private String content;   // The content of the message
+import java.io.File; // Import File class for handling photo attachments
 
-    // Constructor to initialize a new Message object with sender, receiver, and content
+// The Message class represents a message sent between users, which can be either text or a photo.
+public class Message {
+    private String sender; // The username of the message sender
+    private String receiver; // The username of the message receiver
+    private String content; // The text content of the message
+    private File photo; // Optional photo for photo messages
+
+    // Constructor for creating a text message
     public Message(String sender, String receiver, String content) {
-        this.sender = sender;    // Set the sender's username
+        this.sender = sender; // Set the sender's username
         this.receiver = receiver; // Set the receiver's username
-        this.content = content;   // Set the message content
+        this.content = content; // Set the text content
+        this.photo = null; // No photo for text messages
     }
 
-    // Returns the username of the sender
+    // Constructor for creating a photo message
+    public Message(String sender, String receiver, File photo) {
+        this.sender = sender; // Set the sender's username
+        this.receiver = receiver; // Set the receiver's username
+        this.photo = photo; // Set the photo file
+        this.content = null; // No text content for photo messages
+    }
+
+    // Getter for the sender's username
     public String getSender() {
         return sender;
     }
 
-    // Returns the username of the receiver
+    // Getter for the receiver's username
     public String getReceiver() {
         return receiver;
     }
 
-    // Returns the content of the message
+    // Getter for the text content of the message
     public String getContent() {
         return content;
+    }
+
+    // Getter for the photo associated with the message
+    public File getPhoto() {
+        return photo;
+    }
+
+    // Checks if the message is a photo message
+    public boolean isPhotoMessage() {
+        return photo != null; // Returns true if the photo field is not null
     }
 }

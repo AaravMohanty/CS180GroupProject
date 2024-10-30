@@ -1,21 +1,19 @@
 import java.util.List;
 
-// The UserInterface defines the methods for managing user data and interactions.
 public interface UserInterface {
-
-    // Returns the username of the user
+    // Gets the username of the user
     String getUsername();
 
-    // Returns the password of the user
+    // Gets the password of the user
     String getPassword();
 
-    // Returns the email address of the user
+    // Gets the email of the user
     String getEmail();
 
-    // Returns the biography of the user
+    // Gets the bio of the user
     String getBio();
 
-    // Sets a new biography for the user
+    // Sets the bio of the user
     void setBio(String bio);
 
     // Adds a friend to the user's friend list
@@ -24,18 +22,18 @@ public interface UserInterface {
     // Removes a friend from the user's friend list
     boolean removeFriend(User friend);
 
-    // Blocks a user from interacting with this user
+    // Blocks a user
     boolean blockUser(User user);
 
-    // Unblocks a previously blocked user
+    // Unblocks a user
     boolean unblockUser(User user);
 
-    // Checks if a specific user is blocked by this user
+    // Checks if a user is blocked
     boolean isBlocked(User user);
 
-    // Returns a list of the user's friends
+    // Gets the list of friends
     List<User> getFriends();
 
-    // Returns a list of users blocked by this user
+    // Gets the list of blocked users
     List<User> getBlockedUsers();
 }

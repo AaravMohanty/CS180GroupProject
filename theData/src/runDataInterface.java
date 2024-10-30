@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 
-// The runDatabase interface defines methods for saving and loading user and message data.
 public interface runDataInterface {
+    // Starts the server to accept client connections
+    void startServer();
 
     // Saves a user to the database
     void saveUser(User user);

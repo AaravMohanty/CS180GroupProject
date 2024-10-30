@@ -1,83 +1,81 @@
-import java.util.ArrayList; // Import ArrayList for managing friends and blocked users
-import java.util.List;      // Import List interface for return types
+import java.util.ArrayList; // Import ArrayList for storing friends and blocked users
+import java.util.List; // Import List interface for returning lists
 
-// The User class implements UserInterface and represents a user in the social network.
-public class User implements UserInterface {
-    private String username;              // The user's username
-    private String password;              // The user's password
-    private String email;                 // The user's email address
-    private String bio;                   // The user's biography
-    private ArrayList<User> friends;      // List of the user's friends
-    private ArrayList<User> blockedUsers; // List of users blocked by this user
+// The User class represents a user in the system, with properties for user details and relationships.
+public class User {
+    private String username; // The user's unique username
+    private String password; // The user's password
+    private String email; // The user's email address
+    private String bio; // A short biography or description of the user
+    private ArrayList<User> friends; // List of the user's friends
+    private ArrayList<User> blockedUsers; // List of users that this user has blocked
 
-    // Constructor to initialize a new User object with provided details
+    // Constructor initializes user properties and creates empty lists for friends and blocked users
     public User(String username, String password, String email, String bio) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.bio = bio;
-        this.friends = new ArrayList<>();       // Initialize friends list
-        this.blockedUsers = new ArrayList<>();  // Initialize blocked users list
+        this.username = username; // Set the username
+        this.password = password; // Set the password
+        this.email = email; // Set the email
+        this.bio = bio; // Set the bio
+        this.friends = new ArrayList<>(); // Initialize the friends list
+        this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
     }
 
-    // Returns the username of the user
+    // Getter for the username
     public String getUsername() {
         return username;
     }
 
-    // Returns the password of the user
+    // Getter for the password
     public String getPassword() {
         return password;
     }
 
-    // Returns the email address of the user
+    // Getter for the email
     public String getEmail() {
         return email;
     }
 
-    // Returns the biography of the user
+    // Getter for the bio
     public String getBio() {
         return bio;
     }
 
-    // Sets a new biography for the user
+    // Setter for the bio
     public void setBio(String bio) {
-        this.bio = bio; // Update the user's biography
+        this.bio = bio; // Update the bio
     }
 
-    // Adds a friend to the user's friend list
+    // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
-        // Check if the user is not already a friend
-        if (!friends.contains(friend)) {
-            friends.add(friend);  // Add the friend to the list
-            return true;          // Friend added successfully
+        if (!friends.contains(friend)) { // Check if the friend is not already in the list
+            friends.add(friend); // Add the friend
+            return true; // Indicate success
         }
-        return false;  // Already a friend, addition failed
+        return false; // Indicate failure (friend already exists)
     }
 
-    // Removes a friend from the user's friend list
+    // Removes a friend from the user's friends list
     public boolean removeFriend(User friend) {
-        return friends.remove(friend);  // Remove the friend if present
+        return friends.remove(friend); // Remove the friend and return the result
     }
 
     // Blocks a user, preventing them from interacting with this user
     public boolean blockUser(User user) {
-        // Check if the user is not already blocked
-        if (!blockedUsers.contains(user)) {
-            blockedUsers.add(user);  // Add the user to the blocked list
-            return true;             // User blocked successfully
+        if (!blockedUsers.contains(user)) { // Check if the user is not already blocked
+            blockedUsers.add(user); // Add the user to the blocked list
+            return true; // Indicate success
         }
-        return false;  // Already blocked, action failed
+        return false; // Indicate failure (user already blocked)
     }
 
-    // Unblocks a previously blocked user
+    // Unblocks a user, allowing them to interact with this user again
     public boolean unblockUser(User user) {
-        return blockedUsers.remove(user);  // Remove the user from the blocked list if present
+        return blockedUsers.remove(user); // Remove the user from the blocked list and return the result
     }
 
-    // Checks if a specific user is blocked by this user
+    // Checks if a user is blocked by this user
     public boolean isBlocked(User user) {
-        return blockedUsers.contains(user);  // Return true if blocked, false otherwise
+        return blockedUsers.contains(user); // Return true if the user is in the blocked list
     }
 
     // Returns a list of the user's friends
@@ -85,7 +83,7 @@ public class User implements UserInterface {
         return new ArrayList<>(friends); // Return a copy of the friends list
     }
 
-    // Returns a list of users blocked by this user
+    // Returns a list of users that this user has blocked
     public List<User> getBlockedUsers() {
         return new ArrayList<>(blockedUsers); // Return a copy of the blocked users list
     }

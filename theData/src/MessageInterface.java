@@ -1,15 +1,18 @@
-// The MessageInterface defines methods for accessing message details.
-public interface MessageInterface {
+import java.io.File;
 
-    // Returns the username of the message sender
+public interface MessageInterface {
+    // Gets the sender of the message
     String getSender();
 
-    // Returns the username of the message receiver
+    // Gets the receiver of the message
     String getReceiver();
 
-    // Returns the content of the message
+    // Gets the content of the message
     String getContent();
 
-    // Returns the timestamp of when the message was sent
-    double getTimestamp();
+    // Gets the photo associated with the message
+    File getPhoto();
+
+    // Checks if the message is a photo message
+    boolean isPhotoMessage();
 }
