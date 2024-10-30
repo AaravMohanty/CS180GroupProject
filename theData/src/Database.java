@@ -27,7 +27,7 @@ public class Database implements DataInterface {
     public User searchUser(String username) {
         // Loop through users to find the one with the matching username
         for (User user : users) {
-            if (user != null && user.username.equals(username)) {
+            if (user != null && user.getUsername().equals(username)) {
                 return user;  // Return the found user
             }
         }
@@ -59,5 +59,25 @@ public class Database implements DataInterface {
             }
         }
         return result;  // Return the list of messages
+    }
+
+    public User createUser(String username, String password, String email) {
+        // Logic to create user would go here
+        return null;
+    }
+
+    public boolean deleteUser(String username) {
+        // Logic to delete user would go here
+        return false;
+    }
+
+    public User getUser(String username) {
+        // Logic to return the user with name username would go here
+        return null; //placeholder bceause red underline is annoying
+    }
+
+    public boolean authenticate(String username, String password) {
+        // Logic to authenticate the client would go here
+        return false;
     }
 }
