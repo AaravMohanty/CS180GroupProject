@@ -6,7 +6,7 @@
 public interface DataInterface {
 
      //Creates a new user with the specified username, password, email, and bio.
-    User createUser(String username, String password, String email, String bio);
+    boolean createUser(String username, String password, String email, String bio);
 
     //Deletes the user associated with the specified username.
     boolean deleteUser(String username);

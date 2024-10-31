@@ -7,9 +7,6 @@ public interface UserInterface {
     // Gets the password of the user
     String getPassword();
 
-    // Gets the email of the user
-    String getEmail();
-
     // Gets the bio of the user
     String getBio();
 
