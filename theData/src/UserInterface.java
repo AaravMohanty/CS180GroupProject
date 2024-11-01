@@ -14,23 +14,23 @@ public interface UserInterface {
     void setBio(String bio);
 
     // Adds a friend to the user's friend list
-    boolean addFriend(User friend);
+    boolean addFriend(String friend);
 
     // Removes a friend from the user's friend list
-    boolean removeFriend(User friend);
+    boolean removeFriend(String friend);
 
     // Blocks a user
-    boolean blockUser(User user);
+    boolean blockUser(String user);
 
     // Unblocks a user
-    boolean unblockUser(User user);
+    boolean unblockUser(String user);
 
     // Checks if a user is blocked
-    boolean isBlocked(User user);
+    boolean isBlocked(String user);
 
     // Gets the list of friends
-    List<User> getFriends();
+    List<String> getFriends();
 
     // Gets the list of blocked users
-    List<User> getBlockedUsers();
+    List<String> getBlockedUsers();
 }

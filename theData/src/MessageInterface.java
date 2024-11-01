@@ -1,10 +1,7 @@
 import java.io.File;
 
 public interface MessageInterface {
-    // Gets the sender of the message
-    String getSender();
-
-    // Gets the receiver of the message
+        // Gets the receiver of the message
     String getReceiver();
 
     // Gets the content of the message
