@@ -61,14 +61,14 @@ public class DatabaseTest {
 
 
     public void testCreateUserWithAvailableUsername() { //to see if a username can be created properly
-        boolean result = userService.createUser("newUser", "password", "user@example.com", "Bio");
+        boolean result = userService.createUser("newUser", "password", "user@example.com", "defaultPFP.txt", "Bio");
         assertTrue(result, "Created user when username is available");
     }
 
     public void testCreateUserWithTakenUsername() { //see if username is taken works
 
         userService.createUser("existingUser", "password123", "existing@example.com", "Existing bio");
-        boolean result = userService.createUser("existingUser", "anotherPassword", "another@example.com", "Another bio");
+        boolean result = userService.createUser("existingUser", "anotherPassword", "another@example.com", "defaultPFP.txt", "Another bio");
         assertFalse(result, "User creation should fail when username is already taken");
     }
 

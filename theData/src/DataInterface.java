@@ -6,7 +6,7 @@
 public interface DataInterface {
 
      //Creates a new user with the specified username, password, and bio.
-    boolean createUser(String username, String password, String bio);
+    boolean createUser(String username, String password, String bio, String pfp);
 
     //Retrieves the user object associated with the specified username.
     User getUser(String username);

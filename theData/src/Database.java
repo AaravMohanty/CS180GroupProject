@@ -23,9 +23,9 @@ public class Database implements DataInterface{
     }
 
     // Creates a new user if the username is not already taken
-    public boolean createUser(String username, String password, String bio) {
+    public boolean createUser(String username, String password, String bio, String pfp) {
         if (getUser(username) == null) { // Check if the username is available
-            users.add(new User(username, password, bio, DATABASE_FILE)); // Add new user
+            users.add(new User(username, password, bio, pfp, DATABASE_FILE)); // Add new user
             return true; // Indicate success
         }
         return false; // Indicate failure (username already taken)

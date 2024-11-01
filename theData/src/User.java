@@ -8,6 +8,7 @@ public class User implements UserInterface{
     private String username; // The user's unique username
     private String password; // The user's password
     private String bio; // A short biography or description of the user
+    private String pfp; //A string that stores the filename for the profile picture
     private ArrayList<String> friends; // List of the user's friends
     private ArrayList<String> blockedUsers; // List of users that this user has blocked
     private ArrayList<String> conversations; // All conversations with other
@@ -16,10 +17,11 @@ public class User implements UserInterface{
     private String conversationsFileName; //File with all conversations
 
     // Constructor initializes user properties and creates empty lists for friends and blocked users
-    public User(String username, String password, String bio, String databaseFile) {
+    public User(String username, String password, String bio, String pfp, String databaseFile) {
         this.username = username; // Set the username
         this.password = password; // Set the password
         this.bio = bio; // Set the bio
+        this.pfp = pfp;
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
