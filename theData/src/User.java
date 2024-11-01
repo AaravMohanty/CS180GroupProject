@@ -121,7 +121,7 @@ public class User implements UserInterface{
             blockedUsers.add(user); // Add the user to the blocked list
             removeFriend(user); //removing user from friends list
             // write the blocked friend to the file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))){
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))){
                 writer.write(user);
                 writer.newLine();
             } catch (IOException e) {
@@ -153,24 +153,101 @@ public class User implements UserInterface{
 
     // Returns a list of users that this user has blocked
     public List<String> getBlockedUsers() {
-        return new ArrayList<>(blockedUsers); // Return a copy of the blocked users list
+        return blockedUsers; // Return a copy of the blocked users list
     }
 
     // method to send messages and write that to the convo file
-    public void sendMessage(User receiver, String message) {
-        //TODO: Create a method that writes to the conversations file
-        // and creates files between each user sender and receiver.
-        // After that you can use the writeMessageToFile method to
-        // write the message/photo the appropriate file
-        Message messages = new Message(receiver.getUsername(), message); //create new message
-        messages.writeMessageToFile(); //TODO: Change file name to appropriate file name
+    public boolean sendMessage(User receiver, String message) {
+        // Check if both users exist and if the receiver has not blocked the sender
+        if (receiver == null || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+            return false; // Return failure if receiver is blocked or null
+        }
+
+        // Define a unique conversation file name between the sender and receiver
+        String conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
+
+        // Check if the conversation file exists; if not, create it
+        File file = new File(conversationFile);
+        if (!file.exists()) {
+            try {
+                file.createNewFile(); // Create the conversation file if it doesn't exist
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false; // Return failure if file creation fails
+            }
+        }
+
+        // Add the conversation to both users' conversation lists if not already present
+        if (!conversations.contains(receiver.getUsername())) {
+            conversations.add(receiver.getUsername() + "," + conversationFile);
+            rewriteToFile(conversationsFileName, conversations); // Update the conversation file
+        }
+        if (!receiver.conversations.contains(username)) {
+            receiver.conversations.add(username + "," + conversationFile);
+            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update receiver's conversation file
+        }
+
+        // Write the message to the conversation file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
+            writer.write(username + ": " + message); // Prefix the message with sender's username
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false; // Return failure if writing message fails
+        }
+
+        return true; // Indicate success
     }
 
-    // method to send photos and write to the convo file
-    public void sendPhoto(User receiver, File photo) {
-        Message messages = new Message(receiver.getUsername(), photo); //create new photo message
-        messages.writeMessageToFile(); //TODO: Change file name to appropriate file name
+
+
+    // Method to send photos and write the actual photo content to the conversation file
+    public boolean sendPhoto(User receiver, File photo) {
+        if (receiver == null || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+            return false; // Return failure if the receiver is blocked or null
+        }
+
+        // Define a unique conversation file name between the sender and receiver
+        String conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
+
+        // Ensure the conversation file is created if it doesn't exist
+        if (!conversations.contains(receiver.getUsername() + "," + conversationFile)) {
+            try {
+                File file = new File(conversationFile);
+                if (file.createNewFile()) {
+                    conversations.add(receiver.getUsername() + "," + conversationFile);
+                    rewriteToFile(conversationsFileName, conversations); // Update conversation records
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        // Copy photo content to the conversation file
+        try (FileInputStream input = new FileInputStream(photo);
+             FileOutputStream output = new FileOutputStream(conversationFile, true)) {
+            output.write((username + " sent a photo:\n").getBytes()); // Prefix with sender info
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = input.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+            output.write("\n".getBytes()); // Newline after photo content
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Update the receiver’s conversation file if necessary
+        if (!receiver.conversations.contains(username)) {
+            receiver.conversations.add(username);
+            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations);
+        }
+
+        return true; // Indicate success
     }
+
 
     // Method to add any info to a specific file.
     // Used to write contents of the arraylists into the specific files

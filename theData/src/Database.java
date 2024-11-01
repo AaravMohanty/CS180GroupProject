@@ -69,18 +69,18 @@ public class Database implements DataInterface{
         return false; // Indicate failure (either user not found or blocked)
     }
 
-    //TODO: Maybe delete
-    // Retrieves messages exchanged between a specific sender and receiver
-    public ArrayList<Message> getMessages(String sender, String receiver) {
-        ArrayList<Message> result = new ArrayList<>(); // List to hold result messages
-        for (Message message : messages) { // Iterate through messages
-            // Check if the message matches the sender and receiver
-            if (message.getSender().equals(sender) && message.getReceiver().equals(receiver)) {
-                result.add(message); // Add to result list
-            }
-        }
-        return result; // Return the list of messages
-    }
+//    //TODO: Maybe delete
+//    // Retrieves messages exchanged between a specific sender and receiver
+//    public ArrayList<Message> getMessages(String sender, String receiver) {
+//        ArrayList<Message> result = new ArrayList<>(); // List to hold result messages
+//        for (Message message : messages) { // Iterate through messages
+//            // Check if the message matches the sender and receiver
+//            if (message.getReceiver().equals(receiver)) {
+//                result.add(message); // Add to result list
+//            }
+//        }
+//        return result; // Return the list of messages
+//    }
     // Authenticates a user by checking username and password
     public boolean authenticate(String username, String password) {
         User user = getUser(username); // Find the user
