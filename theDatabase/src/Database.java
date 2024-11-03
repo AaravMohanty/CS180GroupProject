@@ -26,8 +26,7 @@ public class Database {
                 String password = data[1];
                 String bio = data[2];
                 String pfp = data[3];
-                String dFile = data[4];
-                users.add(new User(username, password, bio, pfp, dFile));
+                users.add(new User(username, password, bio, pfp));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,7 +40,7 @@ public class Database {
     // Creates a new user if the username is not already taken
     public boolean createUser(String username, String password, String bio, String pfp) {
         if (getUser(username) == null) { // Check if the username is available
-            users.add(new User(username, password, bio, pfp, DATABASE_FILE)); // Add new user
+            users.add(new User(username, password, bio, pfp)); // Add new user
             return true; // Indicate success
         }
         return false; // Indicate failure (username already taken)
@@ -85,7 +84,7 @@ public class Database {
 //        return false; // Indicate failure (either user not found or blocked)
 //    }
 
-//
+    //
 //    // Retrieves messages exchanged between a specific sender and receiver
 //    public ArrayList<Message> getMessages(String sender, String receiver) {
 //        ArrayList<Message> result = new ArrayList<>(); // List to hold result messages
@@ -102,7 +101,8 @@ public class Database {
         User user = getUser(username); // Find the user
         return user != null && user.getPassword().equals(password); // Check if password matches
     }
-// for test
+
+    // for test
     public ArrayList<User> getUsers() {
         return users;
     }

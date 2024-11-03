@@ -15,10 +15,9 @@ public class User implements UserInterface{
     private String friendsFileName; // File with all friends
     private String blockedUsersFileName; //File with all blocked users
     private String conversationsFileName; //File with all conversations
-    private String dFile;
 
     // Constructor initializes user properties and creates empty lists for friends and blocked users
-    public User(String username, String password, String bio, String pfp, String databaseFile) {
+    public User(String username, String password, String bio, String pfp) {
         this.username = username; // Set the username
         this.password = password; // Set the password
         this.bio = bio; // Set the bio
@@ -26,7 +25,6 @@ public class User implements UserInterface{
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
-        this.dFile = databaseFile;
 
         try {
             friendsFileName = username + "friends.txt"; // Create File name for friends
@@ -44,9 +42,9 @@ public class User implements UserInterface{
         // Writes the user info onto a line of file named database.txt
         // output of database.txt is as follows:
         // username, password, bio, usernameFriends.txt, usernameBlocked.txt, usernameConvos.txt
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(databaseFile, true))) {
-            String userEntry = String.format("%s,%s,%s,%s,%s,%s",
-                    username, password, bio, friendsFileName, blockedUsersFileName, conversationsFileName);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(Database.DATABASE_FILE, true))) {
+            String userEntry = String.format("%s,%s,%s,%s,%s,%s,%s",
+                    username, password, bio, pfp, friendsFileName, blockedUsersFileName, conversationsFileName);
             writer.write(userEntry);
             writer.newLine();
         } catch (IOException e) {
@@ -100,18 +98,20 @@ public class User implements UserInterface{
         this.bio = bio; // Update the bio
     }
 
-    public String getPfp(){ return pfp;}
+    public String getPfp() {
+        return pfp;
+    }
 
-    public void setPfp(String pfp){ this.pfp = pfp;}
-
-    public String getDFile(){return dFile;}
+    public void setPfp(String pfp) {
+        this.pfp = pfp;
+    }
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
         if (!friends.contains(friend.getUsername()) && Database.users.contains(friend)) { // Check if the friend is not already in the list
             friends.add(friend.getUsername()); // Add the friend
             // write the friend to the file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))){
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))) {
                 writer.write(friend.getUsername());
                 writer.newLine();
             } catch (IOException e) {
@@ -133,29 +133,34 @@ public class User implements UserInterface{
 
     // Blocks a user, preventing them from interacting with this user
     public boolean blockUser(User user) {
-        if (!blockedUsers.contains(user.getUsername())) { // Check if the user is not already blocked
-            blockedUsers.add(user.getUsername()); // Add the user to the blocked list
-            removeFriend(user.getUsername()); //removing user from friends list
-            user.removeFriend(this.username);
-            // write the blocked friend to the file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))){
-                writer.write(user.getUsername());
-                writer.newLine();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (user != null) {
+            if (!blockedUsers.contains(user.getUsername()) && Database.users.contains(user)) { // Check if the user is not already blocked
+                blockedUsers.add(user.getUsername()); // Add the user to the blocked list
+                removeFriend(user.getUsername()); //removing user from friends list
+                user.removeFriend(this.username);
+                // write the blocked friend to the file
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))) {
+                    writer.write(user.getUsername());
+                    writer.newLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true; // Indicate success
             }
-            return true; // Indicate success
         }
         return false; // Indicate failure (user already blocked)
     }
 
     // Unblocks a user, allowing them to interact with this user again
     public boolean unblockUser(User user) {
-        boolean unblocked = blockedUsers.remove(user.getUsername()); // boolean to store whether friend was unblocked or not
-        if (unblocked) {
-            rewriteToFile(blockedUsersFileName, blockedUsers); // if friend was removed then rewrite the blocked friends file
+        if (user != null) {
+            boolean unblocked = blockedUsers.remove(user.getUsername()); // boolean to store whether friend was unblocked or not
+            if (unblocked && Database.users.contains(user)) {
+                rewriteToFile(blockedUsersFileName, blockedUsers); // if friend was removed then rewrite the blocked friends file
+            }
+            return unblocked; // Remove the user from the blocked list and return the result
         }
-        return unblocked; // Remove the user from the blocked list and return the result
+        return false;
     }
 
     // Checks if a user is blocked by this user
@@ -267,7 +272,7 @@ public class User implements UserInterface{
     // Used to write contents of the arraylists into the specific files
     public void rewriteToFile(String filename, ArrayList<String> list) {
         // made append false so that it updates whenever someone removes someone from their list as well
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) {
             for (String user : list) {
                 writer.write(user);
                 writer.newLine();
@@ -277,7 +282,8 @@ public class User implements UserInterface{
         }
     }
 
-
-
-
+    public String displayUser() {
+        return String.format("username: \"%s\"\nbio: \"%s\"\nprofile picture: \"%s\"",
+                username, bio, pfp);
+    }
 }
