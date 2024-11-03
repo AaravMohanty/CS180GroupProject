@@ -123,7 +123,6 @@ public class RunProject {
         RunProject RunProject = new RunProject(database); // Create RunProject with the database
 
         // Example usage
-        System.out.println("hi");
         RunProject.createAccount(); // Create a new account
         User loggedInUser = RunProject.login(); // Log in the user
 
@@ -145,6 +144,8 @@ public class RunProject {
 //            specified in task 2 here and just testing a bunch of different inputs. no need
 //            for test cases and classes for this. (this way we know the code works before
 //            they possibly screw up the test cases
+//            Also, make the input in this file a bit nicer so like have an intro thing that
+//            says "hi welcome to ProjectMedia... please create a user" and stuff like that
             //task 4:
 //            Make all methods and classes thread safe where they need to be
 //            (idk exactly where you need to do this but we are accessing a
