@@ -84,7 +84,7 @@ public class Database {
 //        return false; // Indicate failure (either user not found or blocked)
 //    }
 
-//
+    //
 //    // Retrieves messages exchanged between a specific sender and receiver
 //    public ArrayList<Message> getMessages(String sender, String receiver) {
 //        ArrayList<Message> result = new ArrayList<>(); // List to hold result messages
@@ -101,7 +101,8 @@ public class Database {
         User user = getUser(username); // Find the user
         return user != null && user.getPassword().equals(password); // Check if password matches
     }
-// for test
+
+    // for test
     public ArrayList<User> getUsers() {
         return users;
     }

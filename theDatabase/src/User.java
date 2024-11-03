@@ -98,16 +98,20 @@ public class User {
         this.bio = bio; // Update the bio
     }
 
-    public String getPfp(){ return pfp;}
+    public String getPfp() {
+        return pfp;
+    }
 
-    public void setPfp(String pfp){ this.pfp = pfp;}
+    public void setPfp(String pfp) {
+        this.pfp = pfp;
+    }
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
         if (!friends.contains(friend.getUsername()) && Database.users.contains(friend)) { // Check if the friend is not already in the list
             friends.add(friend.getUsername()); // Add the friend
             // write the friend to the file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))){
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))) {
                 writer.write(friend.getUsername());
                 writer.newLine();
             } catch (IOException e) {
@@ -268,7 +272,7 @@ public class User {
     // Used to write contents of the arraylists into the specific files
     public void rewriteToFile(String filename, ArrayList<String> list) {
         // made append false so that it updates whenever someone removes someone from their list as well
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) {
             for (String user : list) {
                 writer.write(user);
                 writer.newLine();

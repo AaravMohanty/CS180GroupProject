@@ -118,7 +118,6 @@ public class RunProject {
     }
 
 
-
     public static void main(String[] args) {
         Database database = new Database(); // Create a new Database instance
         RunProject RunProject = new RunProject(database); // Create RunProject with the database
