@@ -4,6 +4,7 @@ import java.util.Scanner; // Import Scanner for user input
 public class RunProject {
     private Database database; // Reference to the Database
     private static Scanner scanner; // Scanner for user input
+    private User user;
 
     // Constructor initializes the RunProject with a Database instance.
     public RunProject(Database database) {
@@ -36,7 +37,7 @@ public class RunProject {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        User user = database.getUser(username);
+        user = database.getUser(username);
         if (user != null && user.getPassword().equals(password)) {
             System.out.println("Login successful!");
             return user; // Return the logged-in user
@@ -47,35 +48,39 @@ public class RunProject {
     }
 
     // Method to add a friend
-    public void addFriend(User user) {
-        System.out.print("Enter the username of the friend to add: ");
-        String friendUsername = scanner.nextLine();
-        User friend = database.getUser(friendUsername);
-        if (friend != null) {
-            user.addFriend(friendUsername); // Assuming addFriend method exists in User class
-            System.out.println(friendUsername + " has been added to your friends.");
+    public void addFriend() {
+        System.out.println(user.getUsername() + ": Who do you want to add as a friend? ");
+        String friendName = scanner.nextLine();
+        if (database.getUser(friendName) != null) {
+            user.addFriend(database.getUser(friendName));
+            System.out.println(friendName + " has been added to your friends.");
         } else {
             System.out.println("User not found.");
         }
     }
 
     // Method to block a user
-    public void blockUser(User user) {
+    public void blockUser() {
         System.out.print("Enter the username of the user to block: ");
         String blockedUsername = scanner.nextLine();
-        user.blockUser(blockedUsername); // Assuming blockUser method exists in User class
+        user.blockUser(database.getUser(blockedUsername)); // Assuming blockUser method exists in User class
         System.out.println(blockedUsername + " has been blocked.");
+
+        System.out.print("Enter the username of the user to unblock: ");
+        String unblockedUsername = scanner.nextLine();
+        user.unblockUser(database.getUser(unblockedUsername));
+        System.out.println(blockedUsername + " has been unblocked.");
     }
 
     // Method to send a message
-    public void sendMessage(User sender) {
+    public void sendMessage() {
         System.out.print("Enter the username of the receiver: ");
         String receiverUsername = scanner.nextLine();
         User receiver = database.getUser(receiverUsername);
         if (receiver != null) {
             System.out.print("Enter your message: ");
             String content = scanner.nextLine();
-            if (database.sendTextMessage(sender.getUsername(), receiverUsername, content)) {
+            if (user.sendMessage(receiver, content)) {
                 System.out.println("Message sent!");
             } else {
                 System.out.println("Failed to send message.");
@@ -104,14 +109,13 @@ public class RunProject {
         RunProject RunProject = new RunProject(database); // Create RunProject with the database
 
         // Example usage
-        RunProject.createAccount(); // Create a new account
+       // RunProject.createAccount(); // Create a new account
         User loggedInUser = RunProject.login(); // Log in the user
 
         if (loggedInUser != null) {
-            System.out.println(loggedInUser.getUsername() + ": Who do you want to add as a friend? ");
-            String friendName = scanner.nextLine();
-            loggedInUser.addFriend(friendName);
-            RunProject.sendMessage(loggedInUser); // Send a message
+            //RunProject.addFriend();
+            RunProject.sendMessage(); // Send a message
+            RunProject.blockUser();
         }
     }
 

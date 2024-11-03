@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.ArrayList; // Import ArrayList for storing users and messages
 
 // The Database class manages users and messages in a simple in-memory storage system.
-public class Database implements DatabaseInterface {
-    private ArrayList<User> users; // List to store User objects
+public class Database {
+    public static ArrayList<User> users; // List to store User objects
     private ArrayList<Message> messages; // List to store Message objects
     public static final String DATABASE_FILE = "database.txt"; // Initializing the database file
 
@@ -58,34 +58,34 @@ public class Database implements DatabaseInterface {
     }
 
     //TODO: Remove sendTextMessage, sendPhotoMessage, and sendMessageInternal; move to user class
-    public boolean sendTextMessage(String sender, String receiver, String content) {
-        return sendMessageInternal(sender, receiver, new Message(receiver, content)); // Delegate to internal method
-    }
+//    public boolean sendTextMessage(String sender, String receiver, String content) {
+//        return sendMessageInternal(sender, receiver, new Message(receiver, content)); // Delegate to internal method
+//    }
 
-    // Sends a photo message from sender to receiver
-    public boolean sendPhotoMessage(String sender, String receiver, String photoPath) {
-        File photo = new File(photoPath); // Create a File object for the photo
-        if (!photo.exists()) { // Check if the photo file exists
-            System.out.println("Photo file not found: " + photoPath); // Log error
-            return false; // Indicate failure
-        }
-        return sendMessageInternal(sender, receiver, new Message(receiver, photo)); // Delegate to internal method
-    }
+//    // Sends a photo message from sender to receiver
+//    public boolean sendPhotoMessage(String sender, String receiver, String photoPath) {
+//        File photo = new File(photoPath); // Create a File object for the photo
+//        if (!photo.exists()) { // Check if the photo file exists
+//            System.out.println("Photo file not found: " + photoPath); // Log error
+//            return false; // Indicate failure
+//        }
+//        return sendMessageInternal(sender, receiver, new Message(receiver, photo)); // Delegate to internal method
+//    }
+//     TODO: Maybe delete
+//    // Internal method to handle message sending logic
+//    public boolean sendMessageInternal(String sender, String receiver, Message message) {
+//        User senderUser = getUser(sender); // Find sender
+//        User receiverUser = getUser(receiver); // Find receiver
+//
+//        // Check if both users exist and if the receiver has not blocked the sender
+//        if (senderUser != null && receiverUser != null && !receiverUser.isBlocked(sender)) {
+//            messages.add(message); // Add the message to the list
+//            return true; // Indicate success
+//        }
+//        return false; // Indicate failure (either user not found or blocked)
+//    }
 
-    // Internal method to handle message sending logic
-    private boolean sendMessageInternal(String sender, String receiver, Message message) {
-        User senderUser = getUser(sender); // Find sender
-        User receiverUser = getUser(receiver); // Find receiver
-
-        // Check if both users exist and if the receiver has not blocked the sender
-        if (senderUser != null && receiverUser != null && !receiverUser.isBlocked(sender)) {
-            messages.add(message); // Add the message to the list
-            return true; // Indicate success
-        }
-        return false; // Indicate failure (either user not found or blocked)
-    }
-
-//    //TODO: Maybe delete
+//
 //    // Retrieves messages exchanged between a specific sender and receiver
 //    public ArrayList<Message> getMessages(String sender, String receiver) {
 //        ArrayList<Message> result = new ArrayList<>(); // List to hold result messages

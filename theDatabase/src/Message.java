@@ -1,7 +1,7 @@
     import java.io.*;
 
     // The Message class represents a message sent between users, which can be either text or a photo.
-    public class Message implements MessageInterface {
+    public class Message {
         private String receiver; // The username of the message receiver
         private String content; // The text content of the message
         private File photo; // Optional photo for photo messages

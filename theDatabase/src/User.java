@@ -4,7 +4,7 @@ import java.util.ArrayList; // Import ArrayList for storing friends and blocked 
 import java.util.List; // Import List interface for returning lists
 
 // The User class represents a user in the system, with properties for user details and relationships.
-public class User implements UserInterface{
+public class User {
     private String username; // The user's unique username
     private String password; // The user's password
     private String bio; // A short biography or description of the user
@@ -15,7 +15,7 @@ public class User implements UserInterface{
     private String friendsFileName; // File with all friends
     private String blockedUsersFileName; //File with all blocked users
     private String conversationsFileName; //File with all conversations
-    private String DFile;
+    private String dFile;
 
     // Constructor initializes user properties and creates empty lists for friends and blocked users
     public User(String username, String password, String bio, String pfp, String databaseFile) {
@@ -26,7 +26,7 @@ public class User implements UserInterface{
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
-        this.DFile = databaseFile;
+        this.dFile = databaseFile;
 
         try {
             friendsFileName = username + "friends.txt"; // Create File name for friends
@@ -45,7 +45,7 @@ public class User implements UserInterface{
         // output of database.txt is as follows:
         // username, password, bio, usernameFriends.txt, usernameBlocked.txt, usernameConvos.txt
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(databaseFile, true))) {
-            String userEntry = String.format("%s, %s, %s, %s, %s, %s",
+            String userEntry = String.format("%s,%s,%s,%s,%s,%s",
                     username, password, bio, friendsFileName, blockedUsersFileName, conversationsFileName);
             writer.write(userEntry);
             writer.newLine();
@@ -102,15 +102,17 @@ public class User implements UserInterface{
 
     public String getPfp(){ return pfp;}
 
-    public String getDFile(){return DFile;}
+    public void setPfp(String pfp){ this.pfp = pfp;}
+
+    public String getDFile(){return dFile;}
 
     // Adds a friend to the user's friends list
-    public boolean addFriend(String friend) {
-        if (!friends.contains(friend)) { // Check if the friend is not already in the list
-            friends.add(friend); // Add the friend
+    public boolean addFriend(User friend) {
+        if (!friends.contains(friend.getUsername()) && Database.users.contains(friend)) { // Check if the friend is not already in the list
+            friends.add(friend.getUsername()); // Add the friend
             // write the friend to the file
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))){
-                writer.write(friend);
+                writer.write(friend.getUsername());
                 writer.newLine();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -130,13 +132,14 @@ public class User implements UserInterface{
     }
 
     // Blocks a user, preventing them from interacting with this user
-    public boolean blockUser(String user) {
-        if (!blockedUsers.contains(user)) { // Check if the user is not already blocked
-            blockedUsers.add(user); // Add the user to the blocked list
-            removeFriend(user); //removing user from friends list
+    public boolean blockUser(User user) {
+        if (!blockedUsers.contains(user.getUsername())) { // Check if the user is not already blocked
+            blockedUsers.add(user.getUsername()); // Add the user to the blocked list
+            removeFriend(user.getUsername()); //removing user from friends list
+            user.removeFriend(this.username);
             // write the blocked friend to the file
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))){
-                writer.write(user);
+                writer.write(user.getUsername());
                 writer.newLine();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -147,8 +150,8 @@ public class User implements UserInterface{
     }
 
     // Unblocks a user, allowing them to interact with this user again
-    public boolean unblockUser(String user) {
-        boolean unblocked = blockedUsers.remove(user); // boolean to store whether friend was unblocked or not
+    public boolean unblockUser(User user) {
+        boolean unblocked = blockedUsers.remove(user.getUsername()); // boolean to store whether friend was unblocked or not
         if (unblocked) {
             rewriteToFile(blockedUsersFileName, blockedUsers); // if friend was removed then rewrite the blocked friends file
         }
@@ -162,7 +165,7 @@ public class User implements UserInterface{
 
     // Returns a list of the user's friends
     public List<String> getFriends() {
-        return new ArrayList<>(friends); // Return a copy of the friends list
+        return friends; // Return a copy of the friends list
     }
 
     // Returns a list of users that this user has blocked
@@ -177,28 +180,22 @@ public class User implements UserInterface{
             return false; // Return failure if receiver is blocked or null
         }
 
-        // Define a unique conversation file name between the sender and receiver
-        String conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
-
-        // Check if the conversation file exists; if not, create it
-        File file = new File(conversationFile);
-        if (!file.exists()) {
-            try {
-                file.createNewFile(); // Create the conversation file if it doesn't exist
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false; // Return failure if file creation fails
-            }
+        // Define a consistent file name based on lexicographical order to avoid duplicate files
+        String conversationFile;
+        if (username.compareTo(receiver.getUsername()) < 0) {
+            conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
+        } else {
+            conversationFile = receiver.getUsername() + "_" + username + "_Messages.txt";
         }
 
-        // Add the conversation to both users' conversation lists if not already present
-        if (!conversations.contains(receiver.getUsername())) {
-            conversations.add(receiver.getUsername() + "," + conversationFile);
-            rewriteToFile(conversationsFileName, conversations); // Update the conversation file
+        // Check if this conversation file is already recorded in both users' conversation lists
+        if (!conversations.contains(conversationFile)) {
+            conversations.add(conversationFile);
+            rewriteToFile(conversationsFileName, conversations); // Update the sender's conversation file
         }
-        if (!receiver.conversations.contains(username)) {
-            receiver.conversations.add(username + "," + conversationFile);
-            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update receiver's conversation file
+        if (!receiver.conversations.contains(conversationFile)) {
+            receiver.conversations.add(conversationFile);
+            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update the receiver's conversation file
         }
 
         // Write the message to the conversation file
@@ -213,6 +210,14 @@ public class User implements UserInterface{
         return true; // Indicate success
     }
 
+//    public boolean sendPhotoMessage(User receiver, String photoPath) {
+//        File photo = new File(photoPath); // Create a File object for the photo
+//        if (!photo.exists()) { // Check if the photo file exists
+//            System.out.println("Photo file not found: " + photoPath); // Log error
+//            return false; // Indicate failure
+//        }
+//        return sendMessage(receiver, photoPath); // Delegate to internal method
+//    }
 
 
     // Method to send photos and write the actual photo content to the conversation file
@@ -221,35 +226,30 @@ public class User implements UserInterface{
             return false; // Return failure if the receiver is blocked or null
         }
 
-        // Define a unique conversation file name between the sender and receiver
-        String conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
-
-        // Ensure the conversation file is created if it doesn't exist
-        if (!conversations.contains(receiver.getUsername() + "," + conversationFile)) {
-            try {
-                File file = new File(conversationFile);
-                if (file.createNewFile()) {
-                    conversations.add(receiver.getUsername() + "," + conversationFile);
-                    rewriteToFile(conversationsFileName, conversations); // Update conversation records
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+        // Define a consistent file name based on lexicographical order to avoid duplicate files
+        String conversationFile;
+        if (username.compareTo(receiver.getUsername()) < 0) {
+            conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
+        } else {
+            conversationFile = receiver.getUsername() + "_" + username + "_Messages.txt";
         }
 
-        // Copy photo content to the conversation file
-        try (FileInputStream input = new FileInputStream(photo);
-             FileOutputStream output = new FileOutputStream(conversationFile, true)) {
-            output.write((username + " sent a photo:\n").getBytes()); // Prefix with sender info
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
-            }
-            output.write("\n".getBytes()); // Newline after photo content
+        // Check if this conversation file is already recorded in both users' conversation lists
+        if (!conversations.contains(conversationFile)) {
+            conversations.add(conversationFile);
+            rewriteToFile(conversationsFileName, conversations); // Update the sender's conversation file
+        }
+        if (!receiver.conversations.contains(conversationFile)) {
+            receiver.conversations.add(conversationFile);
+            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update the receiver's conversation file
+        }
+
+        // Record the photo path in the conversation file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
+            writer.write(username + " sent a photo: " + photo.getPath());
+            writer.newLine();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to write photo message: " + e.getMessage());
             return false;
         }
 
