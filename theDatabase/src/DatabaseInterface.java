@@ -11,6 +11,15 @@ public interface DatabaseInterface {
     //Retrieves the user object associated with the specified username.
     User getUser(String username);
 
+    //gives true/false whether or not sent
+    boolean sendTextMessage(String sender, String receiver, String content);
+
+    //gives true/false whether or not sent pic
+    boolean sendPhotoMessage(String sender, String receiver, String photoPath);
+
+    //meets criteria for sending a msg
+    boolean sendMessageInternal(String sender, String receiver, Message message);
+
     //Authenticates a user based on the provided username and password.
     boolean authenticate(String username, String password);
 }

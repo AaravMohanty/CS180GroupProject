@@ -1,3 +1,5 @@
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface UserInterface {
@@ -33,4 +35,13 @@ public interface UserInterface {
 
     // Gets the list of blocked users
     List<String> getBlockedUsers();
+
+    // returns t/f based on if msg is sent
+    boolean sendMessage(User receiver, String message);
+
+    // returns t/f based on if pic is sent
+    boolean sendPhoto(User receiver, File photo);
+
+    //rewrites to file based on input
+    void rewriteToFile(String filename, ArrayList<String> list)
 }

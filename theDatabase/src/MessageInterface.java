@@ -12,4 +12,7 @@ public interface MessageInterface {
 
     // Checks if the message is a photo message
     boolean isPhotoMessage();
+
+    //writes the message to a file
+    void writeMessageToFile(String conversationFileName);
 }
