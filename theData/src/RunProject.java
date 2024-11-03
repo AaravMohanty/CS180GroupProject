@@ -1,12 +1,12 @@
 import java.util.Scanner; // Import Scanner for user input
 
-// The UserManager class handles user interactions and manages user profiles and messaging.
-public class UserManager {
+// The RunProject class handles user interactions and manages user profiles and messaging.
+public class RunProject {
     private Database database; // Reference to the Database
     private static Scanner scanner; // Scanner for user input
 
-    // Constructor initializes the UserManager with a Database instance.
-    public UserManager(Database database) {
+    // Constructor initializes the RunProject with a Database instance.
+    public RunProject(Database database) {
         this.database = database; // Set the database reference
         this.scanner = new Scanner(System.in); // Initialize the scanner
     }
@@ -101,17 +101,17 @@ public class UserManager {
 
     public static void main(String[] args) {
         Database database = new Database(); // Create a new Database instance
-        UserManager userManager = new UserManager(database); // Create UserManager with the database
+        RunProject RunProject = new RunProject(database); // Create RunProject with the database
 
         // Example usage
-        userManager.createAccount(); // Create a new account
-        User loggedInUser = userManager.login(); // Log in the user
+        RunProject.createAccount(); // Create a new account
+        User loggedInUser = RunProject.login(); // Log in the user
 
         if (loggedInUser != null) {
             System.out.println(loggedInUser.getUsername() + ": Who do you want to add as a friend? ");
             String friendName = scanner.nextLine();
             loggedInUser.addFriend(friendName);
-            userManager.sendMessage(loggedInUser); // Send a message
+            RunProject.sendMessage(loggedInUser); // Send a message
         }
     }
 
