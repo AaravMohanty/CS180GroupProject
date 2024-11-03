@@ -25,12 +25,20 @@ public class User implements UserInterface{
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
-        friendsFileName = username + "friends.txt"; // Create File name for friends
-        File friendsFile = new File(friendsFileName); // Create File friends
-        blockedUsersFileName = username + "blockedUsers.txt"; // Create File name for blocked users
-        File blockedUsersFile = new File(blockedUsersFileName); // Create file blocked users
-        conversationsFileName = username + "conversations.txt"; // Create File name for convos
-        File conversationsFile = new File(conversationsFileName); // Create File convos
+
+        try {
+            friendsFileName = username + "friends.txt"; // Create File name for friends
+            File friendsFile = new File(friendsFileName); // Create File friends
+            friendsFile.createNewFile();
+            blockedUsersFileName = username + "blockedUsers.txt"; // Create File name for blocked users
+            File blockedUsersFile = new File(blockedUsersFileName); // Create file blocked users
+            blockedUsersFile.createNewFile();
+            conversationsFileName = username + "conversations.txt"; // Create File name for convos
+            File conversationsFile = new File(conversationsFileName); // Create File convos
+            conversationsFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // Writes the user info onto a line of file named database.txt
         // output of database.txt is as follows:
         // username, password, bio, usernameFriends.txt, usernameBlocked.txt, usernameConvos.txt

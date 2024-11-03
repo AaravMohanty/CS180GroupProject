@@ -1,7 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.File; // Import File class for handling file paths
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList; // Import ArrayList for storing users and messages
 
 // The Database class manages users and messages in a simple in-memory storage system.
@@ -15,7 +12,26 @@ public class Database implements DataInterface{
         users = new ArrayList<>(); // Initialize the users list
         messages = new ArrayList<>(); // Initialize the messages list
         File databaseFile = new File(DATABASE_FILE); // create database file
+        try {
+            databaseFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //TODO: Populate users arraylist
+        try (BufferedReader reader = new BufferedReader(new FileReader(DATABASE_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String username = data[0];
+                String password = data[1];
+                String bio = data[2];
+                String pfp = data[3];
+                String dFile = data[4];
+                users.add(new User(username, password, bio, pfp, dFile));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getDatabaseFile() {

@@ -6,7 +6,7 @@
         private String content; // The text content of the message
         private File photo; // Optional photo for photo messages
 
-        // Constructor for creating a text message
+        // Constructor for creating a text
         public Message(String receiver, String content) {
             this.receiver = receiver; // Set the receiver's username
             this.content = content; // Set the text content
