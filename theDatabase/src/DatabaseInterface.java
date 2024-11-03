@@ -3,7 +3,7 @@
  //It declares methods for user creation, deletion, retrieval, authentication, 
  //and management of additional user properties such as bio, friends, and blocked users.
  */
-public interface DataInterface {
+public interface DatabaseInterface {
 
      //Creates a new user with the specified username, password, and bio.
     boolean createUser(String username, String password, String bio, String pfp);
