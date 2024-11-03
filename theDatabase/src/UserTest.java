@@ -24,7 +24,8 @@ public class UserTest {
             Assert.assertTrue("Ensure that User is public!", Modifier.isPublic(modifiers));
             Assert.assertFalse("Ensure that User is NOT abstract!", Modifier.isAbstract(modifiers));
             Assert.assertEquals("Ensure that User extends Object!", Object.class, superclass);
-            Assert.assertEquals("Ensure that User implements UserInterface!", 1, superinterfaces.length);
+            //Assert.assertEquals("Ensure that User implements UserInterface!", 1, superinterfaces.length);
+            Assert.assertEquals("Ensure that User implements UserInterface!", UserInterface.class, superinterfaces[0]);
 
         }
 
@@ -38,22 +39,27 @@ public class UserTest {
 
         @Test
         public void testAddFriend() {
-            User user1 = new User("user1", "password1", "Bio 1", "pfp1.png", DATABASE_FILE);
-            User friendUser = new User("friendUser", "password2", "Bio 2", "pfp2.png", DATABASE_FILE);
-            Assert.assertTrue(user1.addFriend(friendUser));
-            List<String> friends = user1.getFriends();
+            Database data = new Database();
+            data.createUser("user1", "password1", "Bio 1", "pfp1.png");
+            data.createUser("friendUser", "password2", "Bio 2", "pfp2.png");
+            Assert.assertTrue(data.getUser("user1").addFriend(data.getUser("friendUser")));
+            List<String> friends = data.getUser("user1").getFriends();
             Assert.assertEquals(1, friends.size());
             Assert.assertTrue(friends.contains("friendUser"));
         }
 
         @Test
         public void testRemoveFriend() {
-            User user1 = new User("user1", "password1", "Bio 1", "pfp1.png", DATABASE_FILE);
-            User friendUser = new User("friendUser", "password2", "Bio 2", "pfp2.png", DATABASE_FILE);
-            user1.addFriend(friendUser);
+            Database data = new Database();
+            data.createUser("user1", "password1", "Bio 1", "pfp1.png");
+            data.createUser("friendUser", "password2", "Bio 2", "pfp2.png");
+            //User user1 = new User("user1", "password1", "Bio 1", "pfp1.png", DATABASE_FILE);
+            //User friendUser = new User("friendUser", "password2", "Bio 2", "pfp2.png", DATABASE_FILE);
+            data.getUser("user1").addFriend(data.getUser("friendUser"));
+            //user1.addFriend(friendUser);
 
-            Assert.assertTrue(user1.removeFriend("friendUser"));
-            Assert.assertFalse(user1.getFriends().contains(friendUser));
+            Assert.assertTrue(data.getUser("user1").removeFriend("friendUser"));
+            Assert.assertFalse(data.getUser("user1").getFriends().contains("friendUser"));
         }
 
         @Test

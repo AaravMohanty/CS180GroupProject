@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.ArrayList; // Change List to ArrayList
 import java.util.List;
 
 public interface UserInterface {
@@ -36,10 +37,10 @@ public interface UserInterface {
     boolean isBlocked(String user);
 
     // Gets the list of friends
-    List<String> getFriends();
+    List<String> getFriends(); // Changed from List<String> to ArrayList<String>
 
     // Gets the list of blocked users
-    List<String> getBlockedUsers();
+    List<String> getBlockedUsers(); // Changed from List<String> to ArrayList<String>
 
     // Sends a message to another user
     boolean sendMessage(User receiver, String message);
@@ -48,5 +49,5 @@ public interface UserInterface {
     boolean sendPhoto(User receiver, File photo);
 
     // Rewrites the contents of a file based on the provided list
-    void rewriteToFile(String filename, List<String> list);
+    void rewriteToFile(String filename, ArrayList<String> list); // Changed List<String> to ArrayList<String>
 }
