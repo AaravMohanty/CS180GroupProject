@@ -15,6 +15,7 @@ public class User implements UserInterface{
     private String friendsFileName; // File with all friends
     private String blockedUsersFileName; //File with all blocked users
     private String conversationsFileName; //File with all conversations
+    private String DFile;
 
     // Constructor initializes user properties and creates empty lists for friends and blocked users
     public User(String username, String password, String bio, String pfp, String databaseFile) {
@@ -25,6 +26,7 @@ public class User implements UserInterface{
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
+        this.DFile = databaseFile;
 
         try {
             friendsFileName = username + "friends.txt"; // Create File name for friends
@@ -97,6 +99,10 @@ public class User implements UserInterface{
     public void setBio(String bio) {
         this.bio = bio; // Update the bio
     }
+
+    public String getPfp(){ return pfp;}
+
+    public String getDFile(){return DFile;}
 
     // Adds a friend to the user's friends list
     public boolean addFriend(String friend) {
@@ -270,6 +276,7 @@ public class User implements UserInterface{
             e.printStackTrace();
         }
     }
+
 
 
 

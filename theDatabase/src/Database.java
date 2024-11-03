@@ -5,7 +5,7 @@ import java.util.ArrayList; // Import ArrayList for storing users and messages
 public class Database implements DatabaseInterface {
     private ArrayList<User> users; // List to store User objects
     private ArrayList<Message> messages; // List to store Message objects
-    private static final String DATABASE_FILE = "database.txt"; // Initializing the database file
+    public static final String DATABASE_FILE = "database.txt"; // Initializing the database file
 
     // Constructor initializes the users and messages lists.
     public Database() {
@@ -102,4 +102,9 @@ public class Database implements DatabaseInterface {
         User user = getUser(username); // Find the user
         return user != null && user.getPassword().equals(password); // Check if password matches
     }
+// for test
+    public ArrayList<User> getUsers() {
+        return users;
+    }
+
 }
