@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * The message class to store message information
+ * The message test to store message information
  *
  * Purdue University -- CS18000 -- Fall 2024 
  *
