@@ -3,8 +3,8 @@ import java.util.ArrayList; // Import ArrayList for storing users and messages
 
 /**
  * A program that creates the database.
- *
- * Purdue University -- CS18000 -- Fall 2024 
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
  *
  * @author Elan Smyla, Aarav Mohanty
  * @version November 3rd, 2024
@@ -26,25 +26,22 @@ public class Database implements DatabaseInterface {
 
             try {
                 databaseFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                try (BufferedReader reader = new BufferedReader(new FileReader(DATABASE_FILE))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        String[] data = line.split(",");
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(DATABASE_FILE))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] data = line.split(",");
+                        // Ensure the data array contains at least four elements before accessing them
+                        if (data.length >= 4) {
+                            String username = data[0];
+                            String password = data[1];
+                            String bio = data[2];
+                            String pfp = data[3];
 
-                    // Ensure the data array contains at least four elements before accessing them
-                    if (data.length >= 4) {
-                        String username = data[0];
-                        String password = data[1];
-                        String bio = data[2];
-                        String pfp = data[3];
-
-                        // Avoid adding duplicate users
-                        if (getUser(username) == null) {
-                            users.add(new User(username, password, bio, pfp));
+                            // Avoid adding duplicate users
+                            if (getUser(username) == null) {
+                                users.add(new User(username, password, bio, pfp));
+                            }
                         }
                     }
                 }
@@ -134,4 +131,6 @@ public class Database implements DatabaseInterface {
     public ArrayList<User> getUsers() {
         return users;
     }
+
+
 }
