@@ -22,8 +22,8 @@ public class User implements UserInterface {
     private ArrayList<String> friends; // List of the user's friends
     private ArrayList<String> blockedUsers; // List of users that this user has blocked
     private ArrayList<String> conversations; // All conversations with other
-    private ArrayList<String>[] messages;
-    private String friendsFileName; // File with all friends
+    private ArrayList<ArrayList<String>> messages;
+    String friendsFileName; // File with all friends
     private String blockedUsersFileName; //File with all blocked users
     private String conversationsFileName; //File with all conversations
     public Object o = new Object();
@@ -122,24 +122,24 @@ public class User implements UserInterface {
 
             // Initialize the messages array only if there are conversations
             if (!conversations.isEmpty()) {
-                messages = new ArrayList[conversations.size()]; // Initialize messages based on the number of conversations
+                messages = new ArrayList<>(); // Initialize messages
 
                 // Populate the messages array with conversations
                 for (int index = 0; index < conversations.size(); index++) {
                     String conversationFileName = conversations.get(index); // Get the filename of the conversation
-                    messages[index] = new ArrayList<>(); // Initialize the ArrayList for each conversation
+                    messages.add(index, new ArrayList<>()); // Initialize the ArrayList for each conversation
 
                     try (BufferedReader reader1 = new BufferedReader(new FileReader(conversationFileName))) {
                         String line1;
                         while ((line1 = reader1.readLine()) != null) {
-                            messages[index].add(line1); // Now this won't throw an ArrayIndexOutOfBoundsException
+                            messages.get(index).add(line1); // Now this won't throw an ArrayIndexOutOfBoundsException
                         }
                     } catch (IOException e) {
                         System.err.println("Error reading conversation file: " + e.getMessage());
                     }
                 }
             } else {
-                messages = new ArrayList[0]; // Initialize as an empty array if no conversations exist
+                messages = new ArrayList<>(); // Initialize as an empty arraylist if no conversations exist
             }
         }
     }
@@ -276,6 +276,7 @@ public class User implements UserInterface {
         if (!conversations.contains(conversationFile)) {
             conversations.add(conversationFile);
             rewriteToFile(conversationsFileName, conversations); // Update the sender's conversation file
+            messages.add(new ArrayList<>());
         }
         if (!receiver.conversations.contains(conversationFile)) {
             receiver.conversations.add(conversationFile);
@@ -290,6 +291,21 @@ public class User implements UserInterface {
         } catch (IOException e) {
             e.printStackTrace();
             return false; // Return failure if writing message fails
+        }
+
+        // Populate the messages array with conversations
+        for (int index = 0; index < conversations.size(); index++) {
+            String conversationFileName = conversations.get(index); // Get the filename of the conversation
+            messages.set(index, new ArrayList<>()); // Initialize the ArrayList for each conversation
+
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(conversationFileName))) {
+                String line1;
+                while ((line1 = reader1.readLine()) != null) {
+                    messages.get(index).add(line1); // Now this won't throw an ArrayIndexOutOfBoundsException
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading conversation file: " + e.getMessage());
+            }
         }
 
         return true; // Indicate success
@@ -325,24 +341,24 @@ public class User implements UserInterface {
 
         // Find the index of the conversation in the messages array
         int index = conversations.indexOf(conversationFile);
-        if (index == -1 || messages[index] == null) {
+        if (index == -1 || messages.get(index) == null) {
             System.out.println("Conversation with " + receiver.getUsername() + " does not exist."); // Notify that the conversation does not exist
             return false; // If the conversation doesn't exist or messages are not initialized
         }
 
         // Check if the message to be deleted exists in the corresponding ArrayList
-        if (!messages[index].contains(message)) {
+        if (!messages.get(index).contains(message)) {
             System.out.println("Message does not exist in the conversation with " + receiver.getUsername() + "."); // Notify that the message does not exist
             return false; // Return false if the message does not exist
         }
 
         // Remove the message from the corresponding ArrayList
-        boolean messageRemoved = messages[index].remove(message);
+        boolean messageRemoved = messages.get(index).remove(message);
 
         if (messageRemoved) {
             // Rewrite the messages back to the conversation file
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile))) {
-                for (String msg : messages[index]) {
+                for (String msg : messages.get(index)) {
                     writer.write(msg); // Write each message back to the file
                     writer.newLine();
                     writer.flush();
