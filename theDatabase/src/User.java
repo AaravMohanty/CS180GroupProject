@@ -5,10 +5,14 @@ import java.util.Base64;
 import java.util.List; // Import List interface for returning lists
 
 /**
- * The user class to store user information
+ * The class to create a user
  *
- * @version November 3, 2024
+ * Purdue University -- CS18000 -- Fall 2024 
+ *
+ * @author Elan Smyla, 11
+ * @version November 3rd, 2024
  */
+
 // The User class represents a user in the system, with properties for user details and relationships.
 public class User implements UserInterface {
     private String username; // The user's unique username
