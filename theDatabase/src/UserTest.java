@@ -212,7 +212,7 @@ public class UserTest {
         assertFalse(db.getUser("user1").getBlockedUsers().contains(db.getUser("user1").getUsername()), "User1's blocked users should include user2");
     }
 
-    // Cleanup after tests (optional)
+
 
 }
 
