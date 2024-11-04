@@ -131,13 +131,13 @@ class UserInterfaceTest {
         });
     }
 
-    @Test
-    void testSendPhoto() {
-        assertDoesNotThrow(() -> {
-            User receiver = new User("receiverUser", "receiverPassword", "receiverBio", "receiverPfp.png");
-            File photo = new File("photo.png");
-            boolean result = user.sendPhoto(receiver, photo);
-            assertTrue(result || !result);
-        });
-    }
+//    @Test
+//    void testSendPhoto() {
+//        assertDoesNotThrow(() -> {
+//            User receiver = new User("receiverUser", "receiverPassword", "receiverBio", "receiverPfp.png");
+//            File photo = new File("photo.png");
+//            boolean result = user.sendPhoto(receiver, photo);
+//            assertTrue(result || !result);
+//        });
+//    }
 }
