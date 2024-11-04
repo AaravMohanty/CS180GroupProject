@@ -1,5 +1,11 @@
 import java.util.ArrayList;
 
+/**
+ * The database interface for the database class
+ *
+ * @version November 3, 2024
+ */
+
 public interface DatabaseInterface {
     // Creates a new user if the username is not already taken
     boolean createUser(String username, String password, String bio, String pfp);

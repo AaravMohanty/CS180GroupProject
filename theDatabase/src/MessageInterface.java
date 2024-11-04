@@ -1,5 +1,11 @@
 import java.io.*;
 
+/**
+ * The message interface for the database class
+ *
+ * @version November 3, 2024
+ */
+
 public interface MessageInterface {
 
     String getReceiver();

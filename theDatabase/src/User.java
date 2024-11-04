@@ -4,8 +4,13 @@ import java.util.ArrayList; // Import ArrayList for storing friends and blocked 
 import java.util.Base64;
 import java.util.List; // Import List interface for returning lists
 
+/**
+ * The user class to store user information
+ *
+ * @version November 3, 2024
+ */
 // The User class represents a user in the system, with properties for user details and relationships.
-public class User implements UserInterface{
+public class User implements UserInterface {
     private String username; // The user's unique username
     private String password; // The user's password
     private String bio; // A short biography or description of the user
@@ -74,6 +79,7 @@ public class User implements UserInterface{
                             username, password, bio, pfp, friendsFileName, blockedUsersFileName, conversationsFileName);
                     writer.write(userEntry);
                     writer.newLine();
+                    writer.flush();
                 } catch (IOException e) {
                     System.err.println("Error saving user to database: " + e.getMessage());
                 }
@@ -134,7 +140,6 @@ public class User implements UserInterface{
     }
 
 
-
     // Getter for the username
     public String getUsername() {
         return username;
@@ -174,6 +179,7 @@ public class User implements UserInterface{
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))) {
                 writer.write(friend.getUsername());
                 writer.newLine();
+                writer.flush();
             } catch (IOException e) {
                 System.err.println("Error adding friend: " + e.getMessage());
                 return false;
@@ -208,6 +214,7 @@ public class User implements UserInterface{
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))) {
                 writer.write(user.getUsername());
                 writer.newLine();
+                writer.flush();
             } catch (IOException e) {
                 System.err.println("Error blocking user: " + e.getMessage());
                 return false;
@@ -274,6 +281,7 @@ public class User implements UserInterface{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
             writer.write(username + ": " + message); // Prefix the message with sender's username
             writer.newLine();
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
             return false; // Return failure if writing message fails
@@ -332,6 +340,7 @@ public class User implements UserInterface{
                 for (String msg : messages[index]) {
                     writer.write(msg); // Write each message back to the file
                     writer.newLine();
+                    writer.flush();
                 }
             } catch (IOException e) {
                 System.err.println("Error writing messages to conversation file: " + e.getMessage());
@@ -393,6 +402,7 @@ public class User implements UserInterface{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(convFile, true))) {
             writer.write(username + ": " + encodedPhotoFileName); // Write the message with the photo file path
             writer.newLine();
+            writer.flush();
         } catch (IOException e) {
             System.err.println("Failed to write photo message to conversation file: " + e.getMessage());
             return false;
@@ -400,7 +410,6 @@ public class User implements UserInterface{
 
         return true; // Indicate success
     }
-
 
 
     // Method to add any info to a specific file.
@@ -411,6 +420,7 @@ public class User implements UserInterface{
             for (String user : list) {
                 writer.write(user);
                 writer.newLine();
+                writer.flush();
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,5 +1,11 @@
 import java.util.Scanner; // Import Scanner for user input
 
+/**
+ * The RunProject class to store RunProject information
+ *
+ * @version November 3, 2024
+ */
+
 // The RunProject class handles user interactions and manages user profiles and messaging.
 public class RunProject implements RunProjectInterface {
     private Database database; // Reference to the Database

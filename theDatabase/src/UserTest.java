@@ -217,9 +217,12 @@ public class UserTest {
 }
 
 */
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.io.File;
 
 
@@ -242,7 +245,7 @@ public class UserTest {
 
 
     @Test
-    public void testAddFriend(){
+    public void testAddFriend() {
         Database db = new Database();
         db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
         db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
@@ -252,10 +255,6 @@ public class UserTest {
         assertFalse(db.getUser("user1").addFriend(null), "Adding null should return false");
         assertFalse(db.getUser("user1").addFriend(db.getUser("user2")), "User1 cannot add themselves as a friend");
     }
-
-
-
-
 
 
     @Test
@@ -268,6 +267,7 @@ public class UserTest {
         assertFalse(db.getUser("user1").removeFriend(db.getUser("user2").getUsername()), "User2 should already be removed");
         assertFalse(db.getUser("user1").removeFriend("nonExistentUser"), "Removing a non-existent friend should return false");
     }
+
     @Test
     public void testBlockUser() {
         Database db = new Database();
