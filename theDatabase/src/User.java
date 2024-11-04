@@ -12,6 +12,7 @@ public class User implements UserInterface{
     private ArrayList<String> friends; // List of the user's friends
     private ArrayList<String> blockedUsers; // List of users that this user has blocked
     private ArrayList<String> conversations; // All conversations with other
+    private ArrayList<String>[] messages;
     private String friendsFileName; // File with all friends
     private String blockedUsersFileName; //File with all blocked users
     private String conversationsFileName; //File with all conversations
@@ -27,23 +28,23 @@ public class User implements UserInterface{
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
 
-        // edge case handling for if everything is null or empty
+        // Edge case handling for if everything is null or empty
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             throw new IllegalArgumentException("Username and password cannot be null or empty.");
         }
 
         try {
-            friendsFileName = username + "friends.txt"; // Create File name for friends
-            File friendsFile = new File(friendsFileName); // Create File friends
+            friendsFileName = username + "friends.txt"; // Create file name for friends
+            File friendsFile = new File(friendsFileName); // Create file friends
             friendsFile.createNewFile();
-            blockedUsersFileName = username + "blockedUsers.txt"; // Create File name for blocked users
+            blockedUsersFileName = username + "blockedUsers.txt"; // Create file name for blocked users
             File blockedUsersFile = new File(blockedUsersFileName); // Create file blocked users
             blockedUsersFile.createNewFile();
-            conversationsFileName = username + "conversations.txt"; // Create File name for convos
-            File conversationsFile = new File(conversationsFileName); // Create File convos
+            conversationsFileName = username + "conversations.txt"; // Create file name for convos
+            File conversationsFile = new File(conversationsFileName); // Create file convos
             conversationsFile.createNewFile();
         } catch (IOException e) {
-            // print out to console that there is an error with files
+            // Print out to console that there is an error with files
             System.err.println("Error initializing files: " + e.getMessage());
         }
         synchronized (o) {
@@ -63,7 +64,7 @@ public class User implements UserInterface{
             }
 
             // Writes the user info onto a line of file named database.txt
-            // output of database.txt is as follows:
+            // Output of database.txt is as follows:
             // username, password, bio, usernameFriends.txt, usernameBlocked.txt, usernameConvos.txt
             // Only write to the database file if the user does not already exist
             if (!userExists) {
@@ -101,13 +102,36 @@ public class User implements UserInterface{
             try (BufferedReader reader = new BufferedReader(new FileReader(conversationsFileName))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    conversations.add(line);
+                    conversations.add(line); // Populate conversations
                 }
             } catch (IOException e) {
                 System.err.println("Error reading conversations file: " + e.getMessage());
             }
+
+            // Initialize the messages array only if there are conversations
+            if (!conversations.isEmpty()) {
+                messages = new ArrayList[conversations.size()]; // Initialize messages based on the number of conversations
+
+                // Populate the messages array with conversations
+                for (int index = 0; index < conversations.size(); index++) {
+                    String conversationFileName = conversations.get(index); // Get the filename of the conversation
+                    messages[index] = new ArrayList<>(); // Initialize the ArrayList for each conversation
+
+                    try (BufferedReader reader1 = new BufferedReader(new FileReader(conversationFileName))) {
+                        String line1;
+                        while ((line1 = reader1.readLine()) != null) {
+                            messages[index].add(line1); // Now this won't throw an ArrayIndexOutOfBoundsException
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error reading conversation file: " + e.getMessage());
+                    }
+                }
+            } else {
+                messages = new ArrayList[0]; // Initialize as an empty array if no conversations exist
+            }
         }
     }
+
 
 
     // Getter for the username
@@ -256,6 +280,68 @@ public class User implements UserInterface{
 
         return true; // Indicate success
     }
+
+    // method to delete messages and write that to the convo file
+    public synchronized boolean deleteMessage(User receiver, String message) {
+        // Check if both users exist and if the receiver has not blocked the sender
+        if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
+                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+            return false; // Return failure if receiver is invalid, message is empty, or blocked
+        }
+
+        // Prevent users from deleting messages they sent to themselves
+        if (receiver.getUsername().equals(username)) {
+            return false; // Cannot delete messages to oneself
+        }
+
+        // Define a consistent file name based on lexicographical order to avoid duplicate files
+        String conversationFile;
+        if (username.compareTo(receiver.getUsername()) < 0) {
+            conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
+        } else {
+            conversationFile = receiver.getUsername() + "_" + username + "_Messages.txt";
+        }
+
+        // Check if the conversation file exists
+        File file = new File(conversationFile);
+        if (!file.exists()) {
+            System.out.println("Conversation with " + receiver.getUsername() + " does not exist."); // Notify that the conversation does not exist
+            return false; // Return false if the conversation file does not exist
+        }
+
+        // Find the index of the conversation in the messages array
+        int index = conversations.indexOf(conversationFile);
+        if (index == -1 || messages[index] == null) {
+            System.out.println("Conversation with " + receiver.getUsername() + " does not exist."); // Notify that the conversation does not exist
+            return false; // If the conversation doesn't exist or messages are not initialized
+        }
+
+        // Check if the message to be deleted exists in the corresponding ArrayList
+        if (!messages[index].contains(message)) {
+            System.out.println("Message does not exist in the conversation with " + receiver.getUsername() + "."); // Notify that the message does not exist
+            return false; // Return false if the message does not exist
+        }
+
+        // Remove the message from the corresponding ArrayList
+        boolean messageRemoved = messages[index].remove(message);
+
+        if (messageRemoved) {
+            // Rewrite the messages back to the conversation file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile))) {
+                for (String msg : messages[index]) {
+                    writer.write(msg); // Write each message back to the file
+                    writer.newLine();
+                }
+            } catch (IOException e) {
+                System.err.println("Error writing messages to conversation file: " + e.getMessage());
+                return false; // Return false if writing fails
+            }
+        }
+
+        return messageRemoved; // Return true if the message was successfully removed
+    }
+
+
 
 
     // Method to send photos and write the actual photo content to the conversation file
