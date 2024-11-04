@@ -28,6 +28,10 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
         db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
         db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
+
+        user1 = db.getUser("user1");
+        user2 = db.getUser("user2");
+        user3 = db.getUser("user3");
     }
 
 
@@ -37,10 +41,12 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
         db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
         db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
+
         assertTrue(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should be added as a friend");
         assertFalse(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should not be added again");
         assertFalse(db.getUser("user1").addFriend(null), "Adding null should return false");
         assertFalse(db.getUser("user1").addFriend(db.getUser("user1")), "User1 cannot add themselves as a friend");
+
     }
 
 
@@ -94,10 +100,10 @@ public class UserTest {
 
 
         db.getUser("user1").addFriend(db.getUser("user2"));
-        assertFalse(db.getUser("user1").sendMessage(db.getUser("user2"), "Hello!"), "Message should be sent successfully");
+        assertTrue(db.getUser("user1").sendMessage(db.getUser("user2"), "Hello!"), "Message should be sent successfully");
         assertFalse(db.getUser("user1").sendMessage(null, "Hello!"), "Sending message to null should return false");
         assertFalse(db.getUser("user1").sendMessage(db.getUser("user2"), ""), "Sending an empty message should return false");
-        assertFalse(db.getUser("user1").blockUser(db.getUser("user2")), "User2 should be blocked");
+        assertTrue(db.getUser("user1").blockUser(db.getUser("user2")), "User2 should be blocked");
         assertFalse(db.getUser("user1").sendMessage(db.getUser("user2"), "Should not be sent"), "Message should not be sent to a blocked user");
     }
 
