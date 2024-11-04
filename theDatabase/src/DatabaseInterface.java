@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.ArrayList;
 
 public interface DatabaseInterface {
     // Creates a new user if the username is not already taken
@@ -12,4 +12,6 @@ public interface DatabaseInterface {
 
     // Returns the list of users
     ArrayList<User> getUsers();
+
+
 }
