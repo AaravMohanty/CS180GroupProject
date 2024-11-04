@@ -7,7 +7,7 @@ import java.util.List; // Import List interface for returning lists
 /**
  * The class to create a user
  *
- * Purdue University -- CS18000 -- Fall 2024 
+ * Purdue University -- CS18000 -- Fall 2024
  *
  * @author Elan Smyla, Aarav Mohanty
  * @version November 3rd, 2024
@@ -47,6 +47,7 @@ public class User implements UserInterface {
             friendsFileName = username + "friends.txt"; // Create file name for friends
             File friendsFile = new File(friendsFileName); // Create file friends
             friendsFile.createNewFile();
+
             blockedUsersFileName = username + "blockedUsers.txt"; // Create file name for blocked users
             File blockedUsersFile = new File(blockedUsersFileName); // Create file blocked users
             blockedUsersFile.createNewFile();
@@ -258,8 +259,8 @@ public class User implements UserInterface {
     // method to send messages and write that to the convo file
     public synchronized boolean sendMessage(User receiver, String message) {
         // Check if both users exist and if the receiver has not blocked the sender
-        if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
-                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+        if (receiver == null || receiver == this || message == null || !this.friends.contains(receiver.getUsername())
+                || message.trim().isEmpty() || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
             return false; // Return failure if receiver is invalid, message is empty, or blocked
         }
 
@@ -359,7 +360,7 @@ public class User implements UserInterface {
     public synchronized boolean sendPhoto(User receiver, String photoPath) {
         // Check if the receiver is valid, the photo path exists, and the users are not blocked
         if (receiver == null || receiver == this || photoPath == null ||
-                !new File(photoPath).exists() ||
+                !new File(photoPath).exists() || !this.friends.contains(receiver.getUsername()) ||
                 receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
             return false; // Return failure if receiver, photo path is invalid, or blocked
         }
@@ -393,8 +394,11 @@ public class User implements UserInterface {
             return false;
         }
 
+        int photoCount = 0;
+        photoCount++; // Increment the count for the current receiver
+
         // Create a new file for the encoded photo
-        String encodedPhotoFileName = username + "_" + receiver.getUsername() + "_photo_" + ".txt";
+        String encodedPhotoFileName = username + "_" + receiver.getUsername() + "_photo_" + photoCount + ".txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(encodedPhotoFileName))) {
             writer.write(encodedPhoto); // Write the Base64 encoded photo to the new file
         } catch (IOException e) {
