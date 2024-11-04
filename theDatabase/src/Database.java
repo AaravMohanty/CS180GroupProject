@@ -60,6 +60,45 @@ public class Database implements DatabaseInterface {
             // Create the user and add it to the in-memory list
             User newUser = new User(username, password, bio, pfp);
             users.add(newUser);
+
+            // Initialize conversation files between the new user and all other users
+            String newUsername = newUser.getUsername();
+
+            // Create conversations with all existing users
+            for (User existingUser : users) {
+                if (!existingUser.getUsername().equals(newUsername)) {
+                    String conversationFile;
+                    if (newUsername.compareTo(existingUser.getUsername()) < 0) {
+                        conversationFile = newUsername + "_" + existingUser.getUsername() + "_Messages.txt";
+                    } else {
+                        conversationFile = existingUser.getUsername() + "_" + newUsername + "_Messages.txt";
+                    }
+
+                    // Create the conversation file
+                    synchronized (o) {
+                        try {
+                            // Create the conversation file
+                            File convFile = new File(conversationFile);
+                            convFile.createNewFile();
+
+                            // Append the conversation filename to the user's conversation file
+                            String fileName = existingUser.getUsername() + "conversations.txt";
+                            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+                                writer.write(conversationFile + "\n");
+                            }
+
+                            // Also append to the new user's conversation file
+                            fileName = newUser.getUsername() + "conversations.txt";
+                            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+                                writer.write(conversationFile + "\n");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
             return true; // Indicate success
         }
         return false; // Indicate failure (username already taken)
