@@ -2,9 +2,12 @@ import java.io.*;
 import java.util.ArrayList; // Import ArrayList for storing users and messages
 
 /**
- * The database class to store database information
+ * A program that creates the database.
  *
- * @version November 3, 2024
+ * Purdue University -- CS18000 -- Fall 2024 
+ *
+ * @author Elan Smyla, Aarav Mohanty
+ * @version November 3rd, 2024
  */
 
 // The Database class manages users and messages in a simple in-memory storage system.
