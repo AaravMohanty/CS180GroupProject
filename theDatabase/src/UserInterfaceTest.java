@@ -5,11 +5,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * The user interface junit class to test user interface
+ * The interface to create a user
  *
- * @version November 3, 2024
+ * Purdue University -- CS18000 -- Fall 2024 
+ *
+ * @author Elan Smyla, 11
+ * @version November 3rd, 2024
  */
+
 class UserInterfaceTest {
 
     UserInterface user = new User("testUser", "password", "bio", "pfp.png");
