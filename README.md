@@ -1,14 +1,15 @@
-README
+**README**
 
 **How to compile and run the program:**
 1. Go to your project directory which contains all of this project’s files on terminal and run the command: javac *.java to compile all of the files
 2. After compiling, you can run the main method class called “RunProject.java” using the following command on terminal: java runProject
 3. When you run that, the program will give you a menu of options and you can follow the instructions accordingly to create an account, log into an account, add friends, remove friends, message users, block users, unblock users, and view users.
 
-Submission:
+**Submission:**
 Elan Smyla - Submitted Vocareum workspace
 
-Class Description:
+**Class Description:**
+
 Database Class: 
 
 Functionality:
