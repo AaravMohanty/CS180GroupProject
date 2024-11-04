@@ -5,7 +5,7 @@ import java.util.Scanner; // Import Scanner for user input
  *
  * Purdue University -- CS18000 -- Fall 2024 
  *
- * @author Elan Smyla, Aarav Mohanty
+ * @author Elan Smyla
  * @version November 3rd, 2024
  */
 
@@ -44,9 +44,9 @@ public class RunProject implements RunProjectInterface {
 
         // Attempt to create user account
         if (database.createUser(username, password, bio, pfp)) {
-            System.out.println("Account created successfully!");
+            System.out.println("Account created successfully!\nPlease re-run the program to login...");
         } else {
-            System.out.println("Username already taken. Please try again.");
+            System.out.println("Username already taken.\nPlease re-run the program to try again.");
         }
     }
 
@@ -178,7 +178,7 @@ public class RunProject implements RunProjectInterface {
         if (user.sendMessage(receiver, content)) {
             System.out.println("Message sent!");
         } else {
-            System.out.println("Failed to send message.");
+            System.out.println("Failed to send message. Add user as friend.");
         }
     }
 
@@ -313,7 +313,7 @@ public class RunProject implements RunProjectInterface {
                 case "1":
                     // Option to create a new user account
                     runProject.createAccount();
-                    break;
+                    return;
 
                 case "2":
                     // Option to log in to an existing account
