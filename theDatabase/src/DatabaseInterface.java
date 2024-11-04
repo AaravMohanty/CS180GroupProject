@@ -1,9 +1,12 @@
 import java.util.ArrayList;
 
 /**
- * The database interface for the database class
+ * A program that creates the database interface.
  *
- * @version November 3, 2024
+ * Purdue University -- CS18000 -- Fall 2024 
+ *
+ * @author Elan Smyla, Aarav Mohanty
+ * @version November 3rd, 2024
  */
 
 public interface DatabaseInterface {
