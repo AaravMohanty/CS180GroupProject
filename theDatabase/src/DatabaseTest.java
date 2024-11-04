@@ -1,61 +1,54 @@
-import org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.ArrayList;
-import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+import java.io.File;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.io.*;
+class DatabaseTest {
 
+    private Database database;
 
-public class DatabaseTest {
+    // Setup method that runs before each test
+    @BeforeEach
+    void setUp() {
+        database = new Database(); // Create a new Database instance for each test
+    }
 
-    ArrayList<User> users = new ArrayList<User>();
-    private static final String tempFile = Database.DATABASE_FILE;
-    Database first = new Database();
-
-    public void setUp() throws IOException{ //this is to set up
-        Database first = new Database();
-        ArrayList<User> users = first.getUsers();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-            writer.write("user1,password1,bio1,pfp1,dFile1\n");
+    // Cleanup method that runs after each test
+    @AfterEach
+    void tearDown() {
+        // Clear the users list after each test to prevent state carryover
+        database.getUsers().clear();
+        // Delete the database file if it exists
+        File file = new File(Database.DATABASE_FILE);
+        if (file.exists()) {
+            file.delete();
         }
     }
-    void testDatabaseConstructor() {
-        assertNotNull(users, "Users list has users and is not null");
-        User user1 = users.get(0); // first user in the users arraylist
-        assertEquals("user1", user1.getUsername()); // assertequals is just a way to check if first and second "" are eq
-        assertEquals("password1", user1.getPassword());
-        assertEquals("bio1", user1.getBio());
-        assertEquals("pfp1", user1.getPfp());
-        assertEquals("dFile1", user1.getDFile());
-        ArrayList<Message> messages = first.getMessages();  // Assuming a getter for messages
-        assertNotNull(messages, "Messages list should be initialized");
-        assertTrue(messages.isEmpty(), "Messages list should be empty initially");
 
+    @Test
+    void testCreateUser() {
+        assertTrue(database.createUser("testUser", "password123", "This is a bio.", "pfp.png")); // Should succeed
+        assertFalse(database.createUser("testUser", "password456", "Another bio.", "pfp2.png")); // Should fail (duplicate)
     }
 
-    void testGetDatabaseFile() {
-        String result = Database.getDatabaseFile();
-        assertEquals("database.db", result, "The getDatabaseFile method should return the correct file.");
+    @Test
+    void testGetUser() {
+        database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
+        User user = database.getUser("testUser");
+        assertNotNull(user); // User should be found
+        assertEquals("testUser", user.getUsername()); // Check username
+        assertNull(database.getUser("nonexistentUser")); // Should return null for nonexistent user
     }
 
-    boolean createUser(String username, String password, String bio, String pfp) {
-        boolean result = first.createUser("testUser", "password123", "This is a bio.", "pfp.png");
+    @Test
+    void testAuthenticate() {
+        database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
 
+        assertTrue(database.authenticate("testUser", "password123")); // Should succeed
+        assertFalse(database.authenticate("testUser", "wrongPassword")); // Should fail (wrong password)
+        assertFalse(database.authenticate("nonexistentUser", "password123")); // Should fail (nonexistent user)
+        assertFalse(database.authenticate("", "password123")); // Should fail (invalid username)
+        assertFalse(database.authenticate("testUser", "")); // Should fail (invalid password)
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
