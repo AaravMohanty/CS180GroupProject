@@ -1,6 +1,7 @@
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList; // Import ArrayList for storing friends and blocked users
+import java.util.Base64;
 import java.util.List; // Import List interface for returning lists
 
 // The User class represents a user in the system, with properties for user details and relationships.
@@ -342,10 +343,8 @@ public class User implements UserInterface{
     }
 
 
-
-
-    // Method to send photos and write the actual photo content to the conversation file
     public synchronized boolean sendPhoto(User receiver, String photoPath) {
+        // Check if the receiver is valid, the photo path exists, and the users are not blocked
         if (receiver == null || receiver == this || photoPath == null ||
                 !new File(photoPath).exists() ||
                 receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
@@ -360,47 +359,48 @@ public class User implements UserInterface{
             conversationFile = receiver.getUsername() + "_" + username + "_Messages.txt";
         }
 
-        // Check if this conversation file is already recorded in both users' conversation lists
-        if (!conversations.contains(conversationFile)) {
-            conversations.add(conversationFile);
-            rewriteToFile(conversationsFileName, conversations); // Update the sender's conversation file
-        }
-        if (!receiver.conversations.contains(conversationFile)) {
-            receiver.conversations.add(conversationFile);
-            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update the receiver's conversation file
+        // Ensure the conversation file exists
+        File convFile = new File(conversationFile);
+        if (!convFile.exists()) {
+            try {
+                convFile.createNewFile();
+            } catch (IOException e) {
+                System.err.println("Error creating conversation file: " + e.getMessage());
+                return false;
+            }
         }
 
-        // Convert the photo to byte data and store it in a new file
-        String newPhotoFilePath = "photos/" + System.currentTimeMillis() + "_" + new File(photoPath).getName(); // New file path
-        try (InputStream inputStream = new FileInputStream(photoPath);
-             OutputStream outputStream = new FileOutputStream(newPhotoFilePath)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
+        // Read the photo file and convert it to a Base64 string
+        String encodedPhoto;
+        try (FileInputStream fileInputStream = new FileInputStream(photoPath)) {
+            byte[] photoBytes = fileInputStream.readAllBytes();
+            encodedPhoto = Base64.getEncoder().encodeToString(photoBytes);
         } catch (IOException e) {
-            System.err.println("Failed to convert and save photo: " + e.getMessage());
+            System.err.println("Failed to encode photo: " + e.getMessage());
             return false;
         }
 
-        // Record the new photo path in the conversation file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
-            writer.write(username + " sent a photo: " + newPhotoFilePath);
+        // Create a new file for the encoded photo
+        String encodedPhotoFileName = username + "_" + receiver.getUsername() + "_photo_" + ".txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(encodedPhotoFileName))) {
+            writer.write(encodedPhoto); // Write the Base64 encoded photo to the new file
+        } catch (IOException e) {
+            System.err.println("Failed to write encoded photo to file: " + e.getMessage());
+            return false;
+        }
+
+        // Write the photo message to the conversation file, including the path to the encoded photo file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(convFile, true))) {
+            writer.write(username + ": " + encodedPhotoFileName); // Write the message with the photo file path
             writer.newLine();
         } catch (IOException e) {
-            System.err.println("Failed to write photo message: " + e.getMessage());
+            System.err.println("Failed to write photo message to conversation file: " + e.getMessage());
             return false;
-        }
-
-        // Update the receiver’s conversation file if necessary
-        if (!receiver.conversations.contains(username)) {
-            receiver.conversations.add(username);
-            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations);
         }
 
         return true; // Indicate success
     }
+
 
 
     // Method to add any info to a specific file.
