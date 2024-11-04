@@ -259,10 +259,11 @@ public class User implements UserInterface{
 
 
     // Method to send photos and write the actual photo content to the conversation file
-    public synchronized boolean sendPhoto(User receiver, File photo) {
-        if (receiver == null || receiver == this || photo == null || !photo.exists() ||
+    public synchronized boolean sendPhoto(User receiver, String photoPath) {
+        if (receiver == null || receiver == this || photoPath == null ||
+                !new File(photoPath).exists() ||
                 receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
-            return false; // Return failure if receiver, photo is invalid, or blocked
+            return false; // Return failure if receiver, photo path is invalid, or blocked
         }
 
         // Define a consistent file name based on lexicographical order to avoid duplicate files
@@ -283,9 +284,23 @@ public class User implements UserInterface{
             receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update the receiver's conversation file
         }
 
-        // Record the photo path in the conversation file
+        // Convert the photo to byte data and store it in a new file
+        String newPhotoFilePath = "photos/" + System.currentTimeMillis() + "_" + new File(photoPath).getName(); // New file path
+        try (InputStream inputStream = new FileInputStream(photoPath);
+             OutputStream outputStream = new FileOutputStream(newPhotoFilePath)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to convert and save photo: " + e.getMessage());
+            return false;
+        }
+
+        // Record the new photo path in the conversation file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
-            writer.write(username + " sent a photo: " + photo.getPath());
+            writer.write(username + " sent a photo: " + newPhotoFilePath);
             writer.newLine();
         } catch (IOException e) {
             System.err.println("Failed to write photo message: " + e.getMessage());

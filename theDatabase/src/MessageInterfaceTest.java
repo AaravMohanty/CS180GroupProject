@@ -31,7 +31,7 @@ class MessageInterfaceTest {
     void testGetPhoto() {
         // Check if getPhoto returns a File or null without throwing exceptions
         assertDoesNotThrow(() -> {
-            File photo = message.getPhoto();
+            String photo = message.getPhoto();
             assertNull(photo); // Expecting null for a text message
         });
     }

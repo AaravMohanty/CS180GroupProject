@@ -18,7 +18,7 @@ public interface MessageInterface {
      * Gets the photo file associated with the message.
      * @return the photo file associated with the message, or null if it is a text message.
      */
-    File getPhoto();
+    String getPhoto();
 
     /**
      * Checks if the message is a photo message.

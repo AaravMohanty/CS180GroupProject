@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.ArrayList; // Import ArrayList for storing users and messages
 
 // The Database class manages users and messages in a simple in-memory storage system.
-public class Database implements DatabaseInterface {
+public class Database {
     public static ArrayList<User> users; // List to store User objects
     private ArrayList<Message> messages; // List to store Message objects
     public static final String DATABASE_FILE = "database.txt"; // Initializing the database file

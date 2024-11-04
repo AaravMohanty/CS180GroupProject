@@ -4,7 +4,8 @@ import java.io.*;
 public class Message implements MessageInterface{
     private String receiver; // The username of the message receiver
     private String content; // The text content of the message
-    private File photo; // Optional photo for photo messages
+    private String photoPath; // Optional photo for photo messages
+    private boolean photo;
 
     // Constructor for creating a text message
     public Message(String receiver, String content) {
@@ -14,17 +15,17 @@ public class Message implements MessageInterface{
         }
         this.receiver = receiver; // Set the receiver's username
         this.content = content; // Set the text content
-        this.photo = null; // No photo for text messages
+        this.photoPath = null; // No photo for text messages
     }
 
     // Constructor for creating a photo message
-    public Message(String receiver, File photo) {
+    public Message(String receiver, boolean photo, String photoPath) {
         // Edge case: Check if receiver is null or empty, or if photo is null
-        if (receiver == null || receiver.isEmpty() || photo == null) {
+        if (receiver == null || receiver.isEmpty() || photoPath == null) {
             throw new IllegalArgumentException("Receiver must not be null or empty, and photo must not be null for photo messages.");
         }
         this.receiver = receiver; // Set the receiver's username
-        this.photo = photo; // Set the photo file
+        this.photoPath = photoPath; // Set the photo file
         this.content = null; // No text content for photo messages
     }
 
@@ -39,13 +40,13 @@ public class Message implements MessageInterface{
     }
 
     // Getter for the photo associated with the message
-    public File getPhoto() {
-        return photo;
+    public String getPhoto() {
+        return photoPath;
     }
 
     // Checks if the message is a photo message
     public boolean isPhotoMessage() {
-        return photo != null; // Returns true if the photo field is not null
+        return photoPath != null; // Returns true if the photo field is not null
     }
 
     // Method to write message content to the specified conversation file
@@ -60,11 +61,8 @@ public class Message implements MessageInterface{
             writer.write(" - "); // Separator for readability
 
             if (isPhotoMessage()) {
-                // Edge case: Check if photo file exists and is readable
-                if (!photo.exists() || !photo.canRead()) {
-                    throw new IOException("Photo file does not exist or cannot be read.");
-                }
-                writer.write("Photo Message: " + photo.getAbsolutePath()); // Writing absolute path for clarity
+                // Assuming 'photoPath' is a String that holds the path of the photo
+                writer.write("Photo Message: " + photoPath); // Writing the photo path directly
             } else {
                 writer.write("Text Message: " + content);
             }
