@@ -173,6 +173,36 @@ public class RunProject implements RunProjectInterface {
         }
     }
 
+    // Method to delete a message
+    public void deleteMessage() {
+        if (user == null) {
+            System.out.println("Please log in first.");
+            return;
+        }
+        System.out.print("Enter the username of the user: ");
+        String username = scanner.nextLine().trim();
+        User receiver = database.getUser(username);
+
+        if (receiver == null) {
+            System.out.println("User not found.");
+            return;
+        }
+
+        System.out.print("Enter your message: ");
+        String content = scanner.nextLine().trim();
+        if (content.isEmpty()) {
+            System.out.println("Message cannot be empty.");
+            return;
+        }
+
+        if (user.deleteMessage(receiver, content)) {
+            System.out.println("Message deleted!");
+        } else {
+            System.out.println("Failed to delete message.");
+        }
+
+    }
+
     // Method to send a message
     public void sendPhoto() {
         if (user == null) {
@@ -291,10 +321,11 @@ public class RunProject implements RunProjectInterface {
                             System.out.println("3. Block/Unblock User");
                             System.out.println("4. Send Message");
                             System.out.println("5. Send Photo");
-                            System.out.println("6. View Profile");
-                            System.out.println("7. Search Users");
-                            System.out.println("8. Logout");
-                            System.out.print("Enter your choice (1-8): ");
+                            System.out.println("6. Delete Message");
+                            System.out.println("7. View Profile");
+                            System.out.println("8. Search Users");
+                            System.out.println("9. Logout");
+                            System.out.print("Enter your choice (1-9): ");
 
                             // Get user input for user menu choice
                             String userChoice = scanner.nextLine().trim();
@@ -321,14 +352,18 @@ public class RunProject implements RunProjectInterface {
                                     runProject.sendPhoto();
                                     break;
                                 case "6":
+                                    // Delete a message with another user
+                                    runProject.deleteMessage();
+                                    break;
+                                case "7":
                                     // View a specific user's profile
                                     runProject.viewUserProfile();
                                     break;
-                                case "7":
+                                case "8":
                                     // Search for users and view profiles
                                     runProject.search();
                                     break;
-                                case "8":
+                                case "9":
                                     // Logout option to exit the user menu
                                     System.out.println("Logging out...");
                                     loggedInUser = null; // Clear logged-in user
