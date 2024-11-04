@@ -1,7 +1,7 @@
 import java.util.List;
 
 /**
- * The class to create a user
+ * The interface to create a user
  *
  * Purdue University -- CS18000 -- Fall 2024 
  *
