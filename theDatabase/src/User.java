@@ -15,6 +15,7 @@ public class User {
     private String friendsFileName; // File with all friends
     private String blockedUsersFileName; //File with all blocked users
     private String conversationsFileName; //File with all conversations
+    public Object o = new Object();
 
     // Constructor initializes user properties and creates empty lists for friends and blocked users
     public User(String username, String password, String bio, String pfp) {
@@ -25,6 +26,11 @@ public class User {
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
+
+        // edge case handling for if everything is null or empty
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Username and password cannot be null or empty.");
+        }
 
         try {
             friendsFileName = username + "friends.txt"; // Create File name for friends
@@ -37,43 +43,69 @@ public class User {
             File conversationsFile = new File(conversationsFileName); // Create File convos
             conversationsFile.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            // print out to console that there is an error with files
+            System.err.println("Error initializing files: " + e.getMessage());
         }
-        // Writes the user info onto a line of file named database.txt
-        // output of database.txt is as follows:
-        // username, password, bio, usernameFriends.txt, usernameBlocked.txt, usernameConvos.txt
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(Database.DATABASE_FILE, true))) {
-            String userEntry = String.format("%s,%s,%s,%s,%s,%s,%s",
-                    username, password, bio, pfp, friendsFileName, blockedUsersFileName, conversationsFileName);
-            writer.write(userEntry);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // populating the arraylists with what is already stored in the file for data persistence
-        try (BufferedReader reader = new BufferedReader(new FileReader(friendsFileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                friends.add((line));
+        synchronized (o) {
+            // Check if user already exists in database.txt
+            boolean userExists = false;
+            try (BufferedReader reader = new BufferedReader(new FileReader(Database.DATABASE_FILE))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] details = line.split(",");
+                    if (details[0].equals(username)) {
+                        userExists = true; // User already exists, so don't write again
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Error checking user existence: " + e.getMessage());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (BufferedReader reader = new BufferedReader(new FileReader(blockedUsersFileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                blockedUsers.add((line));
+
+            // Writes the user info onto a line of file named database.txt
+            // output of database.txt is as follows:
+            // username, password, bio, usernameFriends.txt, usernameBlocked.txt, usernameConvos.txt
+            // Only write to the database file if the user does not already exist
+            if (!userExists) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(Database.DATABASE_FILE, true))) {
+                    String userEntry = String.format("%s,%s,%s,%s,%s,%s,%s",
+                            username, password, bio, pfp, friendsFileName, blockedUsersFileName, conversationsFileName);
+                    writer.write(userEntry);
+                    writer.newLine();
+                } catch (IOException e) {
+                    System.err.println("Error saving user to database: " + e.getMessage());
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (BufferedReader reader = new BufferedReader(new FileReader(conversationsFileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                conversations.add((line));
+
+            // Populate the friends list from the friends file
+            try (BufferedReader reader = new BufferedReader(new FileReader(friendsFileName))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    friends.add(line);
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading friends file: " + e.getMessage());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            // Populate the blockedUsers list from the blocked users file
+            try (BufferedReader reader = new BufferedReader(new FileReader(blockedUsersFileName))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    blockedUsers.add(line);
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading blocked users file: " + e.getMessage());
+            }
+
+            // Populate the conversations list from the conversations file
+            try (BufferedReader reader = new BufferedReader(new FileReader(conversationsFileName))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    conversations.add(line);
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading conversations file: " + e.getMessage());
+            }
         }
     }
 
@@ -108,22 +140,29 @@ public class User {
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
-        if (!friends.contains(friend.getUsername()) && Database.users.contains(friend)) { // Check if the friend is not already in the list
+        if (friend == null || friend == this || friends.contains(friend.getUsername())) {
+            return false; // Return false if friend is null, the same user, or already a friend
+        }
+        if (Database.users.contains(friend)) { // Check if the friend is not already in the list
             friends.add(friend.getUsername()); // Add the friend
             // write the friend to the file
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))) {
                 writer.write(friend.getUsername());
                 writer.newLine();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Error adding friend: " + e.getMessage());
+                return false;
             }
-            return true; // Indicate success
+            return true;
         }
-        return false; // Indicate failure (friend already exists)
+        return false;
     }
 
     // Removes a friend from the user's friends list
     public boolean removeFriend(String friend) {
+        if (friend == null || friend.isEmpty() || !friends.contains(friend)) {
+            return false; // return false if friend is null, empty, or not in the list
+        }
         boolean removed = friends.remove(friend); // boolean to store whether friend was removed or not
         if (removed) {
             rewriteToFile(friendsFileName, friends); // if it was removed then rewrite the friends file
@@ -133,22 +172,24 @@ public class User {
 
     // Blocks a user, preventing them from interacting with this user
     public boolean blockUser(User user) {
-        if (user != null) {
-            if (!blockedUsers.contains(user.getUsername()) && Database.users.contains(user)) { // Check if the user is not already blocked
-                blockedUsers.add(user.getUsername()); // Add the user to the blocked list
-                removeFriend(user.getUsername()); //removing user from friends list
-                user.removeFriend(this.username);
-                // write the blocked friend to the file
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))) {
-                    writer.write(user.getUsername());
-                    writer.newLine();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true; // Indicate success
-            }
+        if (user == null || user == this || blockedUsers.contains(user.getUsername())) {
+            return false; // return false if user is null, the same user, or already blocked
         }
-        return false; // Indicate failure (user already blocked)
+        if (Database.users.contains(user)) { // Check if the user is not already blocked
+            blockedUsers.add(user.getUsername()); // Add the user to the blocked list
+            removeFriend(user.getUsername()); //removing user from friends list
+            user.removeFriend(this.username);
+            // write the blocked friend to the file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(blockedUsersFileName, true))) {
+                writer.write(user.getUsername());
+                writer.newLine();
+            } catch (IOException e) {
+                System.err.println("Error blocking user: " + e.getMessage());
+                return false;
+            }
+            return true; // return true
+        }
+        return false; // return false (user already blocked)
     }
 
     // Unblocks a user, allowing them to interact with this user again
@@ -179,10 +220,11 @@ public class User {
     }
 
     // method to send messages and write that to the convo file
-    public boolean sendMessage(User receiver, String message) {
+    public synchronized boolean sendMessage(User receiver, String message) {
         // Check if both users exist and if the receiver has not blocked the sender
-        if (receiver == null || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
-            return false; // Return failure if receiver is blocked or null
+        if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
+                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+            return false; // Return failure if receiver is invalid, message is empty, or blocked
         }
 
         // Define a consistent file name based on lexicographical order to avoid duplicate files
@@ -215,20 +257,12 @@ public class User {
         return true; // Indicate success
     }
 
-//    public boolean sendPhotoMessage(User receiver, String photoPath) {
-//        File photo = new File(photoPath); // Create a File object for the photo
-//        if (!photo.exists()) { // Check if the photo file exists
-//            System.out.println("Photo file not found: " + photoPath); // Log error
-//            return false; // Indicate failure
-//        }
-//        return sendMessage(receiver, photoPath); // Delegate to internal method
-//    }
-
 
     // Method to send photos and write the actual photo content to the conversation file
-    public boolean sendPhoto(User receiver, File photo) {
-        if (receiver == null || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
-            return false; // Return failure if the receiver is blocked or null
+    public synchronized boolean sendPhoto(User receiver, File photo) {
+        if (receiver == null || receiver == this || photo == null || !photo.exists() ||
+                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+            return false; // Return failure if receiver, photo is invalid, or blocked
         }
 
         // Define a consistent file name based on lexicographical order to avoid duplicate files
@@ -270,7 +304,7 @@ public class User {
 
     // Method to add any info to a specific file.
     // Used to write contents of the arraylists into the specific files
-    public void rewriteToFile(String filename, ArrayList<String> list) {
+    public synchronized void rewriteToFile(String filename, ArrayList<String> list) {
         // made append false so that it updates whenever someone removes someone from their list as well
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) {
             for (String user : list) {
