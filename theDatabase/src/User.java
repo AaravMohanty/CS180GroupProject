@@ -4,7 +4,7 @@ import java.util.ArrayList; // Import ArrayList for storing friends and blocked 
 import java.util.List; // Import List interface for returning lists
 
 // The User class represents a user in the system, with properties for user details and relationships.
-public class User {
+public class User implements UserInterface{
     private String username; // The user's unique username
     private String password; // The user's password
     private String bio; // A short biography or description of the user
