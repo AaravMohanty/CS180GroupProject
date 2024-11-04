@@ -1,9 +1,12 @@
 import java.util.List;
 
 /**
- * The user interface for the user class
+ * The class to create a user
  *
- * @version November 3, 2024
+ * Purdue University -- CS18000 -- Fall 2024 
+ *
+ * @author Elan Smyla, 11
+ * @version November 3rd, 2024
  */
 
 public interface UserInterface {
