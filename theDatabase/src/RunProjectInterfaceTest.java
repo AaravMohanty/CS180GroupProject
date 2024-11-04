@@ -19,8 +19,10 @@ class RunProjectInterfaceTest {
 
     RunProjectInterface projectInterface;
 
+
     // Helper method to create a RunProject with mock input
-    private void setUpWithInput(String input) {
+
+     void setUpWithInput(String input) {
         InputStream in = new ByteArrayInputStream(input.getBytes());
         Scanner scanner = new Scanner(in);
         Database database = new Database(); // Ensure your database is properly initialized
@@ -29,6 +31,7 @@ class RunProjectInterfaceTest {
 
     @Test
     void testCreateAccount() {
+        setUpWithInput("username\npassword\n");
 
         assertDoesNotThrow(() -> {
             projectInterface.createAccount();

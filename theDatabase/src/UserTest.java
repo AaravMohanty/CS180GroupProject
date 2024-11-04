@@ -37,10 +37,10 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
         db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
         db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
-        assertFalse(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should be added as a friend");
+        assertTrue(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should be added as a friend");
         assertFalse(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should not be added again");
         assertFalse(db.getUser("user1").addFriend(null), "Adding null should return false");
-        assertFalse(db.getUser("user1").addFriend(db.getUser("user2")), "User1 cannot add themselves as a friend");
+        assertFalse(db.getUser("user1").addFriend(db.getUser("user1")), "User1 cannot add themselves as a friend");
     }
 
 
@@ -123,7 +123,7 @@ public class UserTest {
         db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
         db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
         db.getUser("user1").addFriend(db.getUser("user2"));
-        assertEquals(2, db.getUser("user1").getFriends().size(), "User1 should have one friend");
+        assertEquals(1, db.getUser("user1").getFriends().size(), "User1 should have one friend");
         assertTrue(db.getUser("user1").getFriends().contains(db.getUser("user2").getUsername()), "User1's friends should include user2");
     }
 
@@ -135,7 +135,7 @@ public class UserTest {
         db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
         db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
         db.getUser("user1").blockUser(db.getUser("user2"));
-        assertEquals(8, db.getUser("user1").getBlockedUsers().size(), "User1 should have one blocked user");
+        assertEquals(1, db.getUser("user1").getBlockedUsers().size(), "User1 should have one blocked user");
         assertFalse(db.getUser("user1").getBlockedUsers().contains(db.getUser("user1").getUsername()), "User1's blocked users should include user2");
     }
 

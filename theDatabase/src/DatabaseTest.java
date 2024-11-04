@@ -59,8 +59,8 @@ class DatabaseTest {
 
     @Test
     void testAuthenticate() {
-        database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
-
+        boolean userCreated = database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
+        assertTrue(userCreated, "User creation failed; test cannot proceed.");
 
         assertTrue(database.authenticate("testUser", "password123")); // Should succeed
         assertFalse(database.authenticate("testUser", "wrongPassword")); // Should fail (wrong password)
