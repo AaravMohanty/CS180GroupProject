@@ -1,9 +1,12 @@
 import java.util.Scanner; // Import Scanner for user input
 
 /**
- * The RunProject class to store RunProject information
+ * The  class to run the project
  *
- * @version November 3, 2024
+ * Purdue University -- CS18000 -- Fall 2024 
+ *
+ * @author Elan Smyla, 11
+ * @version November 3rd, 2024
  */
 
 // The RunProject class handles user interactions and manages user profiles and messaging.
