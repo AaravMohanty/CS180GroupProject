@@ -3,7 +3,7 @@
  *
  * Purdue University -- CS18000 -- Fall 2024 
  *
- * @author Elan Smyla, 11
+ * @author Elan Smyla, Aarav Mohanty
  * @version November 3rd, 2024
  */
 
@@ -19,6 +19,10 @@ public interface RunProjectInterface {
     void blockUser();          // Method to block or unblock a user
 
     void sendMessage();        // Method to send a message to another user
+
+    void deleteMessage();      // Method to delete a message to another user
+
+    void sendPhoto();          // Method to send a photo to another user
 
     void viewUserProfile();    // Method to view a user's profile by username
 
