@@ -1,7 +1,11 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
-
+/**
+ * The database interface junit class to test database interface
+ *
+ * @version November 3, 2024
+ */
 class DatabaseInterfaceTest {
 
     DatabaseInterface database = new Database();

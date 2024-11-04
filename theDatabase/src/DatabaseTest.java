@@ -52,7 +52,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
-
+/**
+ * The database junit class to test database class
+ *
+ * @version November 3, 2024
+ */
 
 class DatabaseTest {
 

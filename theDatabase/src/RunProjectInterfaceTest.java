@@ -6,6 +6,12 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Scanner;
 
+/**
+ * The runproject interface junit class to test run project interface
+ *
+ * @version November 3, 2024
+ */
+
 class RunProjectInterfaceTest {
 
     RunProjectInterface projectInterface;

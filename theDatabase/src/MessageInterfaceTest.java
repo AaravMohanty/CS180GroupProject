@@ -1,6 +1,12 @@
-/*import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
+
+/**
+ * The message interface junit class to test message interface
+ *
+ * @version November 3, 2024
+ */
 
 class MessageInterfaceTest {
 
@@ -54,4 +60,3 @@ class MessageInterfaceTest {
         });
     }
 }
-*/

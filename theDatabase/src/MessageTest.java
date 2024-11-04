@@ -3,6 +3,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * The message junit class to test message class
+ *
+ * @version November 3, 2024
+ */
+
 class MessageTest {
 
     @Test
