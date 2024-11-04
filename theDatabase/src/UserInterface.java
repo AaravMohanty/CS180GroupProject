@@ -38,6 +38,7 @@ public interface UserInterface {
 
     boolean sendMessage(User receiver, String message);
 
-    //boolean sendPhoto(User receiver, File photo);
+    boolean sendPhoto(User receiver, string photoPath);
+    
     String displayUser();
 }
