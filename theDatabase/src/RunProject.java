@@ -1,7 +1,7 @@
 import java.util.Scanner; // Import Scanner for user input
 
 // The RunProject class handles user interactions and manages user profiles and messaging.
-public class RunProject {
+public class RunProject implements RunProjectInterface {
     private Database database; // Reference to the Database
     private static Scanner scanner; // Scanner for user input
     private User user;
@@ -224,18 +224,104 @@ public class RunProject {
     }
 
     public static void main(String[] args) {
+        // Initialize the database and RunProject instance
         Database database = new Database();
         RunProject runProject = new RunProject(database);
 
-        // Example usage of the program
-        runProject.createAccount(); // Create a new account
-        User loggedInUser = runProject.login(); // Log in the user
+        // Main loop for the primary menu
+        while (true) {
+            // Display main menu options
+            System.out.println("Main Menu:");
+            System.out.println("1. Create a New User");
+            System.out.println("2. Login");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice (1, 2, or 3): ");
 
-        if (loggedInUser != null) {
-            runProject.addFriend(); // Add a friend
-            runProject.sendMessage(); // Send a message
-            runProject.blockUser(); // Block a user
-            runProject.search(); // Search and view user profiles
+            // Get user input for main menu choice
+            String choice = scanner.nextLine().trim();
+
+            switch (choice) {
+                case "1":
+                    // Option to create a new user account
+                    runProject.createAccount();
+                    break;
+
+                case "2":
+                    // Option to log in to an existing account
+                    User loggedInUser = runProject.login();
+
+                    // If login is successful, show user-specific menu
+                    if (loggedInUser != null) {
+                        // Loop for the user menu, available after logging in
+                        while (true) {
+                            // Display user-specific menu options
+                            System.out.println("User Menu:");
+                            System.out.println("1. Add Friend");
+                            System.out.println("2. Remove Friend");
+                            System.out.println("3. Block/Unblock User");
+                            System.out.println("4. Send Message");
+                            System.out.println("5. View Profile");
+                            System.out.println("6. Search Users");
+                            System.out.println("7. Logout");
+                            System.out.print("Enter your choice (1-7): ");
+
+                            // Get user input for user menu choice
+                            String userChoice = scanner.nextLine().trim();
+
+                            switch (userChoice) {
+                                case "1":
+                                    // Add a friend
+                                    runProject.addFriend();
+                                    break;
+                                case "2":
+                                    // Remove a friend
+                                    runProject.removeFriend();
+                                    break;
+                                case "3":
+                                    // Block or unblock a user
+                                    runProject.blockUser();
+                                    break;
+                                case "4":
+                                    // Send a message to another user
+                                    runProject.sendMessage();
+                                    break;
+                                case "5":
+                                    // View a specific user's profile
+                                    runProject.viewUserProfile();
+                                    break;
+                                case "6":
+                                    // Search for users and view profiles
+                                    runProject.search();
+                                    break;
+                                case "7":
+                                    // Logout option to exit the user menu
+                                    System.out.println("Logging out...");
+                                    loggedInUser = null; // Clear logged-in user
+                                    break;
+                                default:
+                                    // Handle invalid user menu choices
+                                    System.out.println("Invalid choice. Please try again.");
+                            }
+
+                            // Exit the user menu loop if logged out
+                            if (loggedInUser == null) {
+                                break; // Return to main menu
+                            }
+                        }
+                    }
+                    break;
+
+                case "3":
+                    // Exit the program
+                    System.out.println("Have a nice day!");
+                    scanner.close(); // Close the scanner before exiting
+                    return;
+
+                default:
+                    // Handle invalid main menu choices
+                    System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+            }
         }
     }
+
 }
