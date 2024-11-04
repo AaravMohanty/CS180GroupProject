@@ -173,6 +173,36 @@ public class RunProject implements RunProjectInterface {
         }
     }
 
+    // Method to send a message
+    public void sendPhoto() {
+        if (user == null) {
+            System.out.println("Please log in first.");
+            return;
+        }
+
+        System.out.print("Enter the username of the receiver: ");
+        String receiverUsername = scanner.nextLine().trim();
+        User receiver = database.getUser(receiverUsername);
+
+        if (receiver == null) {
+            System.out.println("User not found.");
+            return;
+        }
+
+        System.out.print("Enter your photo's filepath: ");
+        String content = scanner.nextLine().trim();
+        if (content.isEmpty()) {
+            System.out.println("Message cannot be empty.");
+            return;
+        }
+
+        if (user.sendPhoto(receiver, content)) {
+            System.out.println("Message sent!");
+        } else {
+            System.out.println("Failed to send Photo.");
+        }
+    }
+
     // Method to view user profile
     public void viewUserProfile() {
         if (user == null) {
@@ -260,10 +290,11 @@ public class RunProject implements RunProjectInterface {
                             System.out.println("2. Remove Friend");
                             System.out.println("3. Block/Unblock User");
                             System.out.println("4. Send Message");
-                            System.out.println("5. View Profile");
-                            System.out.println("6. Search Users");
-                            System.out.println("7. Logout");
-                            System.out.print("Enter your choice (1-7): ");
+                            System.out.println("5. Send Photo");
+                            System.out.println("6. View Profile");
+                            System.out.println("7. Search Users");
+                            System.out.println("8. Logout");
+                            System.out.print("Enter your choice (1-8): ");
 
                             // Get user input for user menu choice
                             String userChoice = scanner.nextLine().trim();
@@ -286,14 +317,18 @@ public class RunProject implements RunProjectInterface {
                                     runProject.sendMessage();
                                     break;
                                 case "5":
+                                    // Send a photo to another user
+                                    runProject.sendPhoto();
+                                    break;
+                                case "6":
                                     // View a specific user's profile
                                     runProject.viewUserProfile();
                                     break;
-                                case "6":
+                                case "7":
                                     // Search for users and view profiles
                                     runProject.search();
                                     break;
-                                case "7":
+                                case "8":
                                     // Logout option to exit the user menu
                                     System.out.println("Logging out...");
                                     loggedInUser = null; // Clear logged-in user
