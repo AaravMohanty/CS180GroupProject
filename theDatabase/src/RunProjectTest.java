@@ -8,6 +8,15 @@ import java.io.PrintStream;
 
 import static org.junit.Assert.assertTrue;
 
+/**
+ * The test for the class to run the project
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ *
+ * @author Elan Smyla, Aarav Mohanty
+ * @version November 3rd, 2024
+ */
+
 public class RunProjectTest {
 
     private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -104,6 +113,7 @@ public class RunProjectTest {
         assertTrue("Output should contain add user prompt.", output.contains("b has been added to your friends.\n"));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
+
     @Test
     public void testRemoveFriend() {
         // Simulate user input: Choose "1" to create a new user, then "3" to exit
@@ -250,6 +260,5 @@ public class RunProjectTest {
         assertTrue("Output should contain Logging out....", output.contains("Logging out..."));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
-
 
 }
