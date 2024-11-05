@@ -268,8 +268,8 @@ public class RunProject implements RunProjectInterface {
         }
 
         System.out.println("Available users:");
-        for (User user : database.getUsers()) {
-            System.out.println("- " + user.getUsername());
+        for (User user1 : database.getUsers()) {
+            System.out.println("- " + user1.getUsername());
         }
 
         System.out.print("Enter the username of the profile to view: ");
@@ -284,9 +284,9 @@ public class RunProject implements RunProjectInterface {
     }
 
     // Method to view a specific user's profile
-    public void viewUserProfile(User user) {
-        if (user != null && database.getUsers().contains(user)) {
-            System.out.println(user.displayUser());
+    public void viewUserProfile(User u) {
+        if (u != null && database.getUsers().contains(u)) {
+            System.out.println(u.displayUser());
         } else {
             System.out.println("User not found.");
         }
