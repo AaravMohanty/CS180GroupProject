@@ -21,3 +21,4 @@ public interface MessageInterface {
 
     void writeMessageToFile(String conversationFileName);
 }
+
