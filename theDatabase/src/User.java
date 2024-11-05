@@ -232,9 +232,11 @@ public class User implements UserInterface {
     // Unblocks a user, allowing them to interact with this user again
     public boolean unblockUser(User user) {
         if (user != null) {
-            boolean unblocked = blockedUsers.remove(user.getUsername()); // boolean to store whether friend was unblocked or not
+            // boolean to store whether friend was unblocked or not
+            boolean unblocked = blockedUsers.remove(user.getUsername()); 
             if (unblocked && Database.users.contains(user)) {
-                rewriteToFile(blockedUsersFileName, blockedUsers); // if friend was removed then rewrite the blocked friends file
+                // if friend removed rewrite the blocked friends file
+                rewriteToFile(blockedUsersFileName, blockedUsers); 
             }
             return unblocked; // Remove the user from the blocked list and return the result
         }
@@ -280,7 +282,9 @@ public class User implements UserInterface {
         }
         if (!receiver.conversations.contains(conversationFile)) {
             receiver.conversations.add(conversationFile);
-            receiver.rewriteToFile(receiver.conversationsFileName, receiver.conversations); // Update the receiver's conversation file
+            // Update the receiver's conversation file
+            receiver.rewriteToFile(receiver.conversationsFileName,
+                                   receiver.conversations); 
         }
 
         // Write the message to the conversation file
@@ -335,20 +339,28 @@ public class User implements UserInterface {
         // Check if the conversation file exists
         File file = new File(conversationFile);
         if (!file.exists()) {
-            System.out.println("Conversation with " + receiver.getUsername() + " does not exist."); // Notify that the conversation does not exist
+            // Notify that the conversation does not exist
+            System.out.println("Conversation with " 
+                               + receiver.getUsername() 
+                               + " does not exist."); 
             return false; // Return false if the conversation file does not exist
         }
 
         // Find the index of the conversation in the messages array
         int index = conversations.indexOf(conversationFile);
         if (index == -1 || messages.get(index) == null) {
-            System.out.println("Conversation with " + receiver.getUsername() + " does not exist."); // Notify that the conversation does not exist
+            // Notify that the conversation does not exist
+            System.out.println("Conversation with " 
+                               + receiver.getUsername() 
+                               + " does not exist."); 
             return false; // If the conversation doesn't exist or messages are not initialized
         }
 
         // Check if the message to be deleted exists in the corresponding ArrayList
         if (!messages.get(index).contains(message)) {
-            System.out.println("Message does not exist in the conversation with " + receiver.getUsername() + "."); // Notify that the message does not exist
+            // Notify that the message does not exist
+            System.out.println("Message does not exist in the conversation with " 
+                               + receiver.getUsername() + "."); 
             return false; // Return false if the message does not exist
         }
 
