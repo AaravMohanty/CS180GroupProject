@@ -1,7 +1,7 @@
 /**
  * The  interface to run the project
- *
- * Purdue University -- CS18000 -- Fall 2024 
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
  *
  * @author Elan Smyla, Aarav Mohanty
  * @version November 3rd, 2024
