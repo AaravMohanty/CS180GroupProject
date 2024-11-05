@@ -181,7 +181,7 @@ public class RunProjectTest {
     public void testDeleteMessage() {
         // Simulate user input: Choose "1" to create a new user, then "3" to exit
         String simulatedInput = "1\na\na\na\na\n" + "1\nb\nb\nb\nb\n" +
-                "2\na\na\n" + "1\nb\n" + "6\nb\na: hi\n9\n3\n";
+                "2\na\na\n" + "1\nb\n" + "4\nb\nhi\n" + "6\nb\na: hi\n9\n3\n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
         // Call main method
@@ -191,7 +191,7 @@ public class RunProjectTest {
         String output = outputStream.toString();
         assertTrue("Output should contain main menu.", output.contains("Main Menu:"));
         assertTrue("Output should contain account creation prompt.", output.contains("Create a New User"));
-        assertTrue("Output should contain deletion success.", output.contains("Message deleted!\n"));
+        assertTrue("Output should contain deletion success.", output.contains("Message deleted!"));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
 
@@ -250,5 +250,6 @@ public class RunProjectTest {
         assertTrue("Output should contain Logging out....", output.contains("Logging out..."));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
+
 
 }
