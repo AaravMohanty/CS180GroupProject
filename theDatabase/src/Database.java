@@ -132,5 +132,4 @@ public class Database implements DatabaseInterface {
         return users;
     }
 
-
 }
