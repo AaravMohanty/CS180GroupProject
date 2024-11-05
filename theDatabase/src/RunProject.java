@@ -2,8 +2,8 @@ import java.util.Scanner; // Import Scanner for user input
 
 /**
  * The  class to run the project
- *
- * Purdue University -- CS18000 -- Fall 2024 
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
  *
  * @author Elan Smyla, Aarav Mohanty
  * @version November 3rd, 2024
@@ -44,7 +44,7 @@ public class RunProject implements RunProjectInterface {
 
         // Attempt to create user account
         if (database.createUser(username, password, bio, pfp)) {
-            System.out.println("Account created successfully!\nPlease re-run the program to login...");
+            System.out.println("Account created successfully!\n");
         } else {
             System.out.println("Username already taken.\nPlease re-run the program to try again.");
         }
