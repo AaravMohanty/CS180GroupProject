@@ -76,7 +76,8 @@ public class RunProjectTest {
 
         // Capture output and check for invalid choice message
         String output = outputStream.toString();
-        assertTrue("Output should indicate invalid choice.", output.contains("Invalid choice. Please enter 1, 2, or 3."));
+        assertTrue("Output should indicate invalid choice.",
+                   output.contains("Invalid choice. Please enter 1, 2, or 3."));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
 
@@ -127,8 +128,10 @@ public class RunProjectTest {
         // Capture output and verify expected steps are reached and that it reaches the end
         String output = outputStream.toString();
         assertTrue("Output should contain main menu.", output.contains("Main Menu:"));
-        assertTrue("Output should contain account creation prompt.", output.contains("Create a New User"));
-        assertTrue("Output should contain remove user prompt.", output.contains("b has been removed from your friends.\n"));
+        assertTrue("Output should contain account creation prompt.",
+                   output.contains("Create a New User"));
+        assertTrue("Output should contain remove user prompt.", 
+                   output.contains("b has been removed from your friends.\n"));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
 
@@ -182,8 +185,10 @@ public class RunProjectTest {
         // Capture output and verify expected steps are reached and that it reaches the end
         String output = outputStream.toString();
         assertTrue("Output should contain main menu.", output.contains("Main Menu:"));
-        assertTrue("Output should contain account creation prompt.", output.contains("Create a New User"));
-        assertTrue("Output should contain photo sending failure b/c no file found.", output.contains("Failed to send Photo.\n"));
+        assertTrue("Output should contain account creation prompt.",
+                   output.contains("Create a New User"));
+        assertTrue("Output should contain photo sending failure b/c no file found.",
+                   output.contains("Failed to send Photo.\n"));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
 
@@ -260,5 +265,6 @@ public class RunProjectTest {
         assertTrue("Output should contain Logging out....", output.contains("Logging out..."));
         assertTrue("Output should contain exit message.", output.contains("Have a nice day!"));
     }
+
 
 }
