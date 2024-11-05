@@ -129,7 +129,18 @@ Testing:
 There was no testing for this test class. 
 
 Relationship to other classes:
-This class is in correlation to the User class, and works to test it and works smoothly. 
+This class is in correlation to the User class, and works to test it and works smoothly.
+
+RunProjectTest Class:
+
+Functionality: 
+Utilizes JUnitTest cases in order to ensure the functionality of the RunProject class.  
+
+Testing:
+There was no testing for this test class. 
+
+Relationship to other classes:
+This class is in correlation to the RunProject class, and works to test it and works smoothly.
 
 
 
