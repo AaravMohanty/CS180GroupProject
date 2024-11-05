@@ -6,7 +6,7 @@ import java.util.List; // Import List interface for returning lists
 
 /**
  * The class to create a user
- *
+ * <p>
  * Purdue University -- CS18000 -- Fall 2024
  *
  * @author Elan Smyla, Aarav Mohanty
