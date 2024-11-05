@@ -1,12 +1,14 @@
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.File;
 import java.io.IOException;
 
 /**
  * The message test to store message information
- *
- * Purdue University -- CS18000 -- Fall 2024 
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
  *
  * @author Elan Smyla, 11
  * @version November 3rd, 2024
