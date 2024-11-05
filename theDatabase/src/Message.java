@@ -32,7 +32,8 @@ public class Message implements MessageInterface {
     public Message(String receiver, boolean photo, String photoPath) {
         // Edge case: Check if receiver is null or empty, or if photo is null
         if (receiver == null || receiver.isEmpty() || photoPath == null) {
-            throw new IllegalArgumentException("Receiver must not be null or empty, and photo must not be null for photo messages.");
+            throw new IllegalArgumentException("Receiver must not be null or empty," + 
+                    "and photo must not be null for photo messages.");
         }
         this.receiver = receiver; // Set the receiver's username
         this.photoPath = photoPath; // Set the photo file
