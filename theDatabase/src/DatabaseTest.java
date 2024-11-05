@@ -44,8 +44,10 @@ class DatabaseTest {
 
     @Test
     void testCreateUser() {
-        assertTrue(database.createUser("testUser", "password123", "This is a bio.", "pfp.png")); // Should succeed
-        assertFalse(database.createUser("testUser", "password456", "Another bio.", "pfp2.png")); // Should fail (duplicate)
+        // Should succeed
+        assertTrue(database.createUser("testUser", "password123", "This is a bio.", "pfp.png")); 
+        // Should fail (duplicate)
+        assertFalse(database.createUser("testUser", "password456", "Another bio.", "pfp2.png")); 
     }
 
 
