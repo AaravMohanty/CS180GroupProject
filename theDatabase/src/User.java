@@ -262,6 +262,7 @@ public class User implements UserInterface {
     public synchronized boolean sendMessage(User receiver, String message) {
         // Check if both users exist and if the receiver has not blocked the sender
         if (receiver == null || receiver == this || message == null || !this.friends.contains(receiver.getUsername())
+                || !receiver.getFriends().contains(username)
                 || message.trim().isEmpty() || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
             return false; // Return failure if receiver is invalid, message is empty, or blocked
         }
@@ -317,6 +318,8 @@ public class User implements UserInterface {
 
     // method to delete messages and write that to the convo file
     public synchronized boolean deleteMessage(User receiver, String message) {
+        String nMessage = username + ": " + message;
+
         // Check if both users exist and if the receiver has not blocked the sender
         if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
                 receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
@@ -357,7 +360,7 @@ public class User implements UserInterface {
         }
 
         // Check if the message to be deleted exists in the corresponding ArrayList
-        if (!messages.get(index).contains(message)) {
+        if (!messages.get(index).contains(nMessage)) {
             // Notify that the message does not exist
             System.out.println("Message does not exist in the conversation with " 
                                + receiver.getUsername() + "."); 
@@ -365,7 +368,7 @@ public class User implements UserInterface {
         }
 
         // Remove the message from the corresponding ArrayList
-        boolean messageRemoved = messages.get(index).remove(message);
+        boolean messageRemoved = messages.get(index).remove(nMessage);
 
         if (messageRemoved) {
             // Rewrite the messages back to the conversation file
