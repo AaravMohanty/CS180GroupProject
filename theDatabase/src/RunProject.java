@@ -178,7 +178,9 @@ public class RunProject implements RunProjectInterface {
         if (user.sendMessage(receiver, content)) {
             System.out.println("Message sent!");
         } else {
-            System.out.println("Failed to send message. Add user as friend.");
+            System.out.println("Failed to send message. Ensure you are friends with "
+                    + receiverUsername + " and " + receiverUsername
+                    + " is your friend");
         }
     }
 

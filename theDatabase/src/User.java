@@ -1,3 +1,5 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList; // Import ArrayList for storing friends and blocked users
@@ -285,7 +287,7 @@ public class User implements UserInterface {
             receiver.conversations.add(conversationFile);
             // Update the receiver's conversation file
             receiver.rewriteToFile(receiver.conversationsFileName,
-                                   receiver.conversations); 
+                    receiver.conversations);
         }
 
         // Write the message to the conversation file
@@ -315,6 +317,8 @@ public class User implements UserInterface {
 
         return true; // Indicate success
     }
+
+
 
     // method to delete messages and write that to the convo file
     public synchronized boolean deleteMessage(User receiver, String message) {
@@ -415,35 +419,37 @@ public class User implements UserInterface {
             }
         }
 
-        // Read the photo file and convert it to a Base64 string
-        String encodedPhoto;
-        try (FileInputStream fileInputStream = new FileInputStream(photoPath)) {
-            byte[] photoBytes = fileInputStream.readAllBytes();
-            encodedPhoto = Base64.getEncoder().encodeToString(photoBytes);
-        } catch (IOException e) {
-            System.err.println("Failed to encode photo: " + e.getMessage());
-            return false;
-        }
-
         int photoCount = 0;
-        photoCount++; // Increment the count for the current receiver
 
-        // Create a new file for the encoded photo
-        String encodedPhotoFileName = username + "_" + receiver.getUsername() + "_photo_" + photoCount + ".txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(encodedPhotoFileName))) {
-            writer.write(encodedPhoto); // Write the Base64 encoded photo to the new file
+        // Count existing photo entries in the conversation file to ensure a unique photo name
+        try (BufferedReader reader = new BufferedReader(new FileReader(conversationFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("_photo")) {
+                    photoCount++;
+                }
+            }
         } catch (IOException e) {
-            System.err.println("Failed to write encoded photo to file: " + e.getMessage());
+            System.err.println("Error reading conversation file for photo count: " + e.getMessage());
             return false;
         }
 
-        // Write the photo message to the conversation file, including the path to the encoded photo file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(convFile, true))) {
-            writer.write(username + ": " + encodedPhotoFileName); // Write the message with the photo file path
-            writer.newLine();
-            writer.flush();
+        // Generate a unique file name for the photo
+        String photoFileName = String.format("%s_%s_photo_%d.jpg", username, receiver.getUsername(), photoCount);
+
+        // Read and save the image file
+        try {
+            BufferedImage image = ImageIO.read(new File(photoPath)); // Load the original image
+            ImageIO.write(image, "jpg", new File(photoFileName)); // Save it directly as a JPG file
+
+            // Log the saved photo file in the conversation file
+            try (BufferedWriter convWriter = new BufferedWriter(new FileWriter(convFile, true))) {
+                convWriter.write(username + ": " + photoFileName); // Record the filename in the conversation
+                convWriter.newLine();
+                convWriter.flush();
+            }
         } catch (IOException e) {
-            System.err.println("Failed to write photo message to conversation file: " + e.getMessage());
+            System.err.println("Failed to save or write photo: " + e.getMessage());
             return false;
         }
 
