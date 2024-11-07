@@ -47,6 +47,7 @@ public class Client {
                 if(choice == null) {
                 break;
                 }
+                out.println(choice);
 
     switch (choice) {
         case "1":
@@ -99,8 +100,7 @@ public class Client {
                     out.println(userInputUsername);
 
                     String line = in.readLine();
-
-boolean soFar = true;
+                    boolean soFar = true;
                     String[] user = new String[2];
                  while(line.equals("namedoesntExist")) { // reprompt until name does exist and u can create that user array
                      if (!line.equals("namedoesntExist")) { //on the server side
@@ -155,31 +155,179 @@ while(nextLine.equals("passworddoesntExist")) {
 
                         // Get user input for user menu choice
                         String userChoice = scan.nextLine().trim();
+                        out.println(userChoice);
 
                         switch (userChoice) {
                             case "1":
                                 // Add a friend
                                 //runProject.addFriend();
+                                if(user == null){
+                                    System.out.println("Please log in first.");
+                                    return; //? is this going to go back to log in menu?
+                                }
+
+                                    System.out.print("Enter the username of the friend you want to add: ");
+                                    String friendName = scan.nextLine().trim();
+
+                                    do  {
+                                        System.out.println("Username cannot be empty.");
+                                    } while(friendName.isEmpty());
+                                    out.println(friendName);
+
+                               /*server side User friend = database.getUser(friendName);
+                                if (friend != null) {
+                                    user.addFriend(friend);
+                                    System.out.println(friendName + " has been added to your friends.");
+                                } else {
+                                    System.out.println("User not found.");
+                                }
+                                */
+                                String result = in.readLine();
+                                if(!result.equals("friendDoesn'tExist")){
+                                    String friend = in.readLine();
+                                    System.out.println(friend + "has been added to your friends!");
+                                } else{
+                                    System.out.println("User not found");
+                                }
                                 break; // ends it there
                             case "2":
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+
+                                System.out.print("Enter the username of the friend you want to remove: ");
+                                String removeFriendName = scan.nextLine().trim();
+                                do  {
+                                    System.out.println("Username cannot be empty.");
+                                } while(removeFriendName.isEmpty());
+                                out.println(removeFriendName);
+
+                                String readingLine = in.readLine();
+                                if(!readingLine.equals("friendDoesn'tExist")){
+                                    String friend = in.readLine();
+                                    System.out.println(friend + "has been added to your friends!");
+                                } else{
+                                    System.out.println("User not found");
+                                }
+                                break;
                                 // Remove a friend
-                                runProject.removeFriend();
-                                break;
+                              //  runProject.removeFriend();
+
                             case "3":
-                                // Block or unblock a user
-                                runProject.blockUser();
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+
+                                System.out.print("Enter the username of the user to block: ");
+                                String blockedUsername = scan.nextLine().trim();
+                                do  {
+                                    System.out.println("Username cannot be empty.");
+                                } while(blockedUsername.isEmpty());
+                                out.println(blockedUsername);
+                                out.println(blockedUsername); // send to server to block
+                                String input = in.readLine(); //now u want to get the user blocked
+                                //User blockedUser = scan.getUser(blockedUsername);
+
+                               // if (blockedUser == null) {
+                                if(!input.equals("blockedDoesn'tExist")){
+                                    String blocked = in.readLine(); //should be the blockedusers name
+                                    System.out.println(blocked + "has been added to your friends!");
+                                } else{
+                                    System.out.println("User not found");
+                                }
+
+
+                            System.out.print("Enter the username of the user to unblock: ");
+                            String unblockedUsername = scan.nextLine().trim();
+                            do  {
+                                System.out.println("Username cannot be empty.");
+                            } while(unblockedUsername.isEmpty());
+                                out.println(unblockedUsername);
+                                out.println(blockedUsername);
+                                String inputTwo = in.readLine();
+
+                                if(!inputTwo.equals("blockedDoesn'tExist")){
+                                    String blocked = in.readLine(); //should be the blockedusers name
+                                    System.out.println(blocked + "has been added to your friends!");
+                                } else{
+                                    System.out.println("User not found");
+                                }
                                 break;
+                                // Block or unblock a user
+                               // runProject.blockUser();
+
                             case "4":
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+
+                                System.out.print("Enter the username of the receiver: ");
+                                String receiverUsername = scan.nextLine().trim();
+                                do{
+                                    System.out.println("Username cannot be empty.");
+                                }while((receiverUsername.isEmpty()));
+                              //  User receiver = database.getUser(receiverUsername);
+                                out.println(receiverUsername);
+
+                                String newResult = in.readLine();
+                                if (newResult.equals("receiverDoesn'tExist")) {
+                                    System.out.println("User not found.");
+                                    return;
+                                }
+
+                                System.out.print("Enter your message: ");
+                                String content = scan.nextLine().trim();
+                                if (content.isEmpty()) {
+                                    System.out.println("Message cannot be empty.");
+                                    return;
+                                }
+                                String sent = in.readLine();
+
+                                if (sent.equals("Sent!")) {
+                                    System.out.println("Message sent!");
+                                } else {
+                                    System.out.println("Failed to send message. Ensure you are friends with "
+                                            + receiverUsername + " and " + receiverUsername
+                                            + " is your friend");
+                                }
                                 // Send a message to another user
-                                runProject.sendMessage();
+                               // runProject.sendMessage();
                                 break;
                             case "5":
                                 // Send a photo to another user
-                                runProject.sendPhoto();
+                                // runProject.sendPhoto();
                                 break;
                             case "6":
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+                                System.out.print("Enter the username of the user: ");
+                                String newUsername = scan.nextLine().trim();
+                               // User receiver = database.getUser(username);
+
+                                do{
+                                    System.out.println("Username cannot be empty.");
+                                }while((newUsername.isEmpty())); //reprompts user
+
+                                System.out.print("Enter your message: ");
+                                String newContent = scan.nextLine().trim();
+                                if (newContent.isEmpty()) {
+                                    System.out.println("Message cannot be empty.");
+                                    return;
+                                }
+                                String deleted = in.readLine();
+
+                                if (deleted.equals("deleted!")) {
+                                    System.out.println("Message deleted!");
+                                } else {
+                                    System.out.println("Failed to delete message.");
+                                }
                                 // Delete a message with another user
-                                runProject.deleteMessage();
+                               // runProject.deleteMessage();
                                 break;
                             case "7":
                                 // View a specific user's profile
