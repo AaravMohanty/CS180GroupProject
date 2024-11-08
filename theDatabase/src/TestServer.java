@@ -54,10 +54,10 @@ public class TestServer {
 
                                         System.out.print("Enter the username of the friend you want to add: ");
                                         String friendName = reader.readLine().trim();
-                                        if (friendName.isEmpty()) {
-                                            writer.println("Username cannot be empty.");
-                                            break;
-                                        }
+                                      //  if (friendName.isEmpty()) {
+                                           // writer.println("Username cannot be empty.");
+                                          //  break;
+                                       // }
 
                                         User friend = database.getUser(friendName);
                                         if (friend != null) {
@@ -69,12 +69,11 @@ public class TestServer {
                                         break;
                                     case "2":
 
-
                                         String removeFriendName = reader.readLine().trim();
-                                        if (removeFriendName.isEmpty()) {
-                                            writer.println("Username cannot be empty.");
-                                            break;
-                                        }
+                                       // if (removeFriendName.isEmpty()) {
+                                         //   writer.println("Username cannot be empty.");
+                                         //   break;
+                                       // }
 
                                         if (database.getUser(removeFriendName) != null) {
                                             user.removeFriend(removeFriendName);
@@ -95,13 +94,14 @@ public class TestServer {
                                             break;
                                         }
 
+
                                         if (user.blockUser(blockedUser)) {
                                             writer.println("success");
                                         } else {
                                             writer.println("User could not be blocked.");
                                         }
 
-                                        System.out.print("Enter the username of the user to unblock: ");
+                                   //     System.out.print("Enter the username of the user to unblock: ");
                                         String unblockedUsername = reader.readLine().trim();
                                         User unblockedUser = database.getUser(unblockedUsername);
 
@@ -128,12 +128,12 @@ public class TestServer {
                                             break;
                                         }
 
-
+//this might not match up > need to test content here too?
                                         String content = reader.readLine().trim();
-                                        if (content.isEmpty()) {
-                                            writer.println("Message cannot be empty.");
-                                            break;
-                                        }
+                                       // if (content.isEmpty()) {
+                                       //     writer.println("Message cannot be empty.");
+                                         //   break;
+                                     //   }
 
                                         if (user.sendMessage(receiver, content)) {
                                             writer.println("success!");
@@ -157,10 +157,10 @@ public class TestServer {
 
                                         //System.out.print("Enter your photo's filepath: ");
                                         String content1 = reader.readLine().trim();
-                                        if (content1.isEmpty()) {
-                                            writer.println("Message cannot be empty.");
-                                            break;
-                                        }
+                                      //  if (content1.isEmpty()) {
+                                        //    writer.println("Message cannot be empty.");
+                                         //   break;
+                                    //    }
 
                                         if (user.sendPhoto(receiver1, content1)) {
                                             System.out.println("Message sent!");
@@ -182,10 +182,10 @@ public class TestServer {
 
                                         //System.out.print("Enter your message: ");
                                         String content2 = reader.readLine().trim();
-                                        if (content2.isEmpty()) {
-                                            writer.println("Message cannot be empty.");
-                                            break;
-                                        }
+                                       // if (content2.isEmpty()) {
+                                           // writer.println("Message cannot be empty.");
+                                            //break;
+                                      //  }
 
                                         if (user.deleteMessage(receiver2, content2)) {
                                             writer.println("success");
@@ -196,24 +196,25 @@ public class TestServer {
                                         // View a specific user's profile
 
 
-                                        writer.println("Available users:");
-                                        for (User user1 : database.getUsers()) {
-                                            writer.println("- " + user1.getUsername());
-                                        }
+                                      //  writer.println("Available users:");
 
-                                        System.out.print("Enter the username of the profile to view: ");
+                                      //  for (User user1 : database.getUsers()) {
+                                          //  writer.println("- " + user1.getUsername());
+                                      //  }
+                                       // writer.println("done");
+
+                                      //  System.out.print("Enter the username of the profile to view: ");
                                         String usernameToView = reader.readLine().trim();
                                         User profileUser = database.getUser(usernameToView);
 
-                                        if (profileUser != null) {
+
                                             if (profileUser != null && database.getUsers().contains(profileUser)) {
                                                 writer.println(profileUser.displayUser());
                                             } else {
                                                 writer.println("User not found.");
                                             } // View the selected profile
-                                        } else {
-                                            writer.println("User not found.");
-                                        }
+
+
                                         break;
                                     case "8":
                                         // Search for users and view profiles
@@ -222,28 +223,32 @@ public class TestServer {
                                             return;
                                         }
 
-                                        writer.println("Available users:");
-                                        for (User user1 : database.getUsers()) {
-                                            writer.println("- " + user1.getUsername());
-                                        }
+                                     //   writer.println("Available users:");
+                                       // boolean keepGoing = true;
+                                        //while(keepGoing) {
+                                            for (User user1 : database.getUsers()) {
+                                                writer.println("- " + user1.getUsername());
+                                            }
+                                          //  keepGoing = false;
+                                           // writer.println("more");
+                                        //}
 
-                                        writer.print("Enter the username of the profile to view: ");
+                                     //   writer.print("Enter the username of the profile to view: ");
                                         String usernameToView1 = reader.readLine().trim();
                                         User profileUser3 = database.getUser(usernameToView1);
 
-                                        if (profileUser3 != null) {
+
                                             if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
                                                 writer.println(profileUser3.displayUser());
                                             } else {
                                                 writer.println("User not found.");
                                             } // View the selected profile
-                                        } else {
-                                            writer.println("User not found.");
-                                        }
+                                        ;
+
                                         break;
                                     case "9":
                                         // Logout option to exit the user menu
-                                        writer.println("Logging out...");
+                                       // writer.println("Logging out...");
                                         user = null; // Clear logged-in user
                                         break;
                                     default:
