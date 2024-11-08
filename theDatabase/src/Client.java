@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
@@ -297,6 +298,31 @@ while(nextLine.equals("passworddoesntExist")) {
                                // runProject.sendMessage();
                                 break;
                             case "5":
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+
+                                System.out.print("Enter the username of the receiver: ");
+                                String receiveUsername = scan.nextLine().trim();
+                                //User receiver = database.getUser(receiverUsername);
+                                do{
+                                    System.out.println("Username cannot be empty.");
+                                }while((receiveUsername.isEmpty()));
+
+                                System.out.print("Enter your photo's filepath: ");
+                                String contentThree = scan.nextLine().trim();
+                                if (contentThree.isEmpty()) {
+                                    System.out.println("Message cannot be empty.");
+                                    return;
+                                }
+
+                                String sentPhoto = in.readLine();
+                                if (sentPhoto.equals("sentPhoto")) {
+                                    System.out.println("Message sent!");
+                                } else {
+                                    System.out.println("Failed to send Photo.");
+                                }
                                 // Send a photo to another user
                                 // runProject.sendPhoto();
                                 break;
@@ -330,25 +356,75 @@ while(nextLine.equals("passworddoesntExist")) {
                                // runProject.deleteMessage();
                                 break;
                             case "7":
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+
+                                System.out.print("Enter the username of the profile you want to view: ");
+                                String usernameToView = scan.nextLine().trim();
+                               // User profileUser = database.getUser(usernameToView);
+                                String isProfileUserValid =  in.readLine();
+
+                                if (isProfileUserValid.equals("valid")) {
+                                    String displayUser = in.readLine(); //if valid carry out the following function
+                                   // System.out.println(profileUser.displayUser());
+                                    System.out.println(displayUser);
+                                } else {
+                                    System.out.println("User not found.");
+                                }
                                 // View a specific user's profile
-                                runProject.viewUserProfile();
+                                //runProject.viewUserProfile();
                                 break;
                             case "8":
+                                if (user == null) {
+                                    System.out.println("Please log in first.");
+                                    return;
+                                }
+
+                                System.out.println("Available users:");
+
+                                String hasMoreUsers = in.readLine();
+                                while(hasMoreUsers.equals("more")) {
+                                    String userNames = in.readLine();
+                                    System.out.println("- " + userNames);
+                                }
+
+                                System.out.print("Enter the username of the profile to view: ");
+                                String usernameToView = scan.nextLine().trim();
+                                out.println(usernameToView);
+                               // User profileUser = database.getUser(usernameToView);
+
+                              //  if (profileUser != null) {
+                                   // viewUserProfile(profileUser); // View the selected profile
+                               // } else {
+                                 //   System.out.println("User not found.");
+                            //    }
+                                String validOrNot = in.readLine();
+                                if(validOrNot.equals("valid")) {
+                                    String wantedUserProfile = in.readLine();
+                                    //viewUserProfile(profileUser) & return to client
+                                    System.out.println(wantedUserProfile);
+                                }
+
                                 // Search for users and view profiles
-                                runProject.search();
+                               // runProject.search();
                                 break;
                             case "9":
                                 // Logout option to exit the user menu
                                 System.out.println("Logging out...");
-                                loggedInUser = null; // Clear logged-in user
+
+                               // loggedInUser = null; // Clear logged-in user
                                 break;
-                            default:
+                            default: //would this run again? -> test
                                 // Handle invalid user menu choices
                                 System.out.println("Invalid choice. Please try again.");
                         }
 
                         // Exit the user menu loop if logged out
-                        if (loggedInUser == null) {
+                        //after case 9
+                        String log = in.readLine();
+                        if (log.equals("LoggedOut")) {
                             break; // Return to main menu
                         }
                     }
@@ -373,9 +449,5 @@ while(nextLine.equals("passworddoesntExist")) {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
-
-
     }
-
-
 }
