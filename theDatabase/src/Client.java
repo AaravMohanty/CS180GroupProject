@@ -8,6 +8,7 @@ public class Client {
         String hostname;
         int port = 0;
         Scanner scan = new Scanner(System.in);
+        //create a new thread, then during main then new thread, terinate and close thread, dif variable counts amt of thread -> static variable, success add one to thread ct-> sees how many users online
 
         try {
            System.out.println("Please enter a hostname!");
@@ -45,6 +46,7 @@ public class Client {
 
                 // Get user input for main menu choice
                 String choice = scan.nextLine().trim();
+                out.println(choice); // good
                 if(choice == null) {
                 break;
                 }
@@ -58,19 +60,19 @@ public class Client {
 
                 System.out.print("Enter username: ");
                 String username = scan.nextLine().trim();
-                out.println(username);
+                out.println(username); //good
 
                 System.out.print("Enter password: ");
                 String password = scan.nextLine().trim();
-                out.println(password);
+                out.println(password); //good
 
                 System.out.print("Enter bio: ");
                 String bio = scan.nextLine().trim();
-                out.println(bio);
+                out.println(bio); //good
 
                 System.out.print("Enter profile picture filename: ");
                 String pfp = scan.nextLine().trim();
-                out.println(pfp); // sends it back to the server
+                out.println(pfp); // sends it back to the server //good
 
 
                 // Edge case: Check for empty fields
@@ -101,12 +103,27 @@ public class Client {
                     out.println(userInputUsername);
 
                     String line = in.readLine();
-                    boolean soFar = true;
-                    String[] user = new String[2];
-                 while(line.equals("namedoesntExist")) { // reprompt until name does exist and u can create that user array
-                     if (!line.equals("namedoesntExist")) { //on the server side
-                         String fetchUsername = line;
+                   while(!line.equals("success")) {
+                       if (line.equals("success")) {
+                           System.out.print("Enter password: ");
+                           String userInputPassword = scan.nextLine().trim();
+                           out.println(userInputPassword);
+                           String newLine = in.readLine();
+                           while(!newLine.equals("success")) {
+                               if(newLine.equals("success")){
+                                   String result = in.readLine();
+                                   System.out.println(result); // welcome back user
+                               }
+                           }
+                       } System.out.println("Invalid username. Try again");
+                   }
 
+                    boolean soFar = true;
+                    /*
+                    String[] user = new String[2];
+                    while(line.equals("namedoesntExist")) { // reprompt until name does exist and u can create that user array
+                      if (!line.equals("namedoesntExist")) { //on the server side
+                         String fetchUsername = line;
                          user[0] = line; // user[2] = 1) username, 2) password
                          System.out.println("Username exists");
                          // return user; // Return the logged-in user // need to access the database and return user
@@ -115,13 +132,11 @@ public class Client {
                          soFar = false;
                          //  return null; // Return null if login fails
                      }
-                 }
+                 }*/
 
-                    System.out.print("Enter password: ");
-                    String userInputPassword = scan.nextLine().trim();
-                    out.println(userInputPassword);
-                    String nextLine = in.readLine();
-while(nextLine.equals("passworddoesntExist")) {
+
+
+/*while(nextLine.equals("passworddoesntExist")) {
     if (!nextLine.equals("passworddoesntExist")) {
         String fetchPass = nextLine;
         user[1] = nextLine;
@@ -131,10 +146,10 @@ while(nextLine.equals("passworddoesntExist")) {
         soFar = false;
 
     }
-}
-                    if(soFar){ // should eventually reach cause reprompts user if invalid
-                        System.out.println("Logged in! Welcome back" + user[0]);
-                    }
+}*/
+                   // if(soFar){ // should eventually reach cause reprompts user if invalid
+                      //  System.out.println("Logged in! Welcome back" + user[0]);
+                   // }
 
 
                     // If login is successful, show user-specific menu
@@ -162,10 +177,10 @@ while(nextLine.equals("passworddoesntExist")) {
                             case "1":
                                 // Add a friend
                                 //runProject.addFriend();
-                                if(user == null){
-                                    System.out.println("Please log in first.");
-                                    return; //? is this going to go back to log in menu?
-                                }
+                              //  if(user == null){
+                                 //   System.out.println("Please log in first.");
+                                  //  return; //? is this going to go back to log in menu?
+                               // }
 
                                     System.out.print("Enter the username of the friend you want to add: ");
                                     String friendName = scan.nextLine().trim();
@@ -184,18 +199,19 @@ while(nextLine.equals("passworddoesntExist")) {
                                 }
                                 */
                                 String result = in.readLine();
-                                if(!result.equals("friendDoesn'tExist")){
-                                    String friend = in.readLine();
-                                    System.out.println(friend + "has been added to your friends!");
+                                if(result.equals("success")){
+                                    //String friend = in.readLine();
+                                    System.out.println(friendName + "has been added to your friends!");
                                 } else{
                                     System.out.println("User not found");
                                 }
                                 break; // ends it there
                             case "2":
-                                if (user == null) {
+                              /*  if (user == null) {
                                     System.out.println("Please log in first.");
                                     return;
                                 }
+                                */
 
                                 System.out.print("Enter the username of the friend you want to remove: ");
                                 String removeFriendName = scan.nextLine().trim();
@@ -205,36 +221,32 @@ while(nextLine.equals("passworddoesntExist")) {
                                 out.println(removeFriendName);
 
                                 String readingLine = in.readLine();
-                                if(!readingLine.equals("friendDoesn'tExist")){
-                                    String friend = in.readLine();
-                                    System.out.println(friend + "has been added to your friends!");
+                                if(readingLine.equals("success")){
+
+                                    System.out.println(removeFriendName + "has been removed to your friends!");
                                 } else{
-                                    System.out.println("User not found");
+                                    System.out.println("User not found");//doesnt make sense to reprompt until exists
                                 }
                                 break;
                                 // Remove a friend
                               //  runProject.removeFriend();
 
                             case "3":
-                                if (user == null) {
-                                    System.out.println("Please log in first.");
-                                    return;
-                                }
 
                                 System.out.print("Enter the username of the user to block: ");
                                 String blockedUsername = scan.nextLine().trim();
                                 do  {
                                     System.out.println("Username cannot be empty.");
                                 } while(blockedUsername.isEmpty());
-                                out.println(blockedUsername);
+
                                 out.println(blockedUsername); // send to server to block
                                 String input = in.readLine(); //now u want to get the user blocked
                                 //User blockedUser = scan.getUser(blockedUsername);
 
                                // if (blockedUser == null) {
-                                if(!input.equals("blockedDoesn'tExist")){
-                                    String blocked = in.readLine(); //should be the blockedusers name
-                                    System.out.println(blocked + "has been added to your friends!");
+                                if(input.equals("success")){
+                                     //should be the blockedusers name
+                                    System.out.println(blockedUsername + "has been added to your friends!");
                                 } else{
                                     System.out.println("User not found");
                                 }
@@ -246,12 +258,12 @@ while(nextLine.equals("passworddoesntExist")) {
                                 System.out.println("Username cannot be empty.");
                             } while(unblockedUsername.isEmpty());
                                 out.println(unblockedUsername);
-                                out.println(blockedUsername);
+                                //out.println(blockedUsername);
                                 String inputTwo = in.readLine();
 
-                                if(!inputTwo.equals("blockedDoesn'tExist")){
-                                    String blocked = in.readLine(); //should be the blockedusers name
-                                    System.out.println(blocked + "has been added to your friends!");
+                                if(!inputTwo.equals("success")){
+                                    //String blocked = in.readLine(); //should be the blockedusers name
+                                    System.out.println(unblockedUsername + "has been unblocked!");
                                 } else{
                                     System.out.println("User not found");
                                 }
@@ -260,10 +272,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                // runProject.blockUser();
 
                             case "4":
-                                if (user == null) {
-                                    System.out.println("Please log in first.");
-                                    return;
-                                }
+
 
                                 System.out.print("Enter the username of the receiver: ");
                                 String receiverUsername = scan.nextLine().trim();
@@ -274,7 +283,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                 out.println(receiverUsername);
 
                                 String newResult = in.readLine();
-                                if (newResult.equals("receiverDoesn'tExist")) {
+                                if (newResult.equals("User not found.")) {
                                     System.out.println("User not found.");
                                     return;
                                 }
@@ -287,7 +296,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                 }
                                 String sent = in.readLine();
 
-                                if (sent.equals("Sent!")) {
+                                if (sent.equals("success")) {
                                     System.out.println("Message sent!");
                                 } else {
                                     System.out.println("Failed to send message. Ensure you are friends with "
@@ -298,10 +307,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                // runProject.sendMessage();
                                 break;
                             case "5":
-                                if (user == null) {
-                                    System.out.println("Please log in first.");
-                                    return;
-                                }
+
 
                                 System.out.print("Enter the username of the receiver: ");
                                 String receiveUsername = scan.nextLine().trim();
@@ -318,7 +324,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                 }
 
                                 String sentPhoto = in.readLine();
-                                if (sentPhoto.equals("sentPhoto")) {
+                                if (sentPhoto.equals("Message sent!")) {
                                     System.out.println("Message sent!");
                                 } else {
                                     System.out.println("Failed to send Photo.");
@@ -327,10 +333,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                 // runProject.sendPhoto();
                                 break;
                             case "6":
-                                if (user == null) {
-                                    System.out.println("Please log in first.");
-                                    return;
-                                }
+
                                 System.out.print("Enter the username of the user: ");
                                 String newUsername = scan.nextLine().trim();
                                // User receiver = database.getUser(username);
@@ -347,7 +350,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                 }
                                 String deleted = in.readLine();
 
-                                if (deleted.equals("deleted!")) {
+                                if (deleted.equals("success")) {
                                     System.out.println("Message deleted!");
                                 } else {
                                     System.out.println("Failed to delete message.");
@@ -356,10 +359,7 @@ while(nextLine.equals("passworddoesntExist")) {
                                // runProject.deleteMessage();
                                 break;
                             case "7":
-                                if (user == null) {
-                                    System.out.println("Please log in first.");
-                                    return;
-                                }
+
 
                                 System.out.print("Enter the username of the profile you want to view: ");
                                 String usernameToView = scan.nextLine().trim();
@@ -377,10 +377,6 @@ while(nextLine.equals("passworddoesntExist")) {
                                 //runProject.viewUserProfile();
                                 break;
                             case "8":
-                                if (user == null) {
-                                    System.out.println("Please log in first.");
-                                    return;
-                                }
 
                                 System.out.println("Available users:");
 

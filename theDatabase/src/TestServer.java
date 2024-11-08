@@ -20,10 +20,10 @@ public class TestServer {
                         String password = reader.readLine();
                         String bio = reader.readLine();
                         String pfp = reader.readLine();
-                        if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-                            writer.println("All fields are required. Please try again.");
-                            break;
-                        }
+                      //  if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+                       //     writer.println("All fields are required. Please try again.");
+                        //    break;
+                      //  }
                         if (database.createUser(username, password, bio, pfp)) {
                             writer.println("Account created successfully!\n");
                         } else {
@@ -35,14 +35,30 @@ public class TestServer {
 
                     case "2":
                         String username1 = reader.readLine().trim();
-                        String pass = reader.readLine().trim();
+                        //String pass = reader.readLine().trim();
                         User user = database.getUser(username1);
-                        if (user != null && user.getPassword().equals(pass)) {
-                            writer.println("Login successful! Welcome back, " + username1 + "!");
+                        do{
+                            writer.println("Invalid username");
+                        }while(user == null || !user.getUsername().equals(username1));
+                        writer.println("success");
+                        //writer.println("Login successful! Welcome back, " + username1 + "!");
+                        String pass = reader.readLine().trim();
+                       // User user = database.getUser(pass);
+                        do{
+                            writer.println("Invalid password");
+                        }while(pass == null || !user.getPassword().equals(pass));
+                        writer.println("success2");
+                        writer.println("Login successful! Welcome back, " + username1 + "!");
 
+
+                       /* if (user != null && user.getPassword().equals(pass)) {
+                            writer.println("success");
+                            writer.println("Login successful! Welcome back, " + username1 + "!");
                         } else {
                             writer.println("Invalid username or password.");
-                        }
+                        } //reprompt?
+                        */
+
                         if(user != null){
                             while(true){
                                 String choice = reader.readLine().trim();
@@ -52,12 +68,12 @@ public class TestServer {
                                     case "1":
                                         // Add a friend
 
-                                        System.out.print("Enter the username of the friend you want to add: ");
+                                       // System.out.print("Enter the username of the friend you want to add: ");
                                         String friendName = reader.readLine().trim();
-                                        if (friendName.isEmpty()) {
-                                            writer.println("Username cannot be empty.");
-                                            break;
-                                        }
+                                      //  if (friendName.isEmpty()) {
+                                       //     writer.println("Username cannot be empty.");
+                                       //     break;
+                                      //  }
 
                                         User friend = database.getUser(friendName);
                                         if (friend != null) {
@@ -71,10 +87,10 @@ public class TestServer {
 
 
                                         String removeFriendName = reader.readLine().trim();
-                                        if (removeFriendName.isEmpty()) {
-                                            writer.println("Username cannot be empty.");
-                                            break;
-                                        }
+                                    //    if (removeFriendName.isEmpty()) {
+                                         //   writer.println("Username cannot be empty.");
+                                      //      break;
+                                      //  }
 
                                         if (database.getUser(removeFriendName) != null) {
                                             user.removeFriend(removeFriendName);
@@ -125,7 +141,7 @@ public class TestServer {
 
                                         if (receiver == null) {
                                             writer.println("User not found.");
-                                            break;
+                                            break; //og if reciever != null? if decide to keep, need to add wjile to client with each method
                                         }
 
 
@@ -140,7 +156,7 @@ public class TestServer {
                                         } else {
                                             writer.println("Failed to send message. Ensure you are friends with "
                                                     + receiverUsername + " and " + receiverUsername
-                                                    + " is your friend");
+                                                    + " is your friend"); //dont need to add, client is the one printing
                                         }
                                     case "5":
                                         // Send a photo to another user
@@ -157,10 +173,10 @@ public class TestServer {
 
                                         //System.out.print("Enter your photo's filepath: ");
                                         String content1 = reader.readLine().trim();
-                                        if (content1.isEmpty()) {
-                                            writer.println("Message cannot be empty.");
-                                            break;
-                                        }
+                                    //    if (content1.isEmpty()) {
+                                          //  writer.println("Message cannot be empty.");
+                                           // break;
+                                       // }
 
                                         if (user.sendPhoto(receiver1, content1)) {
                                             System.out.println("Message sent!");
@@ -182,10 +198,10 @@ public class TestServer {
 
                                         //System.out.print("Enter your message: ");
                                         String content2 = reader.readLine().trim();
-                                        if (content2.isEmpty()) {
-                                            writer.println("Message cannot be empty.");
-                                            break;
-                                        }
+                                       // if (content2.isEmpty()) {
+                                          //  writer.println("Message cannot be empty.");
+                                          //  break;
+                                      //  }
 
                                         if (user.deleteMessage(receiver2, content2)) {
                                             writer.println("success");
@@ -196,7 +212,7 @@ public class TestServer {
                                         // View a specific user's profile
 
 
-                                        writer.println("Available users:");
+                                      //  writer.println("Available users:");
                                         for (User user1 : database.getUsers()) {
                                             writer.println("- " + user1.getUsername());
                                         }
