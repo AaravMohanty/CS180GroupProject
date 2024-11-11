@@ -10,270 +10,290 @@ public class TestServer {
             System.out.println("Server is running on port " + 1234 + "...");
             while(true){
                 Socket socket = serverSocket.accept();
-                System.out.println("New connection from " + socket.getRemoteSocketAddress());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-                String line = reader.readLine();
-                switch (line) {
-                    case "1":
-                        String username = reader.readLine();
-                        String password = reader.readLine();
-                        String bio = reader.readLine();
-                        String pfp = reader.readLine();
-                        if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-                            writer.println("All fields are required. Please try again.");
-                            break;
-                        }
-                        if (database.createUser(username, password, bio, pfp)) {
-                            writer.println("Account created successfully!\n");
-                        } else {
-                            writer.println("Username already taken.\nPlease re-run the program to try again.");
-                        }
+                new Thread(() -> {
+                    BufferedReader reader = null;
+                    PrintWriter writer = null;
+                    try {
+                        System.out.println("New connection from " + socket.getRemoteSocketAddress());
+                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        String line = reader.readLine();
+                        switch (line) {
+                            case "1":
+                                String username = reader.readLine();
+                                String password = reader.readLine();
+                                String bio = reader.readLine();
+                                String pfp = reader.readLine();
+                                if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+                                    writer.println("All fields are required. Please try again.");
+                                    break;
+                                }
+                                if (database.createUser(username, password, bio, pfp)) {
+                                    writer.println("Account created successfully!\n");
+                                } else {
+                                    writer.println("Username already taken.\nPlease re-run the program to try again.");
+                                }
 
-                        break;
-
-
-                    case "2":
-                        String username1 = reader.readLine().trim();
-                        String pass = reader.readLine().trim();
-                        User user = database.getUser(username1);
-                        if (user != null && user.getPassword().equals(pass)) {
-                            writer.println("Login successful! Welcome back, " + username1 + "!");
-
-                        } else {
-                            writer.println("Invalid username or password.");
-                        }
-                        if(user != null){
-                            while(true){
-                                String choice = reader.readLine().trim();
+                                break;
 
 
-                                switch (choice) {
-                                    case "1":
-                                        // Add a friend
+                            case "2":
+                                String username1 = reader.readLine().trim();
+                                String pass = reader.readLine().trim();
+                                User user = database.getUser(username1);
+                                if (user != null && user.getPassword().equals(pass)) {
+                                    writer.println("Login successful! Welcome back, " + username1 + "!");
 
-                                        System.out.print("Enter the username of the friend you want to add: ");
-                                        String friendName = reader.readLine().trim();
-                                      //  if (friendName.isEmpty()) {
-                                           // writer.println("Username cannot be empty.");
-                                          //  break;
-                                       // }
-
-                                        User friend = database.getUser(friendName);
-                                        if (friend != null) {
-                                            user.addFriend(friend);
-                                            writer.println("success");
-                                        } else {
-                                            System.out.println("User not found.");
-                                        }
-                                        break;
-                                    case "2":
-
-                                        String removeFriendName = reader.readLine().trim();
-                                       // if (removeFriendName.isEmpty()) {
-                                         //   writer.println("Username cannot be empty.");
-                                         //   break;
-                                       // }
-
-                                        if (database.getUser(removeFriendName) != null) {
-                                            user.removeFriend(removeFriendName);
-                                            writer.println("success");
-                                        } else {
-                                            System.out.println("User not found.");
-                                        }
-                                        break;
-                                    case "3":
-                                        // Block or unblock a user
+                                } else {
+                                    writer.println("Invalid username or password.");
+                                }
+                                if (user != null) {
+                                    while (true) {
+                                        String choice = reader.readLine().trim();
 
 
-                                        String blockedUsername = reader.readLine().trim();
-                                        User blockedUser = database.getUser(blockedUsername);
+                                        switch (choice) {
+                                            case "1":
+                                                // Add a friend
 
-                                        if (blockedUser == null) {
-                                            writer.println("User not found.");
-                                            break;
-                                        }
+                                                System.out.print("Enter the username of the friend you want to add: ");
+                                                String friendName = reader.readLine().trim();
+                                                //  if (friendName.isEmpty()) {
+                                                // writer.println("Username cannot be empty.");
+                                                //  break;
+                                                // }
+
+                                                User friend = database.getUser(friendName);
+                                                if (friend != null) {
+                                                    user.addFriend(friend);
+                                                    writer.println("success");
+                                                } else {
+                                                    System.out.println("User not found.");
+                                                }
+                                                break;
+                                            case "2":
+
+                                                String removeFriendName = reader.readLine().trim();
+                                                // if (removeFriendName.isEmpty()) {
+                                                //   writer.println("Username cannot be empty.");
+                                                //   break;
+                                                // }
+
+                                                if (database.getUser(removeFriendName) != null) {
+                                                    user.removeFriend(removeFriendName);
+                                                    writer.println("success");
+                                                } else {
+                                                    System.out.println("User not found.");
+                                                }
+                                                break;
+                                            case "3":
+                                                // Block or unblock a user
 
 
-                                        if (user.blockUser(blockedUser)) {
-                                            writer.println("success");
-                                        } else {
-                                            writer.println("User could not be blocked.");
-                                        }
+                                                String blockedUsername = reader.readLine().trim();
+                                                User blockedUser = database.getUser(blockedUsername);
 
-                                   //     System.out.print("Enter the username of the user to unblock: ");
-                                        String unblockedUsername = reader.readLine().trim();
-                                        User unblockedUser = database.getUser(unblockedUsername);
-
-                                        if (unblockedUser == null) {
-                                            writer.println("User not found.");
-                                            break;
-                                        }
-
-                                        if (user.unblockUser(unblockedUser)) {
-                                            writer.println("success");
-                                        } else {
-                                            writer.println("failure");
-                                        }
-                                        break;
-                                    case "4":
+                                                if (blockedUser == null) {
+                                                    writer.println("User not found.");
+                                                    break;
+                                                }
 
 
-                                        System.out.print("Enter the username of the receiver: ");
-                                        String receiverUsername = reader.readLine().trim();
-                                        User receiver = database.getUser(receiverUsername);
+                                                if (user.blockUser(blockedUser)) {
+                                                    writer.println("success");
+                                                } else {
+                                                    writer.println("User could not be blocked.");
+                                                }
 
-                                        if (receiver == null) {
-                                            writer.println("User not found.");
-                                            break;
-                                        }
+                                                //     System.out.print("Enter the username of the user to unblock: ");
+                                                String unblockedUsername = reader.readLine().trim();
+                                                User unblockedUser = database.getUser(unblockedUsername);
+
+                                                if (unblockedUser == null) {
+                                                    writer.println("User not found.");
+                                                    break;
+                                                }
+
+                                                if (user.unblockUser(unblockedUser)) {
+                                                    writer.println("success");
+                                                } else {
+                                                    writer.println("failure");
+                                                }
+                                                break;
+                                            case "4":
+
+
+                                                System.out.print("Enter the username of the receiver: ");
+                                                String receiverUsername = reader.readLine().trim();
+                                                User receiver = database.getUser(receiverUsername);
+
+                                                if (receiver == null) {
+                                                    writer.println("User not found.");
+                                                    break;
+                                                }
 
 //this might not match up > need to test content here too?
-                                        String content = reader.readLine().trim();
-                                       // if (content.isEmpty()) {
-                                       //     writer.println("Message cannot be empty.");
-                                         //   break;
-                                     //   }
+                                                String content = reader.readLine().trim();
+                                                // if (content.isEmpty()) {
+                                                //     writer.println("Message cannot be empty.");
+                                                //   break;
+                                                //   }
 
-                                        if (user.sendMessage(receiver, content)) {
-                                            writer.println("success!");
-                                        } else {
-                                            writer.println("Failed to send message. Ensure you are friends with "
-                                                    + receiverUsername + " and " + receiverUsername
-                                                    + " is your friend");
+                                                if (user.sendMessage(receiver, content)) {
+                                                    writer.println("success!");
+                                                } else {
+                                                    writer.println("Failed to send message. Ensure you are friends with "
+                                                            + receiverUsername + " and " + receiverUsername
+                                                            + " is your friend");
+                                                }
+                                            case "5":
+                                                // Send a photo to another user
+
+
+                                                //System.out.print("Enter the username of the receiver: ");
+                                                String receiverUsername1 = reader.readLine().trim();
+                                                User receiver1 = database.getUser(receiverUsername1);
+
+                                                if (receiver1 == null) {
+                                                    writer.println("User not found.");
+                                                    break;
+                                                }
+
+                                                //System.out.print("Enter your photo's filepath: ");
+                                                String content1 = reader.readLine().trim();
+                                                //  if (content1.isEmpty()) {
+                                                //    writer.println("Message cannot be empty.");
+                                                //   break;
+                                                //    }
+
+                                                if (user.sendPhoto(receiver1, content1)) {
+                                                    System.out.println("Message sent!");
+                                                } else {
+                                                    System.out.println("Failed to send Photo.");
+                                                }
+                                                break;
+                                            case "6":
+                                                // Delete a message with another user
+
+                                                //System.out.print("Enter the username of the user: ");
+                                                String username2 = reader.readLine().trim();
+                                                User receiver2 = database.getUser(username2);
+
+                                                if (receiver2 == null) {
+                                                    writer.println("User not found.");
+                                                    break;
+                                                }
+
+                                                //System.out.print("Enter your message: ");
+                                                String content2 = reader.readLine().trim();
+                                                // if (content2.isEmpty()) {
+                                                // writer.println("Message cannot be empty.");
+                                                //break;
+                                                //  }
+
+                                                if (user.deleteMessage(receiver2, content2)) {
+                                                    writer.println("success");
+                                                } else {
+                                                    writer.println("Failed to delete message.");
+                                                }
+                                            case "7":
+                                                // View a specific user's profile
+
+
+                                                //  writer.println("Available users:");
+
+                                                //  for (User user1 : database.getUsers()) {
+                                                //  writer.println("- " + user1.getUsername());
+                                                //  }
+                                                // writer.println("done");
+
+                                                //  System.out.print("Enter the username of the profile to view: ");
+                                                String usernameToView = reader.readLine().trim();
+                                                User profileUser = database.getUser(usernameToView);
+
+
+                                                if (profileUser != null && database.getUsers().contains(profileUser)) {
+                                                    writer.println(profileUser.displayUser());
+                                                } else {
+                                                    writer.println("User not found.");
+                                                } // View the selected profile
+
+
+                                                break;
+                                            case "8":
+                                                // Search for users and view profiles
+                                                if (user == null) {
+                                                    writer.println("Please log in first.");
+                                                    return;
+                                                }
+
+                                                //   writer.println("Available users:");
+                                                // boolean keepGoing = true;
+                                                //while(keepGoing) {
+                                                for (User user1 : database.getUsers()) {
+                                                    writer.println("- " + user1.getUsername());
+                                                }
+                                                //  keepGoing = false;
+                                                // writer.println("more");
+                                                //}
+
+                                                //   writer.print("Enter the username of the profile to view: ");
+                                                String usernameToView1 = reader.readLine().trim();
+                                                User profileUser3 = database.getUser(usernameToView1);
+
+
+                                                if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
+                                                    writer.println(profileUser3.displayUser());
+                                                } else {
+                                                    writer.println("User not found.");
+                                                } // View the selected profile
+                                                ;
+
+                                                break;
+                                            case "9":
+                                                // Logout option to exit the user menu
+                                                // writer.println("Logging out...");
+                                                user = null; // Clear logged-in user
+                                                break;
+                                            default:
+                                                // Handle invalid user menu choices
+                                                writer.println("Invalid choice. Please try again.");
                                         }
-                                    case "5":
-                                        // Send a photo to another user
 
 
-                                        //System.out.print("Enter the username of the receiver: ");
-                                        String receiverUsername1 = reader.readLine().trim();
-                                        User receiver1 = database.getUser(receiverUsername1);
-
-                                        if (receiver1 == null) {
-                                            writer.println("User not found.");
-                                            break;
-                                        }
-
-                                        //System.out.print("Enter your photo's filepath: ");
-                                        String content1 = reader.readLine().trim();
-                                      //  if (content1.isEmpty()) {
-                                        //    writer.println("Message cannot be empty.");
-                                         //   break;
-                                    //    }
-
-                                        if (user.sendPhoto(receiver1, content1)) {
-                                            System.out.println("Message sent!");
-                                        } else {
-                                            System.out.println("Failed to send Photo.");
-                                        }
-                                        break;
-                                    case "6":
-                                        // Delete a message with another user
-
-                                        //System.out.print("Enter the username of the user: ");
-                                        String username2 = reader.readLine().trim();
-                                        User receiver2 = database.getUser(username2);
-
-                                        if (receiver2 == null) {
-                                            writer.println("User not found.");
-                                            break;
-                                        }
-
-                                        //System.out.print("Enter your message: ");
-                                        String content2 = reader.readLine().trim();
-                                       // if (content2.isEmpty()) {
-                                           // writer.println("Message cannot be empty.");
-                                            //break;
-                                      //  }
-
-                                        if (user.deleteMessage(receiver2, content2)) {
-                                            writer.println("success");
-                                        } else {
-                                            writer.println("Failed to delete message.");
-                                        }
-                                    case "7":
-                                        // View a specific user's profile
-
-
-                                      //  writer.println("Available users:");
-
-                                      //  for (User user1 : database.getUsers()) {
-                                          //  writer.println("- " + user1.getUsername());
-                                      //  }
-                                       // writer.println("done");
-
-                                      //  System.out.print("Enter the username of the profile to view: ");
-                                        String usernameToView = reader.readLine().trim();
-                                        User profileUser = database.getUser(usernameToView);
-
-
-                                            if (profileUser != null && database.getUsers().contains(profileUser)) {
-                                                writer.println(profileUser.displayUser());
-                                            } else {
-                                                writer.println("User not found.");
-                                            } // View the selected profile
-
-
-                                        break;
-                                    case "8":
-                                        // Search for users and view profiles
-                                        if (user == null) {
-                                            writer.println("Please log in first.");
-                                            return;
-                                        }
-
-                                     //   writer.println("Available users:");
-                                       // boolean keepGoing = true;
-                                        //while(keepGoing) {
-                                            for (User user1 : database.getUsers()) {
-                                                writer.println("- " + user1.getUsername());
-                                            }
-                                          //  keepGoing = false;
-                                           // writer.println("more");
-                                        //}
-
-                                     //   writer.print("Enter the username of the profile to view: ");
-                                        String usernameToView1 = reader.readLine().trim();
-                                        User profileUser3 = database.getUser(usernameToView1);
-
-
-                                            if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
-                                                writer.println(profileUser3.displayUser());
-                                            } else {
-                                                writer.println("User not found.");
-                                            } // View the selected profile
-                                        ;
-
-                                        break;
-                                    case "9":
-                                        // Logout option to exit the user menu
-                                       // writer.println("Logging out...");
-                                        user = null; // Clear logged-in user
-                                        break;
-                                    default:
-                                        // Handle invalid user menu choices
-                                        writer.println("Invalid choice. Please try again.");
+                                    }
                                 }
 
 
+                            case "3":
+                                // Exit the program
+                                writer.println("Have a nice day!");
+                                reader.close();
+                                writer.close(); // Close the scanner before exiting
+                                return;
+
+                            default:
+                                // Handle invalid main menu choices
+                                writer.println("Invalid choice. Please enter 1, 2, or 3.");
+                                break;
+
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (IOException e) {
+                                System.err.println("Error closing the reader: " + e.getMessage());
+                                e.printStackTrace();
                             }
                         }
+                        writer.close();
 
+                    }
+                }).start();
 
-
-
-                    case "3":
-                        // Exit the program
-                        writer.println("Have a nice day!");
-                        reader.close();
-                        writer.close(); // Close the scanner before exiting
-                        return;
-
-                    default:
-                        // Handle invalid main menu choices
-                        writer.println("Invalid choice. Please enter 1, 2, or 3.");
-                }
 
             }
         }
