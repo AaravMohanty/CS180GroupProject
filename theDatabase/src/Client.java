@@ -19,6 +19,7 @@ public class Client {
             if (!hostname.equals("localhost")) {
                 throw new IllegalArgumentException("Hostname isn't valid.Connection failed.");
             }
+            System.out.println("Please enter a port!");
             String portString = scan.nextLine();
 
             try {
@@ -408,7 +409,7 @@ ArrayList<String> usernamesArray = new ArrayList<>();
                                     while(userNames != null) {
                                         usernamesArray.add(userNames);
                                         System.out.println("- " + userNames);
-                                        String userNames = in.readLine(); //keep getting the userna,es
+                                        //String userNamez = in.readLine(); //keep getting the userna,es
                                     }
                                // }
 
