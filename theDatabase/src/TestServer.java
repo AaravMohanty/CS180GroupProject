@@ -29,9 +29,9 @@ public class TestServer {
                                     break;
                                 }
                                 if (database.createUser(username, password, bio, pfp)) {
-                                    writer.println("Account created successfully!\n");
+                                    writer.println("success\n");
                                 } else {
-                                    writer.println("Username already taken.\nPlease re-run the program to try again.");
+                                    writer.println("fail.");
                                 }
 
                                 break;
