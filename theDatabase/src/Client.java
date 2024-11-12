@@ -33,7 +33,7 @@ public class Client {
 
             Socket socket = new Socket(hostname, port);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream());
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
             // now you established a connection, time for actual prompts
             while (true) {
@@ -48,43 +48,53 @@ public class Client {
                 // Get user input for main menu choice
                 String choice = scan.nextLine().trim();
                 out.println(choice); // good
-                if(choice == null) {
-                break;
+                if (choice == null) {
+                    break;
                 }
-                out.println(choice);
-
-    switch (choice) {
+                System.out.println(choice);
+                //out.println(choice);
+                switch (choice) {
         case "1":
             while(true) {
                 // Option to create a new user account
+
                 System.out.println("Welcome to ProjectMedia! Please create a new account.");
 
                 System.out.print("Enter username: ");
                 String username = scan.nextLine().trim();
+                //System.out.println(username);
                 out.println(username); //good
 
                 System.out.print("Enter password: ");
                 String password = scan.nextLine().trim();
+                //System.out.println(password);
+
                 out.println(password); //good
 
                 System.out.print("Enter bio: ");
                 String bio = scan.nextLine().trim();
+                //System.out.println(bio);
+
                 out.println(bio); //good
 
                 System.out.print("Enter profile picture filename: ");
                 String pfp = scan.nextLine().trim();
+                //System.out.println(pfp);
                 out.println(pfp); // sends it back to the server //good
 
 
                 // Edge case: Check for empty fields
                 if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+
                     System.out.println("All fields are required. Please try again.");
                     break;
                 }
                 String successOrFailure = in.readLine();
+                System.out.println(successOrFailure);
                 while (true) {
                     if (successOrFailure.equals("success")) { //from server side
                         System.out.println("Account created successfully!\n");
+                        break;
                     } else {
                         System.out.println("Username already taken.\nPlease re-run the program to try again.");
                         break; //user has to rerun program manually

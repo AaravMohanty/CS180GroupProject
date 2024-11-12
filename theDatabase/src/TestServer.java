@@ -29,7 +29,7 @@ public class TestServer {
                                     break;
                                 }
                                 if (database.createUser(username, password, bio, pfp)) {
-                                    writer.println("success\n");
+                                    writer.println("success");
                                 } else {
                                     writer.println("fail.");
                                 }
@@ -274,7 +274,7 @@ public class TestServer {
 
                             default:
                                 // Handle invalid main menu choices
-                                writer.println("Invalid choice. Please enter 1, 2, or 3.");
+                                System.out.println("Invalid choice. Please enter 1, 2, or 3.");
                                 break;
 
                         }
@@ -298,7 +298,7 @@ public class TestServer {
             }
         }
         catch (IOException e){
-            //put something here
+            e.printStackTrace();
         }
     }
 
