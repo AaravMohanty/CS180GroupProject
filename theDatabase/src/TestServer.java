@@ -213,7 +213,7 @@ public class TestServer {
                                                 User receiver2 = database.getUser(username2);
 
                                                 if (receiver2 == null) {
-                                                    writer.println("User not found.");
+                                                 //   writer.println("User not found.");
                                                     break;
                                                 }
 
@@ -247,6 +247,7 @@ public class TestServer {
 
 
                                                 if (profileUser != null && database.getUsers().contains(profileUser)) {
+                                                    writer.println("success");
                                                     writer.println(profileUser.displayUser());
                                                 } else {
                                                     writer.println("User not found.");
@@ -288,7 +289,9 @@ public class TestServer {
                                                 // Logout option to exit the user menu
                                                 // writer.println("Logging out...");
                                                 user = null; // Clear logged-in user
+                                                System.out.println("User after logout: " + user);
                                                 break;
+
                                             default:
                                                 // Handle invalid user menu choices
                                                 writer.println("Invalid choice. Please try again.");

@@ -355,20 +355,22 @@ public class Client {
 
                                 System.out.print("Enter the username of the receiver: ");
                                 String receiveUsername = scan.nextLine().trim();
+                                out.println(receiveUsername);
                                 //User receiver = database.getUser(receiverUsername);
                                 if (receiveUsername.isEmpty()) {
                                     System.out.println("Username cannot be empty.");
                                     break;
                                 }
-                                out.println(receiveUsername);
+
 
                                 System.out.print("Enter your photo's filepath: ");
                                 String contentThree = scan.nextLine().trim();
+                                out.println(contentThree);
                                 if (contentThree.isEmpty()) {
                                     System.out.println("Message cannot be empty.");
                                     return;
                                 }
-                                out.println(contentThree);
+
 
                                 String sentPhoto = in.readLine();
                                 if (sentPhoto.equals("Message sent!")) {
@@ -383,6 +385,7 @@ public class Client {
 
                                 System.out.print("Enter the username of the user: ");
                                 String newUsername = scan.nextLine().trim();
+                                out.println(newUsername);
                                 // User receiver = database.getUser(username);
                                 if (newUsername.isEmpty()) {
                                     System.out.println("Username cannot be empty.");
@@ -391,10 +394,12 @@ public class Client {
 
                                 System.out.print("Enter your message: ");
                                 String newContent = scan.nextLine().trim();
+                                out.println(newContent);
                                 if (newContent.isEmpty()) {
                                     System.out.println("Message cannot be empty.");
                                     return;
                                 }
+
                                 String deleted = in.readLine();
 
                                 if (deleted.equals("success")) {
@@ -417,7 +422,12 @@ public class Client {
                                 out.println(usernameToView);
                                // User profileUser = database.getUser(usernameToView);
                                 String isProfileUserValid =  in.readLine();
-                                System.out.println(isProfileUserValid);
+                                if(isProfileUserValid.equals("success")){
+                                    String next = in.readLine();
+                                    System.out.println(next);
+                                }else{
+                                    System.out.println("User not found");
+                                }
 
                              /*   if (isProfileUserValid.equals("valid")) {
                                     String displayUser = in.readLine(); //if valid carry out the following function
@@ -475,11 +485,12 @@ public class Client {
                             case "9":
                                 // Logout option to exit the user menu
                                 System.out.println("Logging out...");
-                                String log = in.readLine();
-                                if (log.equals("LoggedOut")) {
-                                    break; // Return to main menu
-                                }
+                             //  String log = in.readLine();
+                               // if (log.equals("LoggedOut")) {
+                                     // Return to main menu
+                             //   }
                                // loggedInUser = null; // Clear logged-in user
+                                soFar = false;
                                 break;
                             default: //would this run again? -> test
                                 // Handle invalid user menu choices
