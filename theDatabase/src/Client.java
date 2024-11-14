@@ -233,14 +233,14 @@ public class Client {
                                 }
                                 */
 
-
                                 System.out.print("Enter the username of the friend you want to remove: ");
                                 String removeFriendName = scan.nextLine().trim();
-                                do {
-                                    System.out.println("Username cannot be empty.");
-                                } while (removeFriendName.isEmpty());
-                                out.println(removeFriendName);
 
+                                if(removeFriendName.isEmpty()){
+                                    System.out.println("Username cannot be empty.");
+                                break;
+                                }
+                                out.println(removeFriendName);
 
                                 String readingLine = in.readLine();
                                 if (readingLine.equals("success")) {
