@@ -1,5 +1,8 @@
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestServer {
     private static Database database;
     public static void main(String[] args){
@@ -24,14 +27,14 @@ public class TestServer {
                                 String password = reader.readLine();
                                 String bio = reader.readLine();
                                 String pfp = reader.readLine();
-                                if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-                                    writer.println("All fields are required. Please try again.");
-                                    break;
-                                }
+                               // if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+                                   // writer.println("All fields are required. Please try again.");
+                                   // break;
+                              //  }
                                 if (database.createUser(username, password, bio, pfp)) {
                                     writer.println("success");
                                 } else {
-                                    writer.println("fail.");
+                                    writer.println("random");
                                 }
 
                                 break;
@@ -42,8 +45,9 @@ public class TestServer {
                                 String pass = reader.readLine().trim();
                                 User user = database.getUser(username1);
                                 if (user != null && user.getPassword().equals(pass)) {
+                                   // writer.println("Login successful! Welcome back, " + username1 + "!");
+                                    writer.println("success");
                                     writer.println("Login successful! Welcome back, " + username1 + "!");
-
                                 } else {
                                     writer.println("Invalid username or password.");
                                 }
@@ -56,21 +60,23 @@ public class TestServer {
                                             case "1":
                                                 // Add a friend
 
-                                                System.out.print("Enter the username of the friend you want to add: ");
+                                               // System.out.print("Enter the username of the friend you want to add: ");
                                                 String friendName = reader.readLine().trim();
                                                 //  if (friendName.isEmpty()) {
                                                 // writer.println("Username cannot be empty.");
                                                 //  break;
                                                 // }
-
+                                                List<String> Friends1 = user.getFriends();
                                                 User friend = database.getUser(friendName);
-                                                if (friend != null) {
-                                                    user.addFriend(friend);
+                                                if ( friend != null) { //wanna make sure not already  friends
                                                     writer.println("success");
+                                                   // user.addFriend(friend);
+                                                    Friends1.add(friendName);
+                                                   //System.out.println(friendName + "has been added as your friend");
                                                 } else {
-                                                    System.out.println("User not found.");
+                                                    writer.println("not able to add friend");
                                                 }
-                                                break;
+
                                             case "2":
 
                                                 String removeFriendName = reader.readLine().trim();
@@ -78,14 +84,16 @@ public class TestServer {
                                                 //   writer.println("Username cannot be empty.");
                                                 //   break;
                                                 // }
+                                                List<String> Friends = user.getFriends();
 
-                                                if (database.getUser(removeFriendName) != null) {
+
+                                                if (database.getUser(removeFriendName) != null && Friends.contains(removeFriendName)) {//user is friends
                                                     user.removeFriend(removeFriendName);
                                                     writer.println("success");
                                                 } else {
-                                                    System.out.println("User not found.");
+                                                    writer.println("not able to remove friend");
                                                 }
-                                                break;
+
                                             case "3":
                                                 // Block or unblock a user
 
@@ -274,7 +282,7 @@ public class TestServer {
 
                             default:
                                 // Handle invalid main menu choices
-                                System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+                                writer.println("Invalid choice. Please enter 1, 2, or 3.");
                                 break;
 
                         }
@@ -298,7 +306,7 @@ public class TestServer {
             }
         }
         catch (IOException e){
-            e.printStackTrace();
+            //put something here
         }
     }
 

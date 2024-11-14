@@ -476,4 +476,7 @@ public class User implements UserInterface {
         return String.format("username: \"%s\"\nbio: \"%s\"\nprofile picture: \"%s\"",
                 username, bio, pfp);
     }
+
+
+
 }
