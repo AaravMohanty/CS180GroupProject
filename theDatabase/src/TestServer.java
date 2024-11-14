@@ -76,7 +76,7 @@ public class TestServer {
                                                 User friend = database.getUser(friendName);
                                                 if ( friend != null) { //wanna make sure not already  friends
                                                     writer.println("success");
-                                                   // user.addFriend(friend);
+                                                    user.addFriend(friend);
                                                     Friends1.add(friendName);
                                                    //System.out.println(friendName + "has been added as your friend");
                                                 } else {
@@ -113,15 +113,15 @@ public class TestServer {
                                                         User blockedUser = database.getUser(blockedUsername);
 
                                                         if (blockedUser == null) {
-                                                            writer.println("User not found.");  // Send response to client
+                                                            writer.println("User not found.");
                                                             break;
                                                         }
 
                                                         // Attempt to block the user
                                                         if (user.blockUser(blockedUser)) {
-                                                            writer.println("success");  // Inform client of success
+                                                            writer.println("success");
                                                         } else {
-                                                            writer.println("User could not be blocked.");  // Inform client of failure
+                                                            writer.println("User could not be blocked.");
                                                         }
                                                         break;
 
@@ -134,16 +134,16 @@ public class TestServer {
                                                             break;
                                                         }
 
-                                                        // Attempt to unblock the user
+
                                                         if (user.unblockUser(unblockedUser)) {
-                                                            writer.println("success");  // Inform client of success
+                                                            writer.println("success");
                                                         } else {
-                                                            writer.println("failure");  // Inform client of failure
+                                                            writer.println("failure");
                                                         }
                                                         break;
 
                                                     default:
-                                                        writer.println("Invalid choice.");  // Inform client of invalid choice
+                                                        writer.println("Invalid choice.");
                                                         break;
                                                 }
                                                 break;

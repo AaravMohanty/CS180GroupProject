@@ -255,7 +255,7 @@ public class Client {
                             //  runProject.removeFriend();
 
                             case "3":
-
+                                System.out.println("Enter 1 to block a user or 2 to unblock a user:");
                                 String userChoice2 = scan.nextLine().trim();
                                 out.println(userChoice2);
 
@@ -263,42 +263,53 @@ public class Client {
                                     case "1":
                                         System.out.print("Enter the username of the user to block: ");
                                         String blockedUsername = scan.nextLine().trim();
-                                        do {
+
+
+                                        while (blockedUsername.isEmpty()) {
                                             System.out.println("Username cannot be empty.");
-                                        } while (blockedUsername.isEmpty());
-
-                                        out.println(blockedUsername); // send to server to block
-                                        String input = in.readLine(); //now u want to get the user blocked
-                                        //User blockedUser = scan.getUser(blockedUsername);
-
-                                        // if (blockedUser == null) {
-                                        if (input.equals("success")) {
-                                            //should be the blockedusers name
-                                            System.out.println(blockedUsername + "has been added to your friends!");
-                                        } else {
-                                            System.out.println("User not found");
-                                            break;
+                                            System.out.print("Enter the username of the user to block: ");
+                                            blockedUsername = scan.nextLine().trim();
                                         }
-                                    case "2":
 
+                                        out.println(blockedUsername);
+                                        String blockResponse = in.readLine();
+
+
+                                        if (blockResponse.equals("success")) {
+                                            System.out.println(blockedUsername + " has been blocked.");
+                                        } else {
+                                            System.out.println("User not found or could not be blocked.");
+                                        }
+                                        break;
+
+                                    case "2":
                                         System.out.print("Enter the username of the user to unblock: ");
                                         String unblockedUsername = scan.nextLine().trim();
-                                        if (unblockedUsername.isEmpty()) {
-                                            System.out.println("Username cannot be empty.");
-                                            break;
-                                        }
-                                        out.println(unblockedUsername);
 
-                                        String inputTwo = in.readLine();
-                                        if (!inputTwo.equals("success")) {
-                                            //String blocked = in.readLine(); //should be the blockedusers name
-                                            System.out.println(unblockedUsername + "has been unblocked!");
-                                        } else {
-                                            System.out.println("User not found");
-                                            break;
+
+                                        while (unblockedUsername.isEmpty()) {
+                                            System.out.println("Username cannot be empty.");
+                                            System.out.print("Enter the username of the user to unblock: ");
+                                            unblockedUsername = scan.nextLine().trim();
                                         }
+
+                                        out.println(unblockedUsername);
+                                        String unblockResponse = in.readLine();
+
+
+                                        if (unblockResponse.equals("success")) {
+                                            System.out.println(unblockedUsername + " has been unblocked.");
+                                        } else {
+                                            System.out.println("User not found or could not be unblocked.");
+                                        }
+                                        break;
+
+                                    default:
+                                        System.out.println("Invalid choice. Please enter 1 or 2.");
+                                        break;
                                 }
                                 break;
+
                             // Block or unblock a user
                             // runProject.blockUser();
 
