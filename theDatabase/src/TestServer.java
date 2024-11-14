@@ -188,21 +188,21 @@ public class TestServer {
                                                 User receiver1 = database.getUser(receiverUsername1);
 
                                                 if (receiver1 == null) {
-                                                    writer.println("User not found.");
+                                                    //writer.println("User not found.");
                                                     break;
                                                 }
 
                                                 //System.out.print("Enter your photo's filepath: ");
                                                 String content1 = reader.readLine().trim();
-                                                //  if (content1.isEmpty()) {
+                                                 if (content1.isEmpty()) {
                                                 //    writer.println("Message cannot be empty.");
-                                                //   break;
-                                                //    }
+                                                   break;
+                                                  }
 
                                                 if (user.sendPhoto(receiver1, content1)) {
-                                                    System.out.println("Message sent!");
+                                                    writer.println("Message sent!");
                                                 } else {
-                                                    System.out.println("Failed to send Photo.");
+                                                    writer.println("Failed to send Photo.");
                                                 }
                                                 break;
                                             case "6":

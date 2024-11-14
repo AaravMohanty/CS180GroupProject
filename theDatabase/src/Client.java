@@ -360,6 +360,7 @@ public class Client {
                                     System.out.println("Username cannot be empty.");
                                     break;
                                 }
+                                out.println(receiveUsername);
 
                                 System.out.print("Enter your photo's filepath: ");
                                 String contentThree = scan.nextLine().trim();
@@ -367,6 +368,7 @@ public class Client {
                                     System.out.println("Message cannot be empty.");
                                     return;
                                 }
+                                out.println(contentThree);
 
                                 String sentPhoto = in.readLine();
                                 if (sentPhoto.equals("Message sent!")) {
