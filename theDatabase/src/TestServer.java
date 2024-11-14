@@ -100,6 +100,7 @@ public class TestServer {
                                                 } else {
                                                     writer.println("not able to remove friend");
                                                 }
+                                                break;
 
                                             case "3":
                                                 // Block or unblock a user
@@ -161,6 +162,7 @@ public class TestServer {
                                                             + receiverUsername + " and " + receiverUsername
                                                             + " is your friend");
                                                 }
+                                                break;
                                             case "5":
                                                 // Send a photo to another user
 
@@ -211,6 +213,7 @@ public class TestServer {
                                                 } else {
                                                     writer.println("Failed to delete message.");
                                                 }
+                                                break;
                                             case "7":
                                                 // View a specific user's profile
 
@@ -273,6 +276,7 @@ public class TestServer {
                                             default:
                                                 // Handle invalid user menu choices
                                                 writer.println("Invalid choice. Please try again.");
+                                                break;
                                         }
 
 
