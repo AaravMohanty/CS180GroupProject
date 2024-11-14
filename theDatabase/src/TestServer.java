@@ -100,41 +100,54 @@ public class TestServer {
                                                 } else {
                                                     writer.println("not able to remove friend");
                                                 }
+                                                break;
 
                                             case "3":
-                                                // Block or unblock a user
 
+                                                // Receive the block or unblock choice from the client
+                                                String blockUnblockChoice = reader.readLine().trim();
 
-                                                String blockedUsername = reader.readLine().trim();
-                                                User blockedUser = database.getUser(blockedUsername);
+                                                switch (blockUnblockChoice) {
+                                                    case "1":  // Block user
+                                                        String blockedUsername = reader.readLine().trim();
+                                                        User blockedUser = database.getUser(blockedUsername);
 
-                                                if (blockedUser == null) {
-                                                    writer.println("User not found.");
-                                                    break;
-                                                }
+                                                        if (blockedUser == null) {
+                                                            writer.println("User not found.");  // Send response to client
+                                                            break;
+                                                        }
 
+                                                        // Attempt to block the user
+                                                        if (user.blockUser(blockedUser)) {
+                                                            writer.println("success");  // Inform client of success
+                                                        } else {
+                                                            writer.println("User could not be blocked.");  // Inform client of failure
+                                                        }
+                                                        break;
 
-                                                if (user.blockUser(blockedUser)) {
-                                                    writer.println("success");
-                                                } else {
-                                                    writer.println("User could not be blocked.");
-                                                }
+                                                    case "2":  // Unblock user
+                                                        String unblockedUsername = reader.readLine().trim();
+                                                        User unblockedUser = database.getUser(unblockedUsername);
 
-                                                //     System.out.print("Enter the username of the user to unblock: ");
-                                                String unblockedUsername = reader.readLine().trim();
-                                                User unblockedUser = database.getUser(unblockedUsername);
+                                                        if (unblockedUser == null) {
+                                                            writer.println("User not found.");  // Send response to client
+                                                            break;
+                                                        }
 
-                                                if (unblockedUser == null) {
-                                                    writer.println("User not found.");
-                                                    break;
-                                                }
+                                                        // Attempt to unblock the user
+                                                        if (user.unblockUser(unblockedUser)) {
+                                                            writer.println("success");  // Inform client of success
+                                                        } else {
+                                                            writer.println("failure");  // Inform client of failure
+                                                        }
+                                                        break;
 
-                                                if (user.unblockUser(unblockedUser)) {
-                                                    writer.println("success");
-                                                } else {
-                                                    writer.println("failure");
+                                                    default:
+                                                        writer.println("Invalid choice.");  // Inform client of invalid choice
+                                                        break;
                                                 }
                                                 break;
+
                                             case "4":
 
 
@@ -161,6 +174,7 @@ public class TestServer {
                                                             + receiverUsername + " and " + receiverUsername
                                                             + " is your friend");
                                                 }
+                                                break;
                                             case "5":
                                                 // Send a photo to another user
 
@@ -211,6 +225,7 @@ public class TestServer {
                                                 } else {
                                                     writer.println("Failed to delete message.");
                                                 }
+                                                break;
                                             case "7":
                                                 // View a specific user's profile
 
@@ -273,6 +288,7 @@ public class TestServer {
                                             default:
                                                 // Handle invalid user menu choices
                                                 writer.println("Invalid choice. Please try again.");
+                                                break;
                                         }
 
 
