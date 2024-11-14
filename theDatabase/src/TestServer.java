@@ -41,15 +41,20 @@ public class TestServer {
 
 
                             case "2":
-                                String username1 = reader.readLine().trim();
-                                String pass = reader.readLine().trim();
-                                User user = database.getUser(username1);
-                                if (user != null && user.getPassword().equals(pass)) {
-                                   // writer.println("Login successful! Welcome back, " + username1 + "!");
-                                    writer.println("success");
-                                    writer.println("Login successful! Welcome back, " + username1 + "!");
-                                } else {
-                                    writer.println("Invalid username or password.");
+                                User user;
+                                while(true) {
+                                    String username1 = reader.readLine().trim();
+                                    String pass = reader.readLine().trim();
+                                    user = database.getUser(username1);
+                                    if (user != null && user.getPassword().equals(pass)) {
+                                        // writer.println("Login successful! Welcome back, " + username1 + "!");
+                                        writer.println("success");
+                                        writer.println("Login successful! Welcome back, " + username1 + "!");
+                                        break;
+                                    } else {
+                                        writer.println("Invalid username or password.");
+                                    }
+
                                 }
                                 if (user != null) {
                                     while (true) {
@@ -62,10 +67,11 @@ public class TestServer {
 
                                                // System.out.print("Enter the username of the friend you want to add: ");
                                                 String friendName = reader.readLine().trim();
-                                                //  if (friendName.isEmpty()) {
+                                                 if (friendName.isEmpty()) {
                                                 // writer.println("Username cannot be empty.");
-                                                //  break;
-                                                // }
+                                                break;
+                                                }
+
                                                 List<String> Friends1 = user.getFriends();
                                                 User friend = database.getUser(friendName);
                                                 if ( friend != null) { //wanna make sure not already  friends
@@ -76,6 +82,7 @@ public class TestServer {
                                                 } else {
                                                     writer.println("not able to add friend");
                                                 }
+                                                break;
 
                                             case "2":
 

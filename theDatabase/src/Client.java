@@ -90,47 +90,53 @@ public class Client {
                     break;
                 }
                 String successOrFailure = in.readLine();
-              //  System.out.println(successOrFailure);
-               // while (true) {
+                System.out.println(successOrFailure);
+                while (true) {
                     if (successOrFailure.equals("success")) { //from server side
-                        System.out.println("Account created successfully!");
+                        System.out.println("Account created successfully!\n");
                         break;
                     } else {
                         System.out.println("Username already taken.\nPlease re-run the program to try again.");
                         break; //user has to rerun program manually
                     }
-              //  }
+                }
+                break;
             }
-                System.out.print("thanks for using our client!");
-                socket.close(); // this will end case 1
-            //break;
-            System.exit(0);
+                System.out.println("thanks for using our client!");
+            //socket.close(); // this will end case 1]
+            break;
 
 
                 case "2":
                     // Option to log in to an existing account
                     //User loggedInUser = runProject.login();
-                    System.out.println("Log In to ProjectMedia");
-                    System.out.print("Enter username: ");
-                    String userInputUsername = scan.nextLine().trim();
-                    out.println(userInputUsername);
+                    boolean loggedin = false;
+                    while(!loggedin) {
+                        System.out.println("Log In to ProjectMedia");
+                        System.out.print("Enter username: ");
+                        String userInputUsername = scan.nextLine().trim();
+                        out.println(userInputUsername);
 
-                    //String line = in.readLine();
-                 //  while(!line.equals("success")) {
+                        //String line = in.readLine();
+                        //  while(!line.equals("success")) {
+                        //if (line.equals("success")) {
+                        System.out.println("Enter password: ");
+                        String userInputPassword = scan.nextLine().trim();
+                        out.println(userInputPassword);
+                        String newLine = in.readLine();
+                        //while (!newLine.equals("success")) {
+                            if (newLine.equals("success")) {
+                                String result = in.readLine();
+                                System.out.println(result); // welcome back user
+                                loggedin = true;
+                            }
+                            else {
 
-                           System.out.println("Enter password: ");
-                           String userInputPassword = scan.nextLine().trim();
-                           out.println(userInputPassword);
-
-                           String newLine = in.readLine();
-                               if(newLine.equals("success")){
-                                   String result = in.readLine();
-                                   System.out.println(result); // welcome back user
-                               }else{
-                                   System.out.println("Invalid username or password. Try again");
-                                   break;
-                               }
-                 //  }
+                                //}
+                                System.out.println("Invalid username. Try again");
+                            }
+                        //  }
+                    }
 
                     boolean soFar = true;
                     /*
@@ -167,7 +173,7 @@ public class Client {
 
 
                     // If login is successful, show user-specific menu
-                    if (soFar) {
+                    while(soFar) {
                         // Loop for the user menu, available after logging in
 
                         // Display user-specific menu options
@@ -182,53 +188,27 @@ public class Client {
                         System.out.println("8. Search Users");
                         System.out.println("9. Logout");
                         System.out.print("Enter your choice (1-9): ");
-
                         // Get user input for user menu choice
                         String userChoice = scan.nextLine().trim();
                         out.println(userChoice);
 
                         switch (userChoice) {
-
-                            case "1": //if empty, return and should still be logged in
+                            case "1":
                                 // Add a friend
                                 //runProject.addFriend();
                                 //  if(user == null){
                                 //   System.out.println("Please log in first.");
                                 //  return; //? is this going to go back to log in menu?
                                 // }
-                               /* boolean continueOn = true;
-                                do{
-                                System.out.print("Enter the username of the friend you want to add: ");
-                                String friendName = scan.nextLine().trim();
-                                if(friendName.isEmpty()){
-                                    System.out.println("Username cannot be empty.");
-                                  //  continueOn = true;
-                                }else{
-                                    out.println(friendName);
-                                    continueOn = false;
-                                }
-                                } while(continueOn);
-                                */
-
 
                                 System.out.print("Enter the username of the friend you want to add: ");
                                 String friendName = scan.nextLine().trim();
-                                if(friendName.isEmpty()){
+
+                                if(friendName.isEmpty()) {
                                     System.out.println("Username cannot be empty.");
                                     break;
-                                    //  continueOn = true;
-                                }else{
-                                    out.println(friendName);
-                                   // continueOn = false;
                                 }
-
-                                String isSuccess = in.readLine();
-                                if(isSuccess.equals("success")){
-                                    System.out.println(friendName + "has been successfully added.");
-                                } else{
-                                    System.out.println("User not able to be added. Doesnt exist.");
-                                }
-                                break; //
+                                out.println(friendName);
 
                                /*server side User friend = database.getUser(friendName);
                                 if (friend != null) {
@@ -238,14 +218,14 @@ public class Client {
                                     System.out.println("User not found.");
                                 }
                                 */
-                               // String result = in.readLine();
-                               // if (result.equals("success")) {
+                                String result = in.readLine();
+                                if (result.equals("success")) {
                                     //String friend = in.readLine();
-                                  //  System.out.println(friendName + "has been added to your friends!");
-                              //  } else {
-                                   // System.out.println("User not found");
-                               // }
-                               // break; // ends it there
+                                    System.out.println(friendName + " has been added to your friends!");
+                                } else {
+                                    System.out.println("User not found");
+                                }
+                                break; // ends it there
                             case "2":
                               /*  if (user == null) {
                                     System.out.println("Please log in first.");
@@ -256,16 +236,15 @@ public class Client {
 
                                 System.out.print("Enter the username of the friend you want to remove: ");
                                 String removeFriendName = scan.nextLine().trim();
-                                if(removeFriendName.isEmpty()){
+                                do {
                                     System.out.println("Username cannot be empty.");
-                                } else{
-                            out.println(removeFriendName);
-                        }
+                                } while (removeFriendName.isEmpty());
+                                out.println(removeFriendName);
 
 
                                 String readingLine = in.readLine();
                                 if (readingLine.equals("success")) {
-                                    System.out.println(removeFriendName + "has been removed from your friends!");
+                                    System.out.println(removeFriendName + "has been removed to your friends!");
                                 } else {
                                     System.out.println("User not found");//doesnt make sense to reprompt until exists
                                 }
@@ -284,10 +263,10 @@ public class Client {
                                     case "1":
                                         System.out.print("Enter the username of the user to block: ");
                                         String blockedUsername = scan.nextLine().trim();
-                                        if(blockedUsername.isEmpty()){
+                                        do {
                                             System.out.println("Username cannot be empty.");
-                                        break;
-                                        }
+                                        } while (blockedUsername.isEmpty());
+
                                         out.println(blockedUsername); // send to server to block
                                         String input = in.readLine(); //now u want to get the user blocked
                                         //User blockedUser = scan.getUser(blockedUsername);
@@ -441,7 +420,7 @@ public class Client {
                             case "8":
 
                                 System.out.println("Available users:");
-ArrayList<String> usernamesArray = new ArrayList<>();
+                                ArrayList<String> usernamesArray = new ArrayList<>();
 
 
                              //   while(!hasMoreUsers.equals("more")) {
@@ -482,9 +461,10 @@ ArrayList<String> usernamesArray = new ArrayList<>();
                             case "9":
                                 // Logout option to exit the user menu
                                 System.out.println("Logging out...");
-                                socket.close();
-                                System.exit(0);
-
+                                String log = in.readLine();
+                                if (log.equals("LoggedOut")) {
+                                    break; // Return to main menu
+                                }
                                // loggedInUser = null; // Clear logged-in user
                                 break;
                             default: //would this run again? -> test
@@ -494,12 +474,7 @@ ArrayList<String> usernamesArray = new ArrayList<>();
 
                         // Exit the user menu loop if logged out
                         //after case 9
-                       // String log = in.readLine();
-                        //if (log.equals("LoggedOut")) {
-                           // break; // Return to main men
-                         //   socket.close();
-                         //   System.exit(0); //exits program
-                        //}
+
                     }
 
             break;
