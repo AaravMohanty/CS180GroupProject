@@ -151,14 +151,18 @@ public class TestServer {
                                             case "4":
 
 
-                                                System.out.print("Enter the username of the receiver: ");
+                                                //writer.print("Enter the username of the receiver: ");
                                                 String receiverUsername = reader.readLine().trim();
+                                                if (receiverUsername.isEmpty()) {
+                                                    break;
+                                                }
                                                 User receiver = database.getUser(receiverUsername);
 
                                                 if (receiver == null) {
                                                     writer.println("User not found.");
                                                     break;
                                                 }
+                                                writer.println("userfound");
 
 //this might not match up > need to test content here too?
                                                 String content = reader.readLine().trim();
@@ -168,7 +172,7 @@ public class TestServer {
                                                 //   }
 
                                                 if (user.sendMessage(receiver, content)) {
-                                                    writer.println("success!");
+                                                    writer.println("success");
                                                 } else {
                                                     writer.println("Failed to send message. Ensure you are friends with "
                                                             + receiverUsername + " and " + receiverUsername

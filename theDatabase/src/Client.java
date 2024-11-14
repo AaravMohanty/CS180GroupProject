@@ -337,6 +337,7 @@ public class Client {
                                     System.out.println("Message cannot be empty.");
                                     break;
                                 }
+                                out.println(content);
                                 String sent = in.readLine();
 
                                 if (sent.equals("success")) {
