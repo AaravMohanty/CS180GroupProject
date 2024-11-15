@@ -245,13 +245,16 @@ public class TestServer {
                                                 String usernameToView = reader.readLine().trim();
                                                 User profileUser = database.getUser(usernameToView);
 
-
                                                 if (profileUser != null && database.getUsers().contains(profileUser)) {
                                                     writer.println("success");
+
+
                                                     writer.println(profileUser.displayUser());
+                                                    writer.println("END");
                                                 } else {
                                                     writer.println("User not found.");
-                                                } // View the selected profile
+                                                }
+
 
 
                                                 break;
@@ -266,8 +269,9 @@ public class TestServer {
                                                 // boolean keepGoing = true;
                                                 //while(keepGoing) {
                                                 for (User user1 : database.getUsers()) {
-                                                    writer.println("- " + user1.getUsername());
+                                                    writer.println(user1.getUsername());
                                                 }
+                                                writer.println("END");
                                                 //  keepGoing = false;
                                                 // writer.println("more");
                                                 //}
@@ -279,6 +283,7 @@ public class TestServer {
 
                                                 if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
                                                     writer.println(profileUser3.displayUser());
+                                                    writer.println("END");
                                                 } else {
                                                     writer.println("User not found.");
                                                 } // View the selected profile

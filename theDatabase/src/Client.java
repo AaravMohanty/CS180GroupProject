@@ -420,12 +420,14 @@ public class Client {
                                 System.out.print("Enter the username of the profile you want to view: ");
                                 String usernameToView = scan.nextLine().trim();
                                 out.println(usernameToView);
-                               // User profileUser = database.getUser(usernameToView);
-                                String isProfileUserValid =  in.readLine();
-                                if(isProfileUserValid.equals("success")){
-                                    String next = in.readLine();
-                                    System.out.println(next);
-                                }else{
+
+                                String isProfileUserValid = in.readLine();
+                                if (isProfileUserValid.equals("success")) {
+                                    String next;
+                                    while (!(next = in.readLine()).equals("END")) {
+                                        System.out.println(next);
+                                    }
+                                } else {
                                     System.out.println("User not found");
                                 }
 
@@ -446,42 +448,30 @@ public class Client {
                                 System.out.println("Available users:");
                                 ArrayList<String> usernamesArray = new ArrayList<>();
 
-
-                             //   while(!hasMoreUsers.equals("more")) {
-                                    String userNames = in.readLine();
-                                    while(userNames != null) {
-                                        usernamesArray.add(userNames);
-                                        System.out.println("- " + userNames);
-                                        //String userNamez = in.readLine(); //keep getting the userna,es
-                                    }
-                               // }
+                                String userNames;
+                                while (!(userNames = in.readLine()).equals("END")) { // End of user list with "END"
+                                    usernamesArray.add(userNames);
+                                    System.out.println("- " + userNames);
+                                }
 
                                 System.out.print("Enter the username of the profile to view: ");
                                 String usernameViewing = scan.nextLine().trim();
                                 out.println(usernameViewing);
-                                if(usernamesArray.isEmpty()) {
+
+                                if (usernameViewing.isEmpty()) {
                                     System.out.println("Username cannot be empty.");
-                                }
-                                if(!usernamesArray.contains(usernameViewing)){
+                                } else if (!usernamesArray.contains(usernameViewing)) {
                                     System.out.println("User does not exist.");
+                                } else {
+                                    String next;
+                                    while (!(next = in.readLine()).equals("END")) { // Read profile information until "END"
+                                        System.out.println(next);
+                                    }
                                 }
 
-                               // User profileUser = database.getUser(usernameToView);
 
-                              //  if (profileUser != null) {
-                                   // viewUserProfile(profileUser); // View the selected profile
-                               // } else {
-                                 //   System.out.println("User not found.");
-                            //    }
-
-                                    String wantedUserProfile = in.readLine();
-                                    //viewUserProfile(profileUser) & return to client
-                                    System.out.println(wantedUserProfile);
-
-
-                                // Search for users and view profiles
-                               // runProject.search();
                                 break;
+
                             case "9":
                                 // Logout option to exit the user menu
                                 System.out.println("Logging out...");
