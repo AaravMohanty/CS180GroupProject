@@ -103,12 +103,14 @@ public class TestServer { //extends thread
                                                     if (!removeFriendName.isEmpty()) {
                                                         Friends = user.getFriends();
                                                     }
+                                                    synchronized(lock) {
 
-                                                    if (database.getUser(removeFriendName) != null && Friends.contains(removeFriendName)) {
-                                                        user.removeFriend(removeFriendName);
-                                                        writer.println("success");
-                                                    } else {
-                                                        writer.println("not able to remove friend");
+                                                        if (database.getUser(removeFriendName) != null && Friends.contains(removeFriendName)) {
+                                                            user.removeFriend(removeFriendName);
+                                                            writer.println("success");
+                                                        } else {
+                                                            writer.println("not able to remove friend");
+                                                        }
                                                     }
                                                     break;
 
@@ -118,34 +120,39 @@ public class TestServer { //extends thread
                                                     switch (blockUnblockChoice) {
                                                         case "1":
                                                             String blockedUsername = reader.readLine().trim();
-                                                            User blockedUser = database.getUser(blockedUsername);
+                                                            synchronized(lock){
+                                                                User blockedUser = database.getUser(blockedUsername);
 
-                                                            if (blockedUser == null) {
-                                                                writer.println("User not found.");
-                                                                break;
+                                                                if (blockedUser == null) {
+                                                                    writer.println("User not found.");
+                                                                    break;
+                                                                }
+
+                                                                if (user.blockUser(blockedUser)) {
+                                                                    writer.println("success");
+                                                                } else {
+                                                                    writer.println("User could not be blocked.");
+                                                                }
                                                             }
 
-                                                            if (user.blockUser(blockedUser)) {
-                                                                writer.println("success");
-                                                            } else {
-                                                                writer.println("User could not be blocked.");
-                                                            }
                                                             break;
 
                                                         case "2":
                                                             String unblockedUsername = reader.readLine().trim();
-                                                            User unblockedUser = database.getUser(unblockedUsername);
+                                                            synchronized(lock) {
+                                                                User unblockedUser = database.getUser(unblockedUsername);
 
-                                                            if (unblockedUser == null) {
-                                                                writer.println("User not found.");
-                                                                break;
-                                                            }
+                                                                if (unblockedUser == null) {
+                                                                    writer.println("User not found.");
+                                                                    break;
+                                                                }
 
-                                                            if (user.unblockUser(unblockedUser)) {
-                                                                writer.println("success");
-                                                                user.removeFriend(unblockedUsername);
-                                                            } else {
-                                                                writer.println("failure");
+                                                                if (user.unblockUser(unblockedUser)) {
+                                                                    writer.println("success");
+                                                                    user.removeFriend(unblockedUsername);
+                                                                } else {
+                                                                    writer.println("failure");
+                                                                }
                                                             }
                                                             break;
 
@@ -160,70 +167,83 @@ public class TestServer { //extends thread
                                                     if (receiverUsername.isEmpty()) {
                                                         break;
                                                     }
-                                                    User receiver = database.getUser(receiverUsername);
+                                                    synchronized(lock) {
 
-                                                    if (receiver == null) {
-                                                        writer.println("User not found.");
-                                                        break;
-                                                    }
-                                                    writer.println("userfound");
 
-                                                    String content = reader.readLine().trim();
+                                                        User receiver = database.getUser(receiverUsername);
 
-                                                    if (user.sendMessage(receiver, content)) {
-                                                        writer.println("success");
-                                                    } else {
-                                                        writer.println("Failed to send message. Ensure you are friends with "
-                                                                + receiverUsername + " and " + receiverUsername
-                                                                + " is your friend");
+                                                        if (receiver == null) {
+                                                            writer.println("User not found.");
+                                                            break;
+                                                        }
+                                                        writer.println("userfound");
+
+                                                        String content = reader.readLine().trim();
+
+                                                        if (user.sendMessage(receiver, content)) {
+                                                            writer.println("success");
+                                                        } else {
+                                                            writer.println("Failed to send message. Ensure you are friends with "
+                                                                    + receiverUsername + " and " + receiverUsername
+                                                                    + " is your friend");
+                                                        }
                                                     }
                                                     break;
 
                                                 case "5":
+
                                                     String receiverUsername1 = reader.readLine().trim();
-                                                    User receiver1 = database.getUser(receiverUsername1);
+                                                    synchronized(lock) {
 
-                                                    if (receiver1 == null) {
-                                                        break;
-                                                    }
 
-                                                    String content1 = reader.readLine().trim();
-                                                    if (content1.isEmpty()) {
-                                                        break;
-                                                    }
+                                                        User receiver1 = database.getUser(receiverUsername1);
 
-                                                    if (user.sendPhoto(receiver1, content1)) {
-                                                        writer.println("Message sent!");
-                                                    } else {
-                                                        writer.println("Failed to send Photo.");
+                                                        if (receiver1 == null) {
+                                                            break;
+                                                        }
+
+                                                        String content1 = reader.readLine().trim();
+                                                        if (content1.isEmpty()) {
+                                                            break;
+                                                        }
+
+                                                        if (user.sendPhoto(receiver1, content1)) {
+                                                            writer.println("Message sent!");
+                                                        } else {
+                                                            writer.println("Failed to send Photo.");
+                                                        }
                                                     }
                                                     break;
 
                                                 case "6":
                                                     String username2 = reader.readLine().trim();
-                                                    User receiver2 = database.getUser(username2);
-                                                    if (receiver2 == null) {
-                                                        break;
-                                                    }
-                                                    String content2 = reader.readLine().trim();
+                                                    synchronized(lock) {
+                                                        User receiver2 = database.getUser(username2);
+                                                        if (receiver2 == null) {
+                                                            break;
+                                                        }
+                                                        String content2 = reader.readLine().trim();
 
-                                                    if (user.deleteMessage(receiver2, content2)) {
-                                                        writer.println("success");
-                                                    } else {
-                                                        writer.println("Failed to delete message.");
+                                                        if (user.deleteMessage(receiver2, content2)) {
+                                                            writer.println("success");
+                                                        } else {
+                                                            writer.println("Failed to delete message.");
+                                                        }
                                                     }
                                                     break;
 
                                                 case "7":
                                                     String usernameToView = reader.readLine().trim();
-                                                    User profileUser = database.getUser(usernameToView);
+                                                    synchronized(lock) {
+                                                        User profileUser = database.getUser(usernameToView);
 
-                                                    if (profileUser != null && database.getUsers().contains(profileUser)) {
-                                                        writer.println("success");
-                                                        writer.println(profileUser.displayUser());
-                                                        writer.println("END");
-                                                    } else {
-                                                        writer.println("User not found.");
+                                                        if (profileUser != null && database.getUsers().contains(profileUser)) {
+                                                            writer.println("success");
+                                                            writer.println(profileUser.displayUser());
+                                                            writer.println("END");
+                                                        } else {
+                                                            writer.println("User not found.");
+                                                        }
                                                     }
                                                     break;
 
@@ -232,20 +252,22 @@ public class TestServer { //extends thread
                                                         writer.println("Please log in first.");
                                                         return;
                                                     }
+                                                    synchronized(lock) {
 
-                                                    for (User user1 : database.getUsers()) {
-                                                        writer.println(user1.getUsername());
-                                                    }
-                                                    writer.println("END");
-
-                                                    String usernameToView1 = reader.readLine().trim();
-                                                    User profileUser3 = database.getUser(usernameToView1);
-
-                                                    if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
-                                                        writer.println(profileUser3.displayUser());
+                                                        for (User user1 : database.getUsers()) {
+                                                            writer.println(user1.getUsername());
+                                                        }
                                                         writer.println("END");
-                                                    } else {
-                                                        writer.println("User not found.");
+
+                                                        String usernameToView1 = reader.readLine().trim();
+                                                        User profileUser3 = database.getUser(usernameToView1);
+
+                                                        if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
+                                                            writer.println(profileUser3.displayUser());
+                                                            writer.println("END");
+                                                        } else {
+                                                            writer.println("User not found.");
+                                                        }
                                                     }
                                                     break;
 
