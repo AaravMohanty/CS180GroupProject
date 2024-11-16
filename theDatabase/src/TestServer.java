@@ -68,7 +68,7 @@ public class TestServer { //extends thread
                                             }
                                         }
                                     }
-                                    boolean sofar = false;
+                                    boolean sofar = true;
 
                                     while (sofar) {
                                         synchronized (lock) {
