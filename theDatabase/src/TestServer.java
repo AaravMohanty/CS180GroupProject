@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestServer { //extends thread
-    private static Database database;
     public static final Object lock = new Object();
-    public static void main(String[] args){
+    private static Database database;
+
+    public static void main(String[] args) {
         database = new Database();
 
-
-        try{
+        try {
             ServerSocket serverSocket = new ServerSocket(1234);
             System.out.println("Server is running on port " + 1234 + "...");
-            while(true){
+            while (true) {
                 Socket socket = serverSocket.accept();
                 new Thread(() -> {
                     BufferedReader reader = null;
@@ -23,16 +23,16 @@ public class TestServer { //extends thread
                         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         writer = new PrintWriter(socket.getOutputStream(), true);
 
-                        while(true) {
-
+                        while (true) {
                             String line = reader.readLine();
+                            System.out.println(line);
                             switch (line) {
                                 case "1":
-                                    synchronized(lock) {
+                                    synchronized (lock) {
                                         String username = reader.readLine();
                                         String password = reader.readLine();
                                         String bio = reader.readLine();
-                                        String pfp = reader.readLine();//one extra sent to server then off by 1
+                                        String pfp = reader.readLine(); //one extra sent to server then off by 1
 
                                         if (database.createUser(username, password, bio, pfp)) {
                                             writer.println("success");
@@ -43,16 +43,23 @@ public class TestServer { //extends thread
                                         break;
                                     }
 
-
                                 case "2":
                                     User user;
                                     while (true) {
-                                        synchronized(lock) {
+                                        synchronized (lock) {
                                             String username1 = reader.readLine().trim();
+                                            System.out.println("username " + username1);
                                             String pass = reader.readLine().trim();
+                                            System.out.println("password '" + pass + "'");
                                             user = database.getUser(username1);
-                                            if (user != null && user.getPassword().equals(pass)) {
-                                                // writer.println("Login successful! Welcome back, " + username1 + "!");
+                                            System.out.println(user.displayUser());
+                                            System.out.println("'" + user.getPassword() + "'");
+                                            if (user != null) {
+                                                System.out.println("user is not null");
+                                            } else {
+                                                System.out.println("user is null");
+                                            }
+                                            if (user != null && user.getPassword().trim().equals(pass)) {
                                                 writer.println("success");
                                                 writer.println("Login successful! Welcome back, " + username1 + "!");
                                                 break;
@@ -60,227 +67,209 @@ public class TestServer { //extends thread
                                                 writer.println("Invalid username or password.");
                                             }
                                         }
-
                                     }
-                                    if (user != null) {
-                                        while (true) {
-                                            synchronized (lock) {
-                                                String choice = reader.readLine().trim();
+                                    boolean sofar = false;
 
-                                                switch (choice) {
-                                                    case "1":
-                                                        // Add a friend
+                                    while (sofar) {
+                                        synchronized (lock) {
+                                            String choice = reader.readLine().trim();
 
-                                                        // System.out.print("Enter the username of the friend you want to add: ");
-                                                        String friendName = reader.readLine().trim();
-                                                        if (friendName.isEmpty()) {
-                                                            // writer.println("Username cannot be empty.");
-                                                            break;
-                                                        }
-
-                                                        List<String> Friends1 = user.getFriends();
-                                                        User friend = database.getUser(friendName);
-                                                        if (friend != null && !Friends1.contains(friendName)) { //wanna make sure not already  friends
-                                                            writer.println("success");
-                                                            user.addFriend(friend);
-                                                            Friends1.add(friendName);
-                                                            //System.out.println(friendName + "has been added as your friend");
-                                                        } else {
-                                                            writer.println("not able to add friend");
-                                                        }
+                                            switch (choice) {
+                                                case "1":
+                                                    String friendName = reader.readLine().trim();
+                                                    if (friendName.isEmpty()) {
                                                         break;
+                                                    }
 
-                                                    case "2":
-                                                        if(user == null){
-                                                            break;
-                                                        }
-                                                        String removeFriendName = reader.readLine().trim();
-                                                        List<String> Friends = null;
-                                                        if(!removeFriendName.isEmpty()){
-                                                            Friends = user.getFriends();
+                                                    List<String> Friends1 = user.getFriends();
+                                                    User friend = database.getUser(friendName);
+                                                    if (friend != null && !Friends1.contains(friendName)) {
+                                                        writer.println("success");
+                                                        user.addFriend(friend);
+                                                        Friends1.add(friendName);
+                                                    } else {
+                                                        writer.println("not able to add friend");
+                                                    }
+                                                    break;
 
-                                                        }
-
-
-                                                        if (database.getUser(removeFriendName) != null && Friends.contains(removeFriendName)) {//user is friends
-                                                            user.removeFriend(removeFriendName);
-                                                            writer.println("success");
-                                                        } else {
-                                                            writer.println("not able to remove friend");
-                                                        }
+                                                case "2":
+                                                    if (user == null) {
                                                         break;
+                                                    }
+                                                    String removeFriendName = reader.readLine().trim();
+                                                    List<String> Friends = null;
+                                                    if (!removeFriendName.isEmpty()) {
+                                                        Friends = user.getFriends();
+                                                    }
 
-                                                    case "3":
+                                                    if (database.getUser(removeFriendName) != null && Friends.contains(removeFriendName)) {
+                                                        user.removeFriend(removeFriendName);
+                                                        writer.println("success");
+                                                    } else {
+                                                        writer.println("not able to remove friend");
+                                                    }
+                                                    break;
 
-                                                        // Receive the block or unblock choice from the client
-                                                        String blockUnblockChoice = reader.readLine().trim();
+                                                case "3":
+                                                    String blockUnblockChoice = reader.readLine().trim();
 
-                                                        switch (blockUnblockChoice) {
-                                                            case "1":  // Block user
-                                                                String blockedUsername = reader.readLine().trim();
-                                                                User blockedUser = database.getUser(blockedUsername);
+                                                    switch (blockUnblockChoice) {
+                                                        case "1":
+                                                            String blockedUsername = reader.readLine().trim();
+                                                            User blockedUser = database.getUser(blockedUsername);
 
-                                                                if (blockedUser == null) {
-                                                                    writer.println("User not found.");
-                                                                    break;
-                                                                }
-
-                                                                // Attempt to block the user
-                                                                if (user.blockUser(blockedUser)) {
-                                                                    writer.println("success");
-                                                                } else {
-                                                                    writer.println("User could not be blocked.");
-                                                                }
+                                                            if (blockedUser == null) {
+                                                                writer.println("User not found.");
                                                                 break;
+                                                            }
 
-                                                            case "2":  // Unblock user
-                                                                String unblockedUsername = reader.readLine().trim();
-                                                                User unblockedUser = database.getUser(unblockedUsername);
+                                                            if (user.blockUser(blockedUser)) {
+                                                                writer.println("success");
+                                                            } else {
+                                                                writer.println("User could not be blocked.");
+                                                            }
+                                                            break;
 
-                                                                if (unblockedUser == null) {
-                                                                    writer.println("User not found.");  // Send response to client
-                                                                    break;
-                                                                }
+                                                        case "2":
+                                                            String unblockedUsername = reader.readLine().trim();
+                                                            User unblockedUser = database.getUser(unblockedUsername);
 
-
-                                                                if (user.unblockUser(unblockedUser)) {
-                                                                    writer.println("success");
-                                                                    user.removeFriend(unblockedUsername);
-                                                                    // unblockedUser.removeFriend(username);
-                                                                } else {
-                                                                    writer.println("failure");
-                                                                }
+                                                            if (unblockedUser == null) {
+                                                                writer.println("User not found.");
                                                                 break;
+                                                            }
 
-                                                            default:
-                                                                writer.println("Invalid choice.");
-                                                                break;
-                                                        }
-                                                        break;
-
-                                                    case "4":
-
-                                                        String receiverUsername = reader.readLine().trim();
-                                                        if (receiverUsername.isEmpty()) {
+                                                            if (user.unblockUser(unblockedUser)) {
+                                                                writer.println("success");
+                                                                user.removeFriend(unblockedUsername);
+                                                            } else {
+                                                                writer.println("failure");
+                                                            }
                                                             break;
-                                                        }
-                                                        User receiver = database.getUser(receiverUsername);
 
-                                                        if (receiver == null) {
-                                                            writer.println("User not found.");
+                                                        default:
+                                                            writer.println("Invalid choice.");
                                                             break;
-                                                        }
-                                                        writer.println("userfound");
+                                                    }
+                                                    break;
 
-                                                        String content = reader.readLine().trim();
-
-
-                                                        if (user.sendMessage(receiver, content)) {
-                                                            writer.println("success");
-                                                        } else {
-                                                            writer.println("Failed to send message. Ensure you are friends with "
-                                                                    + receiverUsername + " and " + receiverUsername
-                                                                    + " is your friend");
-                                                        }
+                                                case "4":
+                                                    String receiverUsername = reader.readLine().trim();
+                                                    if (receiverUsername.isEmpty()) {
                                                         break;
-                                                    case "5":
-                                                        // Send a photo to another user
-                                                        String receiverUsername1 = reader.readLine().trim();
-                                                        User receiver1 = database.getUser(receiverUsername1);
+                                                    }
+                                                    User receiver = database.getUser(receiverUsername);
 
-                                                        if (receiver1 == null) {
-                                                            break;
-                                                        }
-
-                                                        String content1 = reader.readLine().trim();
-                                                        if (content1.isEmpty()) {
-                                                            break;
-                                                        }
-
-                                                        if (user.sendPhoto(receiver1, content1)) {
-                                                            writer.println("Message sent!");
-                                                        } else {
-                                                            writer.println("Failed to send Photo.");
-                                                        }
+                                                    if (receiver == null) {
+                                                        writer.println("User not found.");
                                                         break;
-                                                    case "6":
-                                                        String username2 = reader.readLine().trim();
-                                                        User receiver2 = database.getUser(username2);
-                                                        if (receiver2 == null) {
-                                                            break;
-                                                        }
-                                                        String content2 = reader.readLine().trim();
+                                                    }
+                                                    writer.println("userfound");
 
-                                                        if (user.deleteMessage(receiver2, content2)) {
-                                                            writer.println("success");
-                                                        } else {
-                                                            writer.println("Failed to delete message.");
-                                                        }
+                                                    String content = reader.readLine().trim();
+
+                                                    if (user.sendMessage(receiver, content)) {
+                                                        writer.println("success");
+                                                    } else {
+                                                        writer.println("Failed to send message. Ensure you are friends with "
+                                                                + receiverUsername + " and " + receiverUsername
+                                                                + " is your friend");
+                                                    }
+                                                    break;
+
+                                                case "5":
+                                                    String receiverUsername1 = reader.readLine().trim();
+                                                    User receiver1 = database.getUser(receiverUsername1);
+
+                                                    if (receiver1 == null) {
                                                         break;
-                                                    case "7":
-                                                        String usernameToView = reader.readLine().trim();
-                                                        User profileUser = database.getUser(usernameToView);
+                                                    }
 
-                                                        if (profileUser != null && database.getUsers().contains(profileUser)) {
-                                                            writer.println("success");
-                                                            writer.println(profileUser.displayUser());
-                                                            writer.println("END");
-                                                        } else {
-                                                            writer.println("User not found.");
-                                                        }
+                                                    String content1 = reader.readLine().trim();
+                                                    if (content1.isEmpty()) {
                                                         break;
-                                                    case "8":
-                                                        // Search for users and view profiles
-                                                        if (user == null) {
-                                                            writer.println("Please log in first.");
-                                                            return;
-                                                        }
+                                                    }
 
-                                                        for (User user1 : database.getUsers()) {
-                                                            writer.println(user1.getUsername());
-                                                        }
+                                                    if (user.sendPhoto(receiver1, content1)) {
+                                                        writer.println("Message sent!");
+                                                    } else {
+                                                        writer.println("Failed to send Photo.");
+                                                    }
+                                                    break;
+
+                                                case "6":
+                                                    String username2 = reader.readLine().trim();
+                                                    User receiver2 = database.getUser(username2);
+                                                    if (receiver2 == null) {
+                                                        break;
+                                                    }
+                                                    String content2 = reader.readLine().trim();
+
+                                                    if (user.deleteMessage(receiver2, content2)) {
+                                                        writer.println("success");
+                                                    } else {
+                                                        writer.println("Failed to delete message.");
+                                                    }
+                                                    break;
+
+                                                case "7":
+                                                    String usernameToView = reader.readLine().trim();
+                                                    User profileUser = database.getUser(usernameToView);
+
+                                                    if (profileUser != null && database.getUsers().contains(profileUser)) {
+                                                        writer.println("success");
+                                                        writer.println(profileUser.displayUser());
                                                         writer.println("END");
+                                                    } else {
+                                                        writer.println("User not found.");
+                                                    }
+                                                    break;
 
-                                                        String usernameToView1 = reader.readLine().trim();
-                                                        User profileUser3 = database.getUser(usernameToView1);
+                                                case "8":
+                                                    if (user == null) {
+                                                        writer.println("Please log in first.");
+                                                        return;
+                                                    }
 
+                                                    for (User user1 : database.getUsers()) {
+                                                        writer.println(user1.getUsername());
+                                                    }
+                                                    writer.println("END");
 
-                                                        if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
-                                                            writer.println(profileUser3.displayUser());
-                                                            writer.println("END");
-                                                        } else {
-                                                            writer.println("User not found.");
-                                                        }
+                                                    String usernameToView1 = reader.readLine().trim();
+                                                    User profileUser3 = database.getUser(usernameToView1);
 
-                                                        break;
-                                                    case "9":
-                                                        System.out.println("User after logout: " + user);
-                                                        break;
+                                                    if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
+                                                        writer.println(profileUser3.displayUser());
+                                                        writer.println("END");
+                                                    } else {
+                                                        writer.println("User not found.");
+                                                    }
+                                                    break;
 
-                                                    default:
-                                                        // Handle invalid user menu choices
-                                                        writer.println("Invalid choice. Please try again.");
-                                                        break;
-                                                }
+                                                case "9":
+                                                    user = null;
 
+                                                    System.out.println("User after logout: " + user);
+                                                    sofar = false;
+                                                    break;
 
+                                                default:
+                                                    writer.println("Invalid choice. Please try again.");
+                                                    break;
                                             }
                                         }
                                     }
-
-
+                                break;
                                 case "terminate":
-                                    // Exit the program
                                     writer.println("Have a nice day!");
                                     reader.close();
-                                    writer.close(); // Close the scanner before exiting
+                                    writer.close();
                                     return;
 
                                 default:
-                                    // Handle invalid main menu choices
-                                    writer.println("Invalid choice. Please enter 1, 2, or 3.");
+                                    //writer.println("Invalid choice. Please enter 1, 2, or 3.");
                                     break;
-
                             }
                         }
                     } catch (IOException e) {
@@ -295,19 +284,11 @@ public class TestServer { //extends thread
                             }
                         }
                         writer.close();
-
                     }
                 }).start();
-
-
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             //put something here
         }
     }
-
-
-
 }
-

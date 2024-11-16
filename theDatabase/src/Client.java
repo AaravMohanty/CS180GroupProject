@@ -99,7 +99,10 @@ public class Client {
                             System.out.println("Enter password: ");
                             String userInputPassword = scan.nextLine().trim();
                             out.println(userInputPassword);
+
                             String newLine = in.readLine();
+                            System.out.println("the writer is printing" + newLine);
+
                             if (newLine.equals("success")) {
                                 String result = in.readLine();
                                 System.out.println(result);
@@ -337,7 +340,7 @@ public class Client {
                                     break;
                             }
                         }
-
+                        break;
                     case "3":
                         System.out.println("Thanks for using our client. Have a nice day!");
                         out.println("terminate");
@@ -348,8 +351,8 @@ public class Client {
                     default:
                         System.out.println("Invalid choice. Please enter 1, 2, or 3.");
                 }
-                System.out.println("Thank you, bye!");
-                socket.close();
+                //System.out.println("Thank you, bye!");
+                //socket.close();
             }
 
 
