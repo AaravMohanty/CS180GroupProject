@@ -102,7 +102,7 @@ public class Client {
                 }
                 break;
             }
-                System.out.println("thanks for using our client!");
+                //System.out.println("thanks for using our client!");
             //socket.close(); // this will end case 1]
             break;
 
@@ -133,7 +133,7 @@ public class Client {
                             else {
 
                                 //}
-                                System.out.println("Invalid username. Try again");
+                                System.out.println("Invalid username or password. Try again");
                             }
                         //  }
                     }
@@ -496,7 +496,8 @@ public class Client {
 
         case "3":
             // Exit the program
-            System.out.println("Have a nice day!");
+            System.out.println("Thanks for using our client. Have a nice day!");
+            out.println("terminate");
             scan.close(); // Close the scanner before exiting
             socket.close();
             return;
