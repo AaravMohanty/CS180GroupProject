@@ -15,7 +15,7 @@ public class TestServer { //extends thread
             System.out.println("Server is running on port " + 1234 + "...");
             while(true){
                 Socket socket = serverSocket.accept();
-                new Thread(() -> { //put into run
+                new Thread(() -> {
                     BufferedReader reader = null;
                     PrintWriter writer = null;
                     try {
@@ -33,10 +33,7 @@ public class TestServer { //extends thread
                                         String password = reader.readLine();
                                         String bio = reader.readLine();
                                         String pfp = reader.readLine();//one extra sent to server then off by 1
-                                        // if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-                                        // writer.println("All fields are required. Please try again.");
-                                        // break;
-                                        //  }
+
                                         if (database.createUser(username, password, bio, pfp)) {
                                             writer.println("success");
                                         } else {
@@ -68,10 +65,7 @@ public class TestServer { //extends thread
                                     if (user != null) {
                                         while (true) {
                                             synchronized (lock) {
-
-
                                                 String choice = reader.readLine().trim();
-
 
                                                 switch (choice) {
                                                     case "1":
@@ -101,10 +95,6 @@ public class TestServer { //extends thread
                                                             break;
                                                         }
                                                         String removeFriendName = reader.readLine().trim();
-                                                        // if (removeFriendName.isEmpty()) {
-                                                        //   writer.println("Username cannot be empty.");
-                                                        //   break;
-                                                        // }
                                                         List<String> Friends = null;
                                                         if(!removeFriendName.isEmpty()){
                                                             Friends = user.getFriends();
@@ -170,8 +160,6 @@ public class TestServer { //extends thread
 
                                                     case "4":
 
-
-                                                        //writer.print("Enter the username of the receiver: ");
                                                         String receiverUsername = reader.readLine().trim();
                                                         if (receiverUsername.isEmpty()) {
                                                             break;
@@ -184,12 +172,8 @@ public class TestServer { //extends thread
                                                         }
                                                         writer.println("userfound");
 
-//this might not match up > need to test content here too?
                                                         String content = reader.readLine().trim();
-                                                        // if (content.isEmpty()) {
-                                                        //     writer.println("Message cannot be empty.");
-                                                        //   break;
-                                                        //   }
+
 
                                                         if (user.sendMessage(receiver, content)) {
                                                             writer.println("success");
@@ -201,21 +185,15 @@ public class TestServer { //extends thread
                                                         break;
                                                     case "5":
                                                         // Send a photo to another user
-
-
-                                                        //System.out.print("Enter the username of the receiver: ");
                                                         String receiverUsername1 = reader.readLine().trim();
                                                         User receiver1 = database.getUser(receiverUsername1);
 
                                                         if (receiver1 == null) {
-                                                            //writer.println("User not found.");
                                                             break;
                                                         }
 
-                                                        //System.out.print("Enter your photo's filepath: ");
                                                         String content1 = reader.readLine().trim();
                                                         if (content1.isEmpty()) {
-                                                            //    writer.println("Message cannot be empty.");
                                                             break;
                                                         }
 
@@ -226,23 +204,12 @@ public class TestServer { //extends thread
                                                         }
                                                         break;
                                                     case "6":
-                                                        // Delete a message with another user
-
-                                                        //System.out.print("Enter the username of the user: ");
                                                         String username2 = reader.readLine().trim();
                                                         User receiver2 = database.getUser(username2);
-
                                                         if (receiver2 == null) {
-                                                            //   writer.println("User not found.");
                                                             break;
                                                         }
-
-                                                        //System.out.print("Enter your message: ");
                                                         String content2 = reader.readLine().trim();
-                                                        // if (content2.isEmpty()) {
-                                                        // writer.println("Message cannot be empty.");
-                                                        //break;
-                                                        //  }
 
                                                         if (user.deleteMessage(receiver2, content2)) {
                                                             writer.println("success");
@@ -251,31 +218,16 @@ public class TestServer { //extends thread
                                                         }
                                                         break;
                                                     case "7":
-                                                        // View a specific user's profile
-
-
-                                                        //  writer.println("Available users:");
-
-                                                        //  for (User user1 : database.getUsers()) {
-                                                        //  writer.println("- " + user1.getUsername());
-                                                        //  }
-                                                        // writer.println("done");
-
-                                                        //  System.out.print("Enter the username of the profile to view: ");
                                                         String usernameToView = reader.readLine().trim();
                                                         User profileUser = database.getUser(usernameToView);
 
                                                         if (profileUser != null && database.getUsers().contains(profileUser)) {
                                                             writer.println("success");
-
-
                                                             writer.println(profileUser.displayUser());
                                                             writer.println("END");
                                                         } else {
                                                             writer.println("User not found.");
                                                         }
-
-
                                                         break;
                                                     case "8":
                                                         // Search for users and view profiles
@@ -284,18 +236,11 @@ public class TestServer { //extends thread
                                                             return;
                                                         }
 
-                                                        //   writer.println("Available users:");
-                                                        // boolean keepGoing = true;
-                                                        //while(keepGoing) {
                                                         for (User user1 : database.getUsers()) {
                                                             writer.println(user1.getUsername());
                                                         }
                                                         writer.println("END");
-                                                        //  keepGoing = false;
-                                                        // writer.println("more");
-                                                        //}
 
-                                                        //   writer.print("Enter the username of the profile to view: ");
                                                         String usernameToView1 = reader.readLine().trim();
                                                         User profileUser3 = database.getUser(usernameToView1);
 
@@ -305,14 +250,10 @@ public class TestServer { //extends thread
                                                             writer.println("END");
                                                         } else {
                                                             writer.println("User not found.");
-                                                        } // View the selected profile
-                                                        ;
+                                                        }
 
                                                         break;
                                                     case "9":
-                                                        // Logout option to exit the user menu
-                                                        // writer.println("Logging out...");
-                                                        user = null; // Clear logged-in user
                                                         System.out.println("User after logout: " + user);
                                                         break;
 
