@@ -45,8 +45,9 @@ public class TestServer { //extends thread
 
                                 case "2":
                                     User user;
-                                    while (true) {
-                                        synchronized (lock) {
+                                    synchronized (lock) {
+                                        while (true) {
+
                                             String username1 = reader.readLine().trim();
                                             System.out.println("username " + username1);
                                             String pass = reader.readLine().trim();
@@ -69,26 +70,27 @@ public class TestServer { //extends thread
                                         }
                                     }
                                     boolean sofar = true;
-
                                     while (sofar) {
-                                        synchronized (lock) {
+
                                             String choice = reader.readLine().trim();
 
                                             switch (choice) {
                                                 case "1":
+
                                                     String friendName = reader.readLine().trim();
                                                     if (friendName.isEmpty()) {
                                                         break;
                                                     }
-
-                                                    List<String> Friends1 = user.getFriends();
-                                                    User friend = database.getUser(friendName);
-                                                    if (friend != null && !Friends1.contains(friendName)) {
-                                                        writer.println("success");
-                                                        user.addFriend(friend);
-                                                        Friends1.add(friendName);
-                                                    } else {
-                                                        writer.println("not able to add friend");
+                                                    synchronized(lock) {
+                                                        List<String> Friends1 = user.getFriends();
+                                                        User friend = database.getUser(friendName);
+                                                        if (friend != null && !Friends1.contains(friendName)) {
+                                                            writer.println("success");
+                                                            user.addFriend(friend);
+                                                            Friends1.add(friendName);
+                                                        } else {
+                                                            writer.println("not able to add friend");
+                                                        }
                                                     }
                                                     break;
 
@@ -258,7 +260,7 @@ public class TestServer { //extends thread
                                                     writer.println("Invalid choice. Please try again.");
                                                     break;
                                             }
-                                        }
+
                                     }
                                 break;
                                 case "terminate":
