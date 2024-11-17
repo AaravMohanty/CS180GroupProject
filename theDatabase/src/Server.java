@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestServer implements Runnable { //extends thread
+public class Server implements Runnable { //extends thread
     public static final Object lock = new Object();
     private static Database database;
 
@@ -17,7 +17,7 @@ public class TestServer implements Runnable { //extends thread
             System.out.println("Server is running on port " + 1234 + "...");
 
             while (true) {
-                Thread t = new Thread(new TestServer());
+                Thread t = new Thread(new Server());
                 t.start();
             }
         } catch (OutOfMemoryError e) {
