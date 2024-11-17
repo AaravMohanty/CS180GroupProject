@@ -46,7 +46,7 @@ Used by User for sending and receiving messages and is called by RunProject to m
 ## RunProject Class:
 
 Functionality:
-It is the main method for the program. Manages user interactions, such as creating accounts, logging in, viewing profiles, adding friends, blocking users, and sending messages.
+This class is used to test database functionality using the terminal. Manages user interactions, such as creating accounts, logging in, viewing profiles, adding friends, blocking users, and sending messages.
 
 Testing:
 Inorder to check the RunProject class, there is a JUnitTest for each method. In order to verify we utilize the AssertTrue method. 
@@ -141,6 +141,29 @@ There was no testing for this test class.
 
 Relationship to other classes:
 This class is in correlation to the RunProject class, and works to test it and works smoothly.
+
+## Server Class
+
+Functionality:
+The server class that handles all the logic of our program. Communicates with the client to determine the action that needs to be taken. Additionally, implements Runnable to create Threads and maintains Thread concurrency.
+
+Testing:
+Created a JUnit test to ensure all the methods returned the appropriate outputs based on the inputs that are entered.
+
+Relationship to other classes:
+Implements the runnable interface and communicates with the client class to receive and send information.
+
+
+## Client Class
+
+Functionality:
+The client class handles all the prompting for our user as well as sends information to the server class so that the appropriate logic can be executed based on the user's input into the client.
+
+Testing:
+There was no JUnit test for this class as it all involved Network IO.
+
+Relationship to other classes:
+Sends and receives information from the server class.
 
 
 
