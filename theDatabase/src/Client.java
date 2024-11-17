@@ -174,7 +174,8 @@ public class Client {
                                     String readingLine = in.readLine();
                                     //System.out.print(readingLine);
                                     if (readingLine.equals("success")) {
-                                        //System.out.println(removeFriendName + "has been removed to your friends!");
+                                        //System.out.println
+                                        //(removeFriendName + "has been removed to your friends!");
                                     } else {
                                         //System.out.println("User not found");
                                     }
@@ -257,7 +258,8 @@ public class Client {
                                     if (sent.equals("success")) {
                                         //System.out.println("Message sent!");
                                     } else {
-                                        //System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
+                                        //System.out.println("Failed to send message. 
+                                        //Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
                                     }
                                     break;
 
