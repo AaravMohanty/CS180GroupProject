@@ -14,7 +14,7 @@ import java.util.List;
  */
 
 public class Server implements Runnable { //extends thread
-    public static final Object lock = new Object();
+    public static final Object LOCK = new Object();
     private static Database database;
 
 
@@ -31,7 +31,9 @@ public class Server implements Runnable { //extends thread
                 t.start();
             }
         } catch (OutOfMemoryError e) {
+            ;
         } catch (IOException e) {
+            ;
         }
 
     }
@@ -53,7 +55,7 @@ public class Server implements Runnable { //extends thread
                     System.out.println(line);
                     switch (line) {
                         case "1":
-                            synchronized (lock) {
+                            synchronized (LOCK) {
                                 String username = reader.readLine();
                                 String password = reader.readLine();
                                 String bio = reader.readLine();
@@ -70,7 +72,7 @@ public class Server implements Runnable { //extends thread
 
                         case "2":
                             User user;
-                            synchronized (lock) {
+                            synchronized (LOCK) {
                                 while (true) {
 
                                     String username1 = reader.readLine().trim();
@@ -110,7 +112,7 @@ public class Server implements Runnable { //extends thread
                                         if (friendName.isEmpty()) {
                                             break;
                                         }
-                                        synchronized (lock) {
+                                        synchronized (LOCK) {
 
                                             User friend = database.getUser(friendName);
                                             if (friend != null && !user.getFriends().contains(friendName)) {
@@ -132,7 +134,7 @@ public class Server implements Runnable { //extends thread
 
 
                                         if (database.getUser(removeFriendName) != null) {
-                                            synchronized (lock) {
+                                            synchronized (LOCK) {
                                                 if(user.removeFriend(removeFriendName)) {
 
                                                     writer.println("success");
@@ -148,41 +150,41 @@ public class Server implements Runnable { //extends thread
                                         break;
 
                                     case "3":
-                                        String blockUnblockChoice = reader.readLine().trim();
+                                        String bLOCKUnbLOCKChoice = reader.readLine().trim();
 
-                                        switch (blockUnblockChoice) {
+                                        switch (bLOCKUnbLOCKChoice) {
                                             case "1":
-                                                String blockedUsername = reader.readLine().trim();
-                                                synchronized (lock) {
-                                                    User blockedUser = database.getUser(blockedUsername);
+                                                String bLOCKedUsername = reader.readLine().trim();
+                                                synchronized (LOCK) {
+                                                    User bLOCKedUser = database.getUser(bLOCKedUsername);
 
-                                                    if (blockedUser == null) {
+                                                    if (bLOCKedUser == null) {
                                                         writer.println("User not found.");
                                                         break;
                                                     }
 
-                                                    if (user.blockUser(blockedUser)) {
+                                                    if (user.bLOCKUser(bLOCKedUser)) {
                                                         writer.println("success");
                                                     } else {
-                                                        writer.println("User could not be blocked.");
+                                                        writer.println("User could not be bLOCKed.");
                                                     }
                                                 }
 
                                                 break;
 
                                             case "2":
-                                                String unblockedUsername = reader.readLine().trim();
-                                                synchronized (lock) {
-                                                    User unblockedUser = database.getUser(unblockedUsername);
+                                                String unbLOCKedUsername = reader.readLine().trim();
+                                                synchronized (LOCK) {
+                                                    User unbLOCKedUser = database.getUser(unbLOCKedUsername);
 
-                                                    if (unblockedUser == null) {
+                                                    if (unbLOCKedUser == null) {
                                                         writer.println("User not found.");
                                                         break;
                                                     }
 
-                                                    if (user.unblockUser(unblockedUser)) {
+                                                    if (user.unbLOCKUser(unbLOCKedUser)) {
                                                         writer.println("success");
-                                                        user.removeFriend(unblockedUsername);
+                                                        user.removeFriend(unbLOCKedUsername);
                                                     } else {
                                                         writer.println("failure");
                                                     }
@@ -200,7 +202,7 @@ public class Server implements Runnable { //extends thread
                                         if (receiverUsername.isEmpty()) {
                                             break;
                                         }
-                                        synchronized (lock) {
+                                        synchronized (LOCK) {
 
 
                                             User receiver = database.getUser(receiverUsername);
@@ -216,7 +218,8 @@ public class Server implements Runnable { //extends thread
                                             if (user.sendMessage(receiver, content)) {
                                                 writer.println("success");
                                             } else {
-                                                writer.println("Failed to send message. Ensure you are friends with "
+                                                writer.println(
+                                                    "Failed to send message. Ensure you are friends with "
                                                         + receiverUsername + " and " + receiverUsername
                                                         + " is your friend");
                                             }
@@ -226,7 +229,7 @@ public class Server implements Runnable { //extends thread
                                     case "5":
 
                                         String receiverUsername1 = reader.readLine().trim();
-                                        synchronized (lock) {
+                                        synchronized (LOCK) {
 
 
                                             User receiver1 = database.getUser(receiverUsername1);
@@ -258,7 +261,7 @@ public class Server implements Runnable { //extends thread
                                             break;
                                         }
                                         String content2 = reader.readLine().trim();
-                                        synchronized (lock) {
+                                        synchronized (LOCK) {
                                             if (user.deleteMessage(receiver2, content2)) {
                                                 writer.println("success");
                                             } else {
@@ -271,7 +274,7 @@ public class Server implements Runnable { //extends thread
 
                                     case "7":
                                         String usernameToView = reader.readLine().trim();
-                                        synchronized (lock) {
+                                        synchronized (LOCK) {
                                             User profileUser = database.getUser(usernameToView);
 
                                             if (profileUser != null && database.getUsers().contains(profileUser)) {
@@ -289,7 +292,7 @@ public class Server implements Runnable { //extends thread
                                             writer.println("Please log in first.");
                                             return;
                                         }
-                                        synchronized (lock) {
+                                        synchronized (LOCK) {
 
                                             for (User user1 : database.getUsers()) {
                                                 writer.println(user1.getUsername());
@@ -299,7 +302,8 @@ public class Server implements Runnable { //extends thread
                                             String usernameToView1 = reader.readLine().trim();
                                             User profileUser3 = database.getUser(usernameToView1);
 
-                                            if (profileUser3 != null && database.getUsers().contains(profileUser3)) {
+                                            if (profileUser3 != null && 
+                                                database.getUsers().contains(profileUser3)) {
                                                 writer.println(profileUser3.displayUser());
                                                 writer.println("END");
                                             } else {
