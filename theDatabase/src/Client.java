@@ -3,6 +3,15 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * The Client class to prompt the user and interact with the server.
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ *
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version November 17th, 2024
+ */
+
 public class Client {
     public static void main(String[] args) {
         String hostname;
