@@ -2,8 +2,9 @@
 
 **How to compile and run the program:**
 1. Go to your project directory which contains all of this project’s files on terminal and run the command: javac *.java to compile all of the files
-2. After compiling, you can run the main method class called “RunProject.java” using the following command on terminal: java runProject
-3. When you run that, the program will give you a menu of options and you can follow the instructions accordingly to create an account, log into an account, add friends, remove friends, message users, block users, unblock users, and view users.
+2. After compiling, you can run the main method class in order to try it out without establishing a server or client called “RunProject.java” using the following command on terminal: java RunProject
+3. To run the project with multiple clients, run the "Server.java" class using the following command on terminal: java Server -- followed by as many clients as needed using the following command on terminal: java Client
+4. When you run that, the program will give you a menu of options and you can follow the instructions accordingly to create an account, log into an account, or exit, followed by a series of options dependent on what you choose. 
 
 **Submission:**
 Elan Smyla - Submitted Vocareum workspace
@@ -153,6 +154,10 @@ Created a JUnit test to ensure all the methods returned the appropriate outputs 
 Relationship to other classes:
 Implements the runnable interface and communicates with the client class to receive and send information.
 
+## Server Interface
+
+Functionality: 
+Defines the methods used in the Server class.
 
 ## Client Class
 
@@ -164,6 +169,11 @@ There was no JUnit test for this class as it all involved Network IO.
 
 Relationship to other classes:
 Sends and receives information from the server class.
+
+## Server Interface
+
+Functionality: 
+Defines the methods used in the Client class.
 
 
 
