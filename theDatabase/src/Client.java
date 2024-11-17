@@ -96,7 +96,7 @@ public class Client {
                             String userInputUsername = scan.nextLine().trim();
                             out.println(userInputUsername);
 
-                            System.out.println("Enter password: ");
+                            System.out.print("Enter password: ");
                             String userInputPassword = scan.nextLine().trim();
                             out.println(userInputPassword);
 
@@ -115,6 +115,8 @@ public class Client {
                         boolean soFar = true;
 
                         while (soFar) {
+
+
                             System.out.println("User Menu:");
                             System.out.println("1. Add Friend");
                             System.out.println("2. Remove Friend");
@@ -141,6 +143,7 @@ public class Client {
                                     out.println(friendName);
 
                                     String result = in.readLine();
+                                    System.out.print(result);
                                     if (result.equals("success")) {
                                         System.out.println(friendName + " has been added to your friends!");
                                     } else {
@@ -158,6 +161,7 @@ public class Client {
                                     out.println(removeFriendName);
 
                                     String readingLine = in.readLine();
+                                    System.out.print(readingLine);
                                     if (readingLine.equals("success")) {
                                         System.out.println(removeFriendName + "has been removed to your friends!");
                                     } else {
@@ -187,7 +191,7 @@ public class Client {
                                             if (blockResponse.equals("success")) {
                                                 System.out.println(blockedUsername + " has been blocked.");
                                             } else {
-                                                System.out.println("User not found or could not be blocked.");
+                                                System.out.println(blockResponse);
                                             }
                                             break;
 
