@@ -150,41 +150,41 @@ public class Server implements Runnable { //extends thread
                                         break;
 
                                     case "3":
-                                        String bLOCKUnbLOCKChoice = reader.readLine().trim();
+                                        String blockUnblockChoice = reader.readLine().trim();
 
-                                        switch (bLOCKUnbLOCKChoice) {
+                                        switch (blockUnblockChoice) {
                                             case "1":
-                                                String bLOCKedUsername = reader.readLine().trim();
+                                                String blockedUsername = reader.readLine().trim();
                                                 synchronized (LOCK) {
-                                                    User bLOCKedUser = database.getUser(bLOCKedUsername);
+                                                    User blockedUser = database.getUser(blockedUsername);
 
-                                                    if (bLOCKedUser == null) {
+                                                    if (blockedUser == null) {
                                                         writer.println("User not found.");
                                                         break;
                                                     }
 
-                                                    if (user.bLOCKUser(bLOCKedUser)) {
+                                                    if (user.blockUser(blockedUser)) {
                                                         writer.println("success");
                                                     } else {
-                                                        writer.println("User could not be bLOCKed.");
+                                                        writer.println("User could not be blocked.");
                                                     }
                                                 }
 
                                                 break;
 
                                             case "2":
-                                                String unbLOCKedUsername = reader.readLine().trim();
+                                                String unblockedUsername = reader.readLine().trim();
                                                 synchronized (LOCK) {
-                                                    User unbLOCKedUser = database.getUser(unbLOCKedUsername);
+                                                    User unblockedUser = database.getUser(unblockedUsername);
 
-                                                    if (unbLOCKedUser == null) {
+                                                    if (unblockedUser == null) {
                                                         writer.println("User not found.");
                                                         break;
                                                     }
 
-                                                    if (user.unbLOCKUser(unbLOCKedUser)) {
+                                                    if (user.unblockUser(unblockedUser)) {
                                                         writer.println("success");
-                                                        user.removeFriend(unbLOCKedUsername);
+                                                        user.removeFriend(unblockedUsername);
                                                     } else {
                                                         writer.println("failure");
                                                     }
