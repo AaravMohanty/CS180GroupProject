@@ -3,6 +3,16 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Server class to handle all the logic based on the input
+ * that is received from the client.
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ *
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version November 17th, 2024
+ */
+
 public class Server implements Runnable { //extends thread
     public static final Object lock = new Object();
     private static Database database;
