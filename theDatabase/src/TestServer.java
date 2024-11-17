@@ -16,15 +16,12 @@ public class TestServer implements Runnable { //extends thread
             serverSocket = new ServerSocket(1234);
             System.out.println("Server is running on port " + 1234 + "...");
 
-
             while (true) {
-
                 Thread t = new Thread(new TestServer());
                 t.start();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-
+        } catch (OutOfMemoryError e) {
+        } catch (IOException e) {
         }
 
     }
@@ -34,7 +31,6 @@ public class TestServer implements Runnable { //extends thread
             Socket socket = serverSocket.accept();
             BufferedReader reader = null;
             PrintWriter writer = null;
-
 
             try {
 
@@ -90,8 +86,12 @@ public class TestServer implements Runnable { //extends thread
                             }
                             boolean sofar = true;
                             while (sofar) {
-
-                                String choice = reader.readLine().trim();
+                                String choice;
+                                try {
+                                    choice = reader.readLine().trim();
+                                } catch (NullPointerException e) {
+                                    break;
+                                }
 
                                 switch (choice) {
                                     case "1":

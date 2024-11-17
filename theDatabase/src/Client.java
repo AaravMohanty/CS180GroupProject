@@ -10,19 +10,21 @@ public class Client {
         Scanner scan = new Scanner(System.in);
 
         try {
-            System.out.println("Please enter a hostname!");
-            hostname = scan.nextLine();
+            ////System.out.println("Please enter a hostname!");
+            //hostname = scan.nextLine();
+            hostname = "localhost";
             if (hostname == null || hostname.isEmpty()) {
                 throw new IllegalArgumentException("Hostname can't be empty.Connection failed.");
             }
             if (!hostname.equals("localhost")) {
                 throw new IllegalArgumentException("Hostname isn't valid.Connection failed.");
             }
-            System.out.println("Please enter a port!");
-            String portString = scan.nextLine();
+            ////System.out.println("Please enter a port!");
+            //String portString = scan.nextLine();
+            port = 1234;
 
             try {
-                port = Integer.parseInt(portString);
+                //port = Integer.parseInt(portString);
                 if (port < 0 || port > 65535) {
                     throw new IllegalArgumentException("Invalid port number.Connection failed.");
                 }
@@ -46,7 +48,7 @@ public class Client {
                 if (choice == null) {
                     break;
                 }
-                System.out.println(choice);
+                //System.out.println(choice);
 
                 switch (choice) {
                     case "1":
@@ -70,17 +72,17 @@ public class Client {
                             out.println(pfp);
 
                             if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-                                System.out.println("All fields are required. Please try again.");
+                                //System.out.println("All fields are required. Please try again.");
                                 break;
                             }
                             String successOrFailure = in.readLine();
-                            System.out.println(successOrFailure);
+                            //System.out.println(successOrFailure);
                             while (true) {
                                 if (successOrFailure.equals("success")) {
-                                    System.out.println("Account created successfully!\n");
+                                    //System.out.println("Account created successfully!\n");
                                     break;
                                 } else {
-                                    System.out.println("Username already taken.\nPlease re-run the program to try again.");
+                                    //System.out.println("Username already taken.\nPlease re-run the program to try again.");
                                     break;
                                 }
                             }
@@ -105,7 +107,7 @@ public class Client {
 
                             if (newLine.equals("success")) {
                                 String result = in.readLine();
-                                System.out.println(result);
+                                //System.out.println(result);
                                 loggedin = true;
                             } else {
                                 System.out.println("Invalid username or password. Try again");
@@ -137,17 +139,17 @@ public class Client {
                                     String friendName = scan.nextLine().trim();
 
                                     if (friendName.isEmpty()) {
-                                        System.out.println("Username cannot be empty.");
+                                        //System.out.println("Username cannot be empty.");
                                         break;
                                     }
                                     out.println(friendName);
 
                                     String result = in.readLine();
-                                    System.out.print(result);
+                                    //System.out.print(result);
                                     if (result.equals("success")) {
-                                        System.out.println(friendName + " has been added to your friends!");
+                                        //System.out.println(friendName + " has been added to your friends!");
                                     } else {
-                                        System.out.println("User not found");
+                                        //System.out.println("User not found");
                                     }
                                     break;
                                 case "2":
@@ -155,17 +157,17 @@ public class Client {
                                     String removeFriendName = scan.nextLine().trim();
 
                                     if (removeFriendName.isEmpty()) {
-                                        System.out.println("Username cannot be empty.");
+                                        //System.out.println("Username cannot be empty.");
                                         break;
                                     }
                                     out.println(removeFriendName);
 
                                     String readingLine = in.readLine();
-                                    System.out.print(readingLine);
+                                    //System.out.print(readingLine);
                                     if (readingLine.equals("success")) {
-                                        System.out.println(removeFriendName + "has been removed to your friends!");
+                                        //System.out.println(removeFriendName + "has been removed to your friends!");
                                     } else {
-                                        System.out.println("User not found");
+                                        //System.out.println("User not found");
                                     }
                                     break;
 
@@ -189,9 +191,9 @@ public class Client {
                                             String blockResponse = in.readLine();
 
                                             if (blockResponse.equals("success")) {
-                                                System.out.println(blockedUsername + " has been blocked.");
+                                                //System.out.println(blockedUsername + " has been blocked.");
                                             } else {
-                                                System.out.println(blockResponse);
+                                                //System.out.println(blockResponse);
                                             }
                                             break;
 
@@ -209,9 +211,9 @@ public class Client {
                                             String unblockResponse = in.readLine();
 
                                             if (unblockResponse.equals("success")) {
-                                                System.out.println(unblockedUsername + " has been unblocked.");
+                                                //System.out.println(unblockedUsername + " has been unblocked.");
                                             } else {
-                                                System.out.println("User not found or could not be unblocked.");
+                                                //System.out.println("User not found or could not be unblocked.");
                                             }
                                             break;
 
@@ -232,7 +234,7 @@ public class Client {
                                     out.println(receiverUsername);
                                     String newResult = in.readLine();
                                     if (newResult.equals("User not found.")) {
-                                        System.out.println("User not found.");
+                                        //System.out.println("User not found.");
                                         break;
                                     }
                                     System.out.print("Enter your message: ");
@@ -244,9 +246,9 @@ public class Client {
                                     out.println(content);
                                     String sent = in.readLine();
                                     if (sent.equals("success")) {
-                                        System.out.println("Message sent!");
+                                        //System.out.println("Message sent!");
                                     } else {
-                                        System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
+                                        //System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
                                     }
                                     break;
 
@@ -259,17 +261,22 @@ public class Client {
                                         break;
                                     }
                                     System.out.print("Enter your photo's filepath: ");
-                                    String contentThree = scan.nextLine().trim();
+                                    String contentThree;
+                                    try {
+                                        contentThree = scan.nextLine().trim();
+                                    } catch (NullPointerException e) {
+                                        break;
+                                    }
                                     out.println(contentThree);
                                     if (contentThree.isEmpty()) {
                                         System.out.println("Message cannot be empty.");
-                                        return;
+                                        break;
                                     }
                                     String sentPhoto = in.readLine();
                                     if (sentPhoto.equals("Message sent!")) {
-                                        System.out.println("Message sent!");
+                                        //System.out.println("Message sent!");
                                     } else {
-                                        System.out.println("Failed to send Photo.");
+                                        //System.out.println("Failed to send Photo.");
                                     }
                                     break;
 
@@ -286,13 +293,13 @@ public class Client {
                                     out.println(newContent);
                                     if (newContent.isEmpty()) {
                                         System.out.println("Message cannot be empty.");
-                                        return;
+                                        break;
                                     }
                                     String deleted = in.readLine();
                                     if (deleted.equals("success")) {
-                                        System.out.println("Message deleted!");
+                                        //System.out.println("Message deleted!");
                                     } else {
-                                        System.out.println("Failed to delete message.");
+                                        //System.out.println("Failed to delete message.");
                                     }
                                     break;
 
@@ -307,7 +314,7 @@ public class Client {
                                             System.out.println(next);
                                         }
                                     } else {
-                                        System.out.println("User not found");
+                                        //System.out.println("User not found");
                                     }
                                     break;
 
@@ -325,11 +332,11 @@ public class Client {
                                     if (usernameViewing.isEmpty()) {
                                         System.out.println("Username cannot be empty.");
                                     } else if (!usernamesArray.contains(usernameViewing)) {
-                                        System.out.println("User does not exist.");
+                                        //System.out.println("User does not exist.");
                                     } else {
                                         String next;
                                         while (!(next = in.readLine()).equals("END")) {
-                                            System.out.println(next);
+                                            //System.out.println(next);
                                         }
                                     }
                                     break;
@@ -346,7 +353,7 @@ public class Client {
                         }
                         break;
                     case "3":
-                        System.out.println("Thanks for using our client. Have a nice day!");
+                        System.out.println("Have a nice day!");
                         out.println("terminate");
                         scan.close();
                         socket.close();
@@ -355,7 +362,7 @@ public class Client {
                     default:
                         System.out.println("Invalid choice. Please enter 1, 2, or 3.");
                 }
-                //System.out.println("Thank you, bye!");
+                ////System.out.println("Thank you, bye!");
                 //socket.close();
             }
 
