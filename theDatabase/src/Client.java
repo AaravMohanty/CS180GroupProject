@@ -91,7 +91,8 @@ public class Client {
                                     //System.out.println("Account created successfully!\n");
                                     break;
                                 } else {
-                                    //System.out.println("Username already taken.\nPlease re-run the program to try again.");
+                                    //System.out.println(
+                                    //"Username already taken.\nPlease re-run the program to try again.");
                                     break;
                                 }
                             }
@@ -258,8 +259,9 @@ public class Client {
                                     if (sent.equals("success")) {
                                         //System.out.println("Message sent!");
                                     } else {
-                                        //System.out.println("Failed to send message. 
-                                        //Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
+                                        //System.out.println("Failed to send message.
+                                        //Ensure you are friends with " + receiverUsername +
+                                        //" and " + receiverUsername + " is your friend");
                                     }
                                     break;
 

@@ -31,9 +31,9 @@ public class Server implements Runnable { //extends thread
                 t.start();
             }
         } catch (OutOfMemoryError e) {
-            ;
+            //hi
         } catch (IOException e) {
-            ;
+            //hi
         }
 
     }
@@ -219,9 +219,9 @@ public class Server implements Runnable { //extends thread
                                                 writer.println("success");
                                             } else {
                                                 writer.println(
-                                                    "Failed to send message. Ensure you are friends with "
-                                                        + receiverUsername + " and " + receiverUsername
-                                                        + " is your friend");
+                                                        "Failed to send message. Ensure you are friends with "
+                                                                + receiverUsername + " and " + receiverUsername
+                                                                + " is your friend");
                                             }
                                         }
                                         break;
@@ -302,8 +302,8 @@ public class Server implements Runnable { //extends thread
                                             String usernameToView1 = reader.readLine().trim();
                                             User profileUser3 = database.getUser(usernameToView1);
 
-                                            if (profileUser3 != null && 
-                                                database.getUsers().contains(profileUser3)) {
+                                            if (profileUser3 != null &&
+                                                    database.getUsers().contains(profileUser3)) {
                                                 writer.println(profileUser3.displayUser());
                                                 writer.println("END");
                                             } else {
