@@ -13,38 +13,16 @@ import java.util.Scanner;
  */
 
 public class Client {
+     private static boolean loggedin;
+
     public static void main(String[] args) {
-        String hostname;
-        int port = 0;
-        Scanner scan = new Scanner(System.in);
+        Scanner scan = new Scanner(System.in); // Initialize the scanner
+        loggedin = false;
 
         try {
-            ////System.out.println("Please enter a hostname!");
-            //hostname = scan.nextLine();
-            hostname = "localhost";
-            if (hostname == null || hostname.isEmpty()) {
-                throw new IllegalArgumentException("Hostname can't be empty.Connection failed.");
-            }
-            if (!hostname.equals("localhost")) {
-                throw new IllegalArgumentException("Hostname isn't valid.Connection failed.");
-            }
-            ////System.out.println("Please enter a port!");
-            //String portString = scan.nextLine();
-            port = 1234;
-
-            try {
-                //port = Integer.parseInt(portString);
-                if (port < 0 || port > 65535) {
-                    throw new IllegalArgumentException("Invalid port number.Connection failed.");
-                }
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid port number format.Connection failed.");
-            }
-
-            Socket socket = new Socket(hostname, port);
+            Socket socket = new Socket("localhost", 1234);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
             while (true) {
                 System.out.println("Main Menu:");
                 System.out.println("1. Create a New User");
@@ -53,7 +31,7 @@ public class Client {
                 System.out.print("Enter your choice (1, 2, or 3): ");
 
                 String choice = scan.nextLine().trim();
-                out.println(choice);
+                out.println(choice); //matches
                 if (choice == null) {
                     break;
                 }
@@ -61,68 +39,15 @@ public class Client {
 
                 switch (choice) {
                     case "1":
-                        while (true) {
-                            System.out.println("Welcome to ProjectMedia! Please create a new account.");
-
-                            System.out.print("Enter username: ");
-                            String username = scan.nextLine().trim();
-                            out.println(username);
-
-                            System.out.print("Enter password: ");
-                            String password = scan.nextLine().trim();
-                            out.println(password);
-
-                            System.out.print("Enter bio: ");
-                            String bio = scan.nextLine().trim();
-                            out.println(bio);
-
-                            System.out.print("Enter profile picture filename: ");
-                            String pfp = scan.nextLine().trim();
-                            out.println(pfp);
-
-                            if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-                                //System.out.println("All fields are required. Please try again.");
-                                break;
-                            }
-                            String successOrFailure = in.readLine();
-                            //System.out.println(successOrFailure);
-                            while (true) {
-                                if (successOrFailure.equals("success")) {
-                                    //System.out.println("Account created successfully!\n");
-                                    break;
-                                } else {
-                                    //System.out.println(
-                                    //"Username already taken.\nPlease re-run the program to try again.");
-                                    break;
-                                }
-                            }
+                        if(createNewAcc(scan, in, out) == 1){
                             break;
                         }
-                        break;
 
                     case "2":
-                        boolean loggedin = false;
+                        //loggedin = false;
                         while (!loggedin) {
-                            System.out.println("Log In to ProjectMedia");
-                            System.out.print("Enter username: ");
-                            String userInputUsername = scan.nextLine().trim();
-                            out.println(userInputUsername);
-
-                            System.out.print("Enter password: ");
-                            String userInputPassword = scan.nextLine().trim();
-                            out.println(userInputPassword);
-
-                            String newLine = in.readLine();
-                            System.out.println("the writer is printing" + newLine);
-
-                            if (newLine.equals("success")) {
-                                String result = in.readLine();
-                                //System.out.println(result);
-                                loggedin = true;
-                            } else {
-                                System.out.println("Invalid username or password. Try again");
-                            }
-                        }
+                           logIn(scan, in, out);
+                        } //gui -> make back button so can cancel & break
 
                         boolean soFar = true;
 
@@ -145,41 +70,15 @@ public class Client {
 
                             switch (userChoice) {
                                 case "1":
-                                    System.out.print("Enter the username of the friend you want to add: ");
-                                    String friendName = scan.nextLine().trim();
-
-                                    if (friendName.isEmpty()) {
-                                        //System.out.println("Username cannot be empty.");
+                                    if(!addFriend(scan, in, out)) {
                                         break;
-                                    }
-                                    out.println(friendName);
-
-                                    String result = in.readLine();
-                                    //System.out.print(result);
-                                    if (result.equals("success")) {
-                                        //System.out.println(friendName + " has been added to your friends!");
-                                    } else {
-                                        //System.out.println("User not found");
-                                    }
+                                    };
                                     break;
+
                                 case "2":
-                                    System.out.print("Enter the username of the friend you want to remove: ");
-                                    String removeFriendName = scan.nextLine().trim();
-
-                                    if (removeFriendName.isEmpty()) {
-                                        //System.out.println("Username cannot be empty.");
+                                    if(!removeFriend(scan, in, out)) {
                                         break;
-                                    }
-                                    out.println(removeFriendName);
-
-                                    String readingLine = in.readLine();
-                                    //System.out.print(readingLine);
-                                    if (readingLine.equals("success")) {
-                                        //System.out.println
-                                        //(removeFriendName + "has been removed to your friends!");
-                                    } else {
-                                        //System.out.println("User not found");
-                                    }
+                                    };
                                     break;
 
                                 case "3":
@@ -189,43 +88,15 @@ public class Client {
 
                                     switch (userChoice2) {
                                         case "1":
-                                            System.out.print("Enter the username of the user to block: ");
-                                            String blockedUsername = scan.nextLine().trim();
-
-                                            while (blockedUsername.isEmpty()) {
-                                                System.out.println("Username cannot be empty.");
-                                                System.out.print("Enter the username of the user to block: ");
-                                                blockedUsername = scan.nextLine().trim();
-                                            }
-
-                                            out.println(blockedUsername);
-                                            String blockResponse = in.readLine();
-
-                                            if (blockResponse.equals("success")) {
-                                                //System.out.println(blockedUsername + " has been blocked.");
-                                            } else {
-                                                //System.out.println(blockResponse);
-                                            }
+                                            if(!blockUser(scan, in, out)) {
+                                                break;
+                                            };
                                             break;
 
                                         case "2":
-                                            System.out.print("Enter the username of the user to unblock: ");
-                                            String unblockedUsername = scan.nextLine().trim();
-
-                                            while (unblockedUsername.isEmpty()) {
-                                                System.out.println("Username cannot be empty.");
-                                                System.out.print("Enter the username of the user to unblock: ");
-                                                unblockedUsername = scan.nextLine().trim();
-                                            }
-
-                                            out.println(unblockedUsername);
-                                            String unblockResponse = in.readLine();
-
-                                            if (unblockResponse.equals("success")) {
-                                                //System.out.println(unblockedUsername + " has been unblocked.");
-                                            } else {
-                                                //System.out.println("User not found or could not be unblocked.");
-                                            }
+                                            if(!unBlockUser(scan, in, out)) {
+                                                break;
+                                            };
                                             break;
 
                                         default:
@@ -236,128 +107,44 @@ public class Client {
 
 
                                 case "4":
-                                    System.out.print("Enter the username of the receiver: ");
-                                    String receiverUsername = scan.nextLine().trim();
-                                    if (receiverUsername.isEmpty()) {
-                                        System.out.println("Username cannot be empty.");
+                                    if(!sendMessage(scan, in, out)) {
                                         break;
-                                    }
-                                    out.println(receiverUsername);
-                                    String newResult = in.readLine();
-                                    if (newResult.equals("User not found.")) {
-                                        //System.out.println("User not found.");
-                                        break;
-                                    }
-                                    System.out.print("Enter your message: ");
-                                    String content = scan.nextLine().trim();
-                                    if (content.isEmpty()) {
-                                        System.out.println("Message cannot be empty.");
-                                        break;
-                                    }
-                                    out.println(content);
-                                    String sent = in.readLine();
-                                    if (sent.equals("success")) {
-                                        //System.out.println("Message sent!");
-                                    } else {
-                                        //System.out.println("Failed to send message.
-                                        //Ensure you are friends with " + receiverUsername +
-                                        //" and " + receiverUsername + " is your friend");
                                     }
                                     break;
 
                                 case "5":
-                                    System.out.print("Enter the username of the receiver: ");
-                                    String receiveUsername = scan.nextLine().trim();
-                                    out.println(receiveUsername);
-                                    if (receiveUsername.isEmpty()) {
-                                        System.out.println("Username cannot be empty.");
+                                    if(!sendPhotoMsg(scan, in, out)) {
                                         break;
-                                    }
-                                    System.out.print("Enter your photo's filepath: ");
-                                    String contentThree;
-                                    try {
-                                        contentThree = scan.nextLine().trim();
-                                    } catch (NullPointerException e) {
-                                        break;
-                                    }
-                                    out.println(contentThree);
-                                    if (contentThree.isEmpty()) {
-                                        System.out.println("Message cannot be empty.");
-                                        break;
-                                    }
-                                    String sentPhoto = in.readLine();
-                                    if (sentPhoto.equals("Message sent!")) {
-                                        //System.out.println("Message sent!");
-                                    } else {
-                                        //System.out.println("Failed to send Photo.");
                                     }
                                     break;
 
                                 case "6":
-                                    System.out.print("Enter the username of the user: ");
-                                    String newUsername = scan.nextLine().trim();
-                                    out.println(newUsername);
-                                    if (newUsername.isEmpty()) {
-                                        System.out.println("Username cannot be empty.");
+                                    if(!deleteMsg(scan, in, out)) {
                                         break;
-                                    }
-                                    System.out.print("Enter your message: ");
-                                    String newContent = scan.nextLine().trim();
-                                    out.println(newContent);
-                                    if (newContent.isEmpty()) {
-                                        System.out.println("Message cannot be empty.");
-                                        break;
-                                    }
-                                    String deleted = in.readLine();
-                                    if (deleted.equals("success")) {
-                                        //System.out.println("Message deleted!");
-                                    } else {
-                                        //System.out.println("Failed to delete message.");
                                     }
                                     break;
+
 
                                 case "7":
-                                    System.out.print("Enter the username of the profile you want to view: ");
-                                    String usernameToView = scan.nextLine().trim();
-                                    out.println(usernameToView);
-                                    String isProfileUserValid = in.readLine();
-                                    if (isProfileUserValid.equals("success")) {
-                                        String next;
-                                        while (!(next = in.readLine()).equals("END")) {
-                                            System.out.println(next);
-                                        }
-                                    } else {
-                                        //System.out.println("User not found");
+                                    if(!viewProfile(scan, in, out)) {
+                                        break;
                                     }
                                     break;
 
+
                                 case "8":
-                                    System.out.println("Available users:");
-                                    ArrayList<String> usernamesArray = new ArrayList<>();
-                                    String userNames;
-                                    while (!(userNames = in.readLine()).equals("END")) {
-                                        usernamesArray.add(userNames);
-                                        System.out.println("- " + userNames);
-                                    }
-                                    System.out.print("Enter the username of the profile to view: ");
-                                    String usernameViewing = scan.nextLine().trim();
-                                    out.println(usernameViewing);
-                                    if (usernameViewing.isEmpty()) {
-                                        System.out.println("Username cannot be empty.");
-                                    } else if (!usernamesArray.contains(usernameViewing)) {
-                                        //System.out.println("User does not exist.");
-                                    } else {
-                                        String next;
-                                        while (!(next = in.readLine()).equals("END")) {
-                                            //System.out.println(next);
-                                        }
+                                    if(!searchUsers(scan, in, out)) {
+                                        break;
                                     }
                                     break;
+
 
                                 case "9":
                                     System.out.println("Logging out...");
+                                    loggedin = false;
                                     soFar = false;
                                     break;
+
 
                                 default:
                                     System.out.println("Invalid choice. Please try again.");
@@ -384,6 +171,363 @@ public class Client {
             System.err.println("Error: " + e.getMessage());
         }
     }
+
+
+    public static int createNewAcc(Scanner scan, BufferedReader in, PrintWriter out) {
+        System.out.println("Welcome to ProjectMedia! Please create a new account.");
+        System.out.print("Enter username: ");
+        String username = scan.nextLine().trim();
+        out.println(username);
+        System.out.print("Enter password: ");
+        String password = scan.nextLine().trim();
+        out.println(password);
+
+        System.out.print("Enter bio: ");
+        String bio = scan.nextLine().trim();
+        out.println(bio);
+        System.out.print("Enter profile picture filename: ");
+        String pfp = scan.nextLine().trim();
+        out.println(pfp);
+        if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+            System.out.println("All fields are required. Please try again.");
+            return 1; // failed return to beginning to reprompy
+        }
+        try {
+            String successOrFailure = in.readLine();
+            System.out.println(successOrFailure);
+            while (true) {
+                if (successOrFailure.equals("success")) {
+                    System.out.println("Account created successfully!\n");
+                    return 1;  //or just return
+                } else {
+                    System.out.println("Username already taken.\nPlease re-run the program to try again.");
+                    return 1;
+                }
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+            return 1;
+        }
+
+
+    public static void logIn(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.println("Log In to ProjectMedia");
+        System.out.print("Enter username: ");
+        String userInputUsername = scan.nextLine().trim();
+        out.println(userInputUsername);
+
+        System.out.print("Enter password: ");
+        String userInputPassword = scan.nextLine().trim();
+        out.println(userInputPassword);
+
+        try{
+            String newLine = in.readLine();
+            if (newLine.equals("success")) {
+               // String result = in.readLine();
+                //System.out.println(result);
+                loggedin = true;
+            } else {
+                System.out.println("Invalid username or password. Try again");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static boolean addFriend(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the friend you want to add: ");
+        try {
+            String friendName = scan.nextLine().trim();
+
+            if (friendName.isEmpty()) {
+                System.out.println("Username cannot be empty.");
+                return false;
+            }
+            out.println(friendName);
+
+            String result = in.readLine();
+            //System.out.print(result);
+            if (result.equals("success")) {
+                System.out.println(friendName + " has been added to your friends!");
+            }
+            else if (result.equals("already friends")){
+                System.out.println(friendName + " is already friends!");
+            }
+            else if(result.equals("unblock first")){
+                System.out.println("Be sure to unblock the user first. They are currently blocked.");
+            }
+            else {
+                System.out.println("User not found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); //when official gui make sure "ur server crashed"
+        }
+        return false;
+    }
+    public static boolean removeFriend(Scanner scan, BufferedReader in, PrintWriter out) {
+        System.out.print("Enter the username of the friend you want to remove: ");
+        String removeFriendName = scan.nextLine().trim();
+
+        if (removeFriendName.isEmpty()) {
+            //System.out.println("Username cannot be empty.");
+            return false;
+        }
+        out.println(removeFriendName);
+
+        try {
+            String readingLine = in.readLine();
+            //System.out.print(readingLine);
+            if (readingLine.equals("success")) {
+                System.out.println(removeFriendName + " has been removed to your friends!");
+            }
+            else if(readingLine.equals("not already friends")){
+                System.out.println("User was not already your friend");
+            }else if(readingLine.equals("user is null")){
+                System.out.println(" User does not exist");
+            }
+            else {
+                System.out.println("User not found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public static boolean blockUser(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the user to block: ");
+        String blockedUsername = scan.nextLine().trim();
+
+        while (blockedUsername.isEmpty()) {
+           // System.out.println("Username cannot be empty.");
+          //  System.out.print("Enter the username of the user to block: ");
+          //  blockedUsername = scan.nextLine().trim();
+            return false;
+        }
+
+        out.println(blockedUsername);
+        try {
+            String blockResponse = in.readLine();
+
+            if (blockResponse.equals("success")) {
+                System.out.println(blockedUsername + " has been blocked.");
+            } else if(blockResponse.equals("already blocked")){
+                System.out.println("User was already blocked");
+            }
+
+            else {
+                System.out.println(blockResponse);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public static boolean unBlockUser(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the user to unblock: ");
+        String unblockedUsername = scan.nextLine().trim();
+
+        while (unblockedUsername.isEmpty()) {
+            System.out.println("Username cannot be empty.");
+           // System.out.print("Enter the username of the user to unblock: ");
+           // unblockedUsername = scan.nextLine().trim();
+            return false;
+        }
+
+        out.println(unblockedUsername);
+        try {
+            String unblockResponse = in.readLine();
+
+            if (unblockResponse.equals("success")) {
+                System.out.println(unblockedUsername + " has been unblocked.");
+            }
+            else if(unblockResponse.equals("already unblocked")){
+                System.out.println("user is not blocked");
+            }else {
+                System.out.println("User not found or could not be unblocked.");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean sendMessage(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the receiver: ");
+        String receiverUsername = scan.nextLine().trim();
+        out.println(receiverUsername);
+        if (receiverUsername.isEmpty()) {
+            System.out.println("Username cannot be empty.");
+            return false;
+        }
+
+        try {
+           String resu = in.readLine();
+           if (resu.equals("User not found.")) {
+                System.out.println("User not found.");
+                return false;
+            } //potential hazard
+
+
+            System.out.print("Enter your message: ");
+            String content = scan.nextLine().trim();
+            out.println(content);
+            if (content.isEmpty()) {
+                System.out.println("Message cannot be empty.");
+                return false;
+            }
+
+
+            String sent = in.readLine();
+            if (sent.equals("success")) {
+                System.out.println("Message sent!");
+            } else {
+                System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean sendPhotoMsg(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the receiver: ");
+        String receiveUsername = scan.nextLine().trim();
+        out.println(receiveUsername);
+        if (receiveUsername.isEmpty()) {
+            System.out.println("Username cannot be empty.");
+            return false;
+        }
+        try{
+        String newResult = in.readLine();
+        if (newResult.equals("User not found.")) {
+            System.out.println("User not found.");
+            return false;
+        }
+        System.out.print("Enter your photo's filepath: ");
+
+
+
+        String contentThree = scan.nextLine().trim();
+
+        out.println(contentThree);
+        if (contentThree.isEmpty()) {
+            System.out.println("Message cannot be empty.");
+            return false;
+        }
+        //try {
+            String sentPhoto = in.readLine();
+            if (sentPhoto.equals("success")) {
+                System.out.println("Message sent!");
+            } else {
+                System.out.println("Failed to send Photo.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean deleteMsg(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the user: ");
+        String newUsername = scan.nextLine().trim();
+        out.println(newUsername);
+        if (newUsername.isEmpty()) {
+            System.out.println("Username cannot be empty.");
+            return false;
+        }
+        System.out.print("Enter your message: ");
+        String newContent = scan.nextLine().trim();
+        out.println(newContent);
+        if (newContent.isEmpty()) {
+            System.out.println("Message cannot be empty.");
+            return false;
+        }
+        try {
+            String deleted = in.readLine();
+            if (deleted.equals("success")) {
+                System.out.println("Message deleted!");
+            } else {
+                System.out.println("Failed to delete message.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public static boolean viewProfile(Scanner scan, BufferedReader in, PrintWriter out){
+        System.out.print("Enter the username of the profile you want to view: ");
+        String usernameToView = scan.nextLine().trim();
+        out.println(usernameToView);
+        try {
+            String isProfileUserValid = in.readLine();
+            if (isProfileUserValid.equals("success")) {
+                String next;
+                while (!(next = in.readLine()).equals("END")) {
+                    System.out.println(next);
+                }
+            } else {
+                System.out.println("User not found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean searchUsers(Scanner scan, BufferedReader in, PrintWriter out){
+        try{
+        String allClear = in.readLine();
+        if(allClear.equals("Please log in first.")){
+            return false;
+        }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        System.out.println("Available users:");
+        ArrayList<String> usernamesArray = new ArrayList<>();
+        String userNames;
+        try {
+            userNames = in.readLine();
+            while (!(userNames).equals("END")) {
+                usernamesArray.add(userNames);
+                System.out.println("- " + userNames);
+            }
+            System.out.print("Enter the username of the profile to view: ");
+            String usernameViewing = scan.nextLine().trim();
+            out.println(usernameViewing);
+            if (usernameViewing.isEmpty()) {
+                System.out.println("Username cannot be empty.");
+                return false;
+            }
+            else {
+                /*String next;
+                while (!(next = in.readLine()).equals("END")) {
+                    System.out.println(next);
+                }
+                return false;
+                */
+                String next = in.readLine();
+
+                if(next.equals("end")){
+                    String nextLine = in.readLine();
+                    System.out.println(nextLine);
+                }
+                else {
+
+                    System.out.println("No user found");
+                }
+                 return false;
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 }
-
-

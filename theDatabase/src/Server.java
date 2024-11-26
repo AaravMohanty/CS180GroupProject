@@ -53,18 +53,26 @@ public class Server implements Runnable { //extends thread
                 while (true) {
                     String line = reader.readLine();
                     System.out.println(line);
+                    if(line.equals(null)){
+                        break;
+                    }
                     switch (line) {
                         case "1":
                             synchronized (LOCK) {
-                                String username = reader.readLine();
+                                String username = reader.readLine(); //match
                                 String password = reader.readLine();
                                 String bio = reader.readLine();
                                 String pfp = reader.readLine(); //one extra sent to server then off by 1
+
+                                if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+                                    break; // failed return to beginning to reprompy
+                                }
 
                                 if (database.createUser(username, password, bio, pfp)) {
                                     writer.println("success");
                                 } else {
                                     writer.println("random");
+                                    break;
                                 }
 
                                 break;
@@ -76,12 +84,12 @@ public class Server implements Runnable { //extends thread
                                 while (true) {
 
                                     String username1 = reader.readLine().trim();
-                                    System.out.println("username " + username1);
+                                   // System.out.println("username " + username1);
                                     String pass = reader.readLine().trim();
-                                    System.out.println("password '" + pass + "'");
+                                   // System.out.println("password '" + pass + "'");
                                     user = database.getUser(username1);
-                                    System.out.println(user.displayUser());
-                                    System.out.println("'" + user.getPassword() + "'");
+                                   // System.out.println(user.displayUser());
+                                   // System.out.println("'" + user.getPassword() + "'");
                                     if (user != null) {
                                         System.out.println("user is not null");
                                     } else {
@@ -89,7 +97,7 @@ public class Server implements Runnable { //extends thread
                                     }
                                     if (user != null && user.getPassword().trim().equals(pass)) {
                                         writer.println("success");
-                                        writer.println("Login successful! Welcome back, " + username1 + "!");
+                                       // writer.println("Login successful! Welcome back, " + username1 + "!");
                                         break;
                                     } else {
                                         writer.println("Invalid username or password.");
@@ -115,11 +123,19 @@ public class Server implements Runnable { //extends thread
                                         synchronized (LOCK) {
 
                                             User friend = database.getUser(friendName);
-                                            if (friend != null && !user.getFriends().contains(friendName)) {
+                                            if (friend != null && !user.getFriends().contains(friendName) && !user.getBlockedUsers().contains(friendName)) {
                                                 writer.println("success");
                                                 user.addFriend(friend);
 
-                                            } else {
+
+                                            } else if(user.getFriends().contains(friendName)){
+                                                writer.println("already friends");
+                                            }
+                                            else if(user.getBlockedUsers().contains(friendName)){
+                                                writer.println("unblock first");
+                                            }
+
+                                            else {
                                                 writer.println("not able to add friend");
                                             }
                                         }
@@ -131,23 +147,27 @@ public class Server implements Runnable { //extends thread
                                         }
                                         String removeFriendName = reader.readLine().trim();
 
+                                        if (removeFriendName.isEmpty()) {
+                                            break;
+                                        }
+                                        User removeFriend = database.getUser(removeFriendName);
 
 
-                                        if (database.getUser(removeFriendName) != null) {
                                             synchronized (LOCK) {
-                                                if(user.removeFriend(removeFriendName)) {
-
+                                                if( removeFriend != null && user.getFriends().contains(removeFriendName)) {
                                                     writer.println("success");
+                                                    user.removeFriend(removeFriendName);
+                                                }
+                                                else if(!user.getFriends().contains(removeFriendName)){
+                                                    writer.println("not already friends");
                                                 }
                                                 else {
                                                     writer.println("not able to remove friend");
                                                 }
                                             }
+                                            break;
 
-                                        }
 
-
-                                        break;
 
                                     case "3":
                                         String blockUnblockChoice = reader.readLine().trim();
@@ -165,7 +185,11 @@ public class Server implements Runnable { //extends thread
 
                                                     if (user.blockUser(blockedUser)) {
                                                         writer.println("success");
-                                                    } else {
+                                                    }  else if(user.getBlockedUsers().contains(blockedUsername)){
+                                                        writer.println("already blocked");
+                                                    }
+
+                                                    else {
                                                         writer.println("User could not be blocked.");
                                                     }
                                                 }
@@ -177,16 +201,23 @@ public class Server implements Runnable { //extends thread
                                                 synchronized (LOCK) {
                                                     User unblockedUser = database.getUser(unblockedUsername);
 
+
+
                                                     if (unblockedUser == null) {
                                                         writer.println("User not found.");
                                                         break;
                                                     }
 
-                                                    if (user.unblockUser(unblockedUser)) {
-                                                        writer.println("success");
-                                                        user.removeFriend(unblockedUsername);
-                                                    } else {
-                                                        writer.println("failure");
+                                                    if (user.getBlockedUsers().contains(unblockedUsername)) {
+                                                        if (user.unblockUser(unblockedUser)) {
+                                                            writer.println("success");
+                                                        } else {
+                                                            writer.println("already unblocked");
+                                                        }
+                                                    }
+
+                                                    else {
+                                                        writer.println("User could not be unblocked.");
                                                     }
                                                 }
                                                 break;
@@ -211,11 +242,18 @@ public class Server implements Runnable { //extends thread
                                                 writer.println("User not found.");
                                                 break;
                                             }
-                                            writer.println("userfound");
+                                           else{
+                                               writer.println("userfound");
+                                            }
 
                                             String content = reader.readLine().trim();
 
-                                            if (user.sendMessage(receiver, content)) {
+                                            if (content.isEmpty()) {
+                                                System.out.println("Message cannot be empty.");
+                                                break;
+                                            }
+
+                                            if (user.getFriends().contains(receiverUsername) && user.sendMessage(receiver, content)) { //& you cant be friends if blocked so accounts for that
                                                 writer.println("success");
                                             } else {
                                                 writer.println(
@@ -229,6 +267,10 @@ public class Server implements Runnable { //extends thread
                                     case "5":
 
                                         String receiverUsername1 = reader.readLine().trim();
+                                        if (receiverUsername1.isEmpty()) {
+                                            System.out.println("Username cannot be empty.");
+                                            break;
+                                        }
                                         synchronized (LOCK) {
 
 
@@ -238,16 +280,21 @@ public class Server implements Runnable { //extends thread
                                                 writer.println("User not found");
                                                 break;
                                             }
+                                            else{
+                                                writer.println("all good");
+                                            }
+
+
 
                                             String content1 = reader.readLine().trim();
                                             if (content1.isEmpty()) {
                                                 break;
                                             }
 
-                                            if (user.sendPhoto(receiver1, content1)) {
-                                                writer.println("Message sent!");
+                                            if (user.getFriends().contains(receiver1) && user.sendPhoto(receiver1, content1)) {
+                                                writer.println("success");
                                             } else {
-                                                writer.println("Failed to send Photo.");
+                                                writer.println("Failed to send Photo.Make sure you're friends with " + receiver1 + " and they're friend's with you.");
                                             }
                                         }
                                         break;
@@ -290,8 +337,9 @@ public class Server implements Runnable { //extends thread
                                     case "8":
                                         if (user == null) {
                                             writer.println("Please log in first.");
-                                            return;
+                                            break;
                                         }
+                                        writer.println("all good");
                                         synchronized (LOCK) {
 
                                             for (User user1 : database.getUsers()) {
@@ -300,16 +348,22 @@ public class Server implements Runnable { //extends thread
                                             writer.println("END");
 
                                             String usernameToView1 = reader.readLine().trim();
+                                            if (usernameToView1.isEmpty()) {
+                                                System.out.println("Username cannot be empty.");
+                                                break;
+                                            }
                                             User profileUser3 = database.getUser(usernameToView1);
 
                                             if (profileUser3 != null &&
                                                     database.getUsers().contains(profileUser3)) {
+                                                writer.println("end");
                                                 writer.println(profileUser3.displayUser());
-                                                writer.println("END");
+                                                //writer.println("END");
                                             } else {
                                                 writer.println("User not found.");
                                             }
                                         }
+
                                         break;
 
                                     case "9":
