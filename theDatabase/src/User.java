@@ -280,15 +280,18 @@ public class User implements UserInterface {
         // Check if this conversation file is already recorded in both users' conversation lists
         if (!conversations.contains(conversationFile)) {
             conversations.add(conversationFile);
-            rewriteToFile(conversationsFileName, conversations); // Update the sender's conversation file
-            messages.add(new ArrayList<>());
+
         }
         if (!receiver.conversations.contains(conversationFile)) {
             receiver.conversations.add(conversationFile);
-            // Update the receiver's conversation file
-            receiver.rewriteToFile(receiver.conversationsFileName,
-                    receiver.conversations);
+
         }
+        // Update the sender's conversation file
+        rewriteToFile(conversationsFileName, conversations);
+        messages.add(new ArrayList<>());
+        // Update the receiver's conversation file
+        receiver.rewriteToFile(receiver.conversationsFileName,
+                receiver.conversations);
 
         // Write the message to the conversation file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
