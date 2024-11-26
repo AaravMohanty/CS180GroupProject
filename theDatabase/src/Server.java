@@ -127,6 +127,7 @@ public class Server implements Runnable { //extends thread
                                             User friend = database.getUser(friendName);
                                             if(friend == null){
                                                 writer.println("user is null");
+                                                break;
                                             }
                                             else{
                                                 writer.println("all ok");

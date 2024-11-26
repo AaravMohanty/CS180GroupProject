@@ -247,12 +247,12 @@ public class Client {
             }
             out.println(friendName);
 
-           /* String testLine = in.readLine();
+           String testLine = in.readLine();
             if(testLine.equals("user is null")){
                 System.out.println("User cant be null.");
                 return false;
             }
-            */
+
 
 
 
