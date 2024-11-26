@@ -31,9 +31,9 @@ public class Server implements Runnable { //extends thread
                 t.start();
             }
         } catch (OutOfMemoryError e) {
-            //hi
+            e.printStackTrace();
         } catch (IOException e) {
-            //hi
+            e.printStackTrace();
         }
 
     }
@@ -93,7 +93,7 @@ public class Server implements Runnable { //extends thread
                                     if (user != null) {
                                         System.out.println("user is not null");
                                     } else {
-                                        System.out.println("user is null");
+                                        System.out.println("user is null"); //prints out on server side
                                     }
                                     if (user != null && user.getPassword().trim().equals(pass)) {
                                         writer.println("success");
@@ -122,8 +122,20 @@ public class Server implements Runnable { //extends thread
                                         }
                                         synchronized (LOCK) {
 
+
+
                                             User friend = database.getUser(friendName);
-                                            if (friend != null && !user.getFriends().contains(friendName) && !user.getBlockedUsers().contains(friendName)) {
+                                            if(friend == null){
+                                                writer.println("user is null");
+                                            }
+                                            else{
+                                                writer.println("all ok");
+                                            }
+
+
+
+
+                                            if ( friend != null && !user.getFriends().contains(friendName) && !user.getBlockedUsers().contains(friendName)) {
                                                 writer.println("success");
                                                 user.addFriend(friend);
 
@@ -137,6 +149,7 @@ public class Server implements Runnable { //extends thread
 
                                             else {
                                                 writer.println("not able to add friend");
+                                               // friend = null;
                                             }
                                         }
                                         break;
@@ -179,18 +192,19 @@ public class Server implements Runnable { //extends thread
                                                     User blockedUser = database.getUser(blockedUsername);
 
                                                     if (blockedUser == null) {
-                                                        writer.println("User not found.");
+                                                        //writer.println("User not found.");
+                                                        System.out.println("user is null"); //to test
                                                         break;
                                                     }
 
-                                                    if (user.blockUser(blockedUser)) {
+                                                    if (blockedUser != null && user.blockUser(blockedUser)) {
                                                         writer.println("success");
                                                     }  else if(user.getBlockedUsers().contains(blockedUsername)){
                                                         writer.println("already blocked");
                                                     }
 
                                                     else {
-                                                        writer.println("User could not be blocked.");
+                                                        writer.println("User could not be blocked. Could be null!");
                                                     }
                                                 }
 
@@ -301,14 +315,22 @@ public class Server implements Runnable { //extends thread
 
                                     case "6":
                                         String username2 = reader.readLine().trim();
-
-                                        User receiver2 = database.getUser(username2);
-                                        if (receiver2 == null) {
-                                            writer.println("User not found");
+                                        if (username2.isEmpty()) {
+                                            System.out.println("Username cannot be empty.");
                                             break;
                                         }
-                                        String content2 = reader.readLine().trim();
+
+
                                         synchronized (LOCK) {
+                                            User receiver2 = database.getUser(username2);
+                                            if (receiver2 == null) {
+                                                writer.println("empty");
+                                                break;
+                                            }
+                                            else{
+                                                writer.println("all good");
+                                            }
+                                            String content2 = reader.readLine().trim();
                                             if (user.deleteMessage(receiver2, content2)) {
                                                 writer.println("success");
                                             } else {

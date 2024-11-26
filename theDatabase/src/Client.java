@@ -247,6 +247,15 @@ public class Client {
             }
             out.println(friendName);
 
+           /* String testLine = in.readLine();
+            if(testLine.equals("user is null")){
+                System.out.println("User cant be null.");
+                return false;
+            }
+            */
+
+
+
             String result = in.readLine();
             //System.out.print(result);
             if (result.equals("success")) {
@@ -405,10 +414,8 @@ public class Client {
             System.out.println("User not found.");
             return false;
         }
+
         System.out.print("Enter your photo's filepath: ");
-
-
-
         String contentThree = scan.nextLine().trim();
 
         out.println(contentThree);
@@ -437,6 +444,17 @@ public class Client {
             System.out.println("Username cannot be empty.");
             return false;
         }
+        try {
+
+            String responsez = in.readLine();
+            if (responsez.equals("empty")) {
+                System.out.println("User cannot be null");
+            }
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+
         System.out.print("Enter your message: ");
         String newContent = scan.nextLine().trim();
         out.println(newContent);
@@ -479,6 +497,7 @@ public class Client {
     public static boolean searchUsers(Scanner scan, BufferedReader in, PrintWriter out){
         try{
         String allClear = in.readLine();
+        System.out.println(allClear);
         if(allClear.equals("Please log in first.")){
             return false;
         }
@@ -495,6 +514,7 @@ public class Client {
             while (!(userNames).equals("END")) {
                 usernamesArray.add(userNames);
                 System.out.println("- " + userNames);
+                userNames = in.readLine();
             }
             System.out.print("Enter the username of the profile to view: ");
             String usernameViewing = scan.nextLine().trim();
@@ -514,6 +534,10 @@ public class Client {
 
                 if(next.equals("end")){
                     String nextLine = in.readLine();
+                    System.out.println(nextLine);
+                     nextLine = in.readLine();
+                    System.out.println(nextLine);
+                     nextLine = in.readLine();
                     System.out.println(nextLine);
                 }
                 else {
