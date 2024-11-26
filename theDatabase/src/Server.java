@@ -122,34 +122,11 @@ public class Server implements Runnable { //extends thread
                                         }
                                         synchronized (LOCK) {
 
-
-
                                             User friend = database.getUser(friendName);
-                                            if(friend == null){
-                                                writer.println("user is null");
-                                            }
-                                            else{
-                                                writer.println("all ok");
-                                            }
-
-
-
-
-                                            if ( friend != null && !user.getFriends().contains(friendName) && !user.getBlockedUsers().contains(friendName)) {
+                                            if (user.addFriend(friend)) {
                                                 writer.println("success");
-                                                user.addFriend(friend);
-
-
-                                            } else if(user.getFriends().contains(friendName)){
-                                                writer.println("already friends");
-                                            }
-                                            else if(user.getBlockedUsers().contains(friendName)){
-                                                writer.println("unblock first");
-                                            }
-
-                                            else {
-                                                writer.println("not able to add friend");
-                                               // friend = null;
+                                            } else {
+                                                writer.println("unsuccessful");
                                             }
                                         }
                                         break;

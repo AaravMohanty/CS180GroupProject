@@ -247,28 +247,13 @@ public class Client {
             }
             out.println(friendName);
 
-           /* String testLine = in.readLine();
-            if(testLine.equals("user is null")){
-                System.out.println("User cant be null.");
-                return false;
-            }
-            */
-
-
-
             String result = in.readLine();
             //System.out.print(result);
             if (result.equals("success")) {
                 System.out.println(friendName + " has been added to your friends!");
             }
-            else if (result.equals("already friends")){
-                System.out.println(friendName + " is already friends!");
-            }
-            else if(result.equals("unblock first")){
-                System.out.println("Be sure to unblock the user first. They are currently blocked.");
-            }
             else {
-                System.out.println("User not found");
+                System.out.println("User is either already added, null, or doesnt exist.");
             }
         } catch (Exception e) {
             e.printStackTrace(); //when official gui make sure "ur server crashed"
