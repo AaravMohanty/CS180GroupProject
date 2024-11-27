@@ -177,7 +177,7 @@ public class User implements UserInterface {
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
-        if (friend == null || friend == this || friends.contains(friend.getUsername())) {
+        if (friend == null || friend == this || friends.contains(friend.getUsername()) || blockedUsers.contains(friend.getUsername()) || friend.getBlockedUsers().contains(username)) {
             return false; // Return false if friend is null, the same user, or already a friend
         }
         if (Database.users.contains(friend)) { // Check if the friend is not already in the list

@@ -100,7 +100,7 @@ public class Client {
                                             break;
 
                                         default:
-                                            System.out.println("Invalid choice. Please enter 1 or 2.");
+                                            System.out.println("Invalid choice. You need to enter 1 or 2.");
                                             break;
                                     }
                                     break;
@@ -253,7 +253,7 @@ public class Client {
                 System.out.println(friendName + " has been added to your friends!");
             }
             else {
-                System.out.println("User is either already added, null, or doesnt exist.");
+                System.out.println("User is already added, null, does not exist, you have blocked them or they have blocked you");
             }
         } catch (Exception e) {
             e.printStackTrace(); //when official gui make sure "ur server crashed"
@@ -276,13 +276,8 @@ public class Client {
             if (readingLine.equals("success")) {
                 System.out.println(removeFriendName + " has been removed to your friends!");
             }
-            else if(readingLine.equals("not already friends")){
-                System.out.println("User was not already your friend");
-            }else if(readingLine.equals("user is null")){
-                System.out.println(" User does not exist");
-            }
             else {
-                System.out.println("User not found");
+                System.out.println("User not found or is not already your friend");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -306,12 +301,9 @@ public class Client {
 
             if (blockResponse.equals("success")) {
                 System.out.println(blockedUsername + " has been blocked.");
-            } else if(blockResponse.equals("already blocked")){
-                System.out.println("User was already blocked");
             }
-
             else {
-                System.out.println(blockResponse);
+                System.out.println("User could not be blocked. May be null. ");
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -335,10 +327,7 @@ public class Client {
 
             if (unblockResponse.equals("success")) {
                 System.out.println(unblockedUsername + " has been unblocked.");
-            }
-            else if(unblockResponse.equals("already unblocked")){
-                System.out.println("user is not blocked");
-            }else {
+            } else {
                 System.out.println("User not found or could not be unblocked.");
             }
         }catch(Exception e){
@@ -357,27 +346,16 @@ public class Client {
         }
 
         try {
-           String resu = in.readLine();
-           if (resu.equals("User not found.")) {
-                System.out.println("User not found.");
-                return false;
-            } //potential hazard
-
 
             System.out.print("Enter your message: ");
             String content = scan.nextLine().trim();
             out.println(content);
-            if (content.isEmpty()) {
-                System.out.println("Message cannot be empty.");
-                return false;
-            }
-
 
             String sent = in.readLine();
             if (sent.equals("success")) {
                 System.out.println("Message sent!");
             } else {
-                System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend");
+                System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend and have not blocked each other.");
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -388,18 +366,11 @@ public class Client {
     public static boolean sendPhotoMsg(Scanner scan, BufferedReader in, PrintWriter out){
         System.out.print("Enter the username of the receiver: ");
         String receiveUsername = scan.nextLine().trim();
+        if(receiveUsername.isEmpty()){
+            return false;
+        }
         out.println(receiveUsername);
-        if (receiveUsername.isEmpty()) {
-            System.out.println("Username cannot be empty.");
-            return false;
-        }
         try{
-        String newResult = in.readLine();
-        if (newResult.equals("User not found.")) {
-            System.out.println("User not found.");
-            return false;
-        }
-
         System.out.print("Enter your photo's filepath: ");
         String contentThree = scan.nextLine().trim();
 
@@ -408,7 +379,6 @@ public class Client {
             System.out.println("Message cannot be empty.");
             return false;
         }
-        //try {
             String sentPhoto = in.readLine();
             if (sentPhoto.equals("success")) {
                 System.out.println("Message sent!");
@@ -429,16 +399,6 @@ public class Client {
             System.out.println("Username cannot be empty.");
             return false;
         }
-        try {
-
-            String responsez = in.readLine();
-            if (responsez.equals("empty")) {
-                System.out.println("User cannot be null");
-            }
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
 
         System.out.print("Enter your message: ");
         String newContent = scan.nextLine().trim();
@@ -480,15 +440,15 @@ public class Client {
     }
 
     public static boolean searchUsers(Scanner scan, BufferedReader in, PrintWriter out){
-        try{
-        String allClear = in.readLine();
-        System.out.println(allClear);
-        if(allClear.equals("Please log in first.")){
-            return false;
-        }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+       // try{
+        //String allClear = in.readLine();
+       // System.out.println(allClear);
+       // if(allClear.equals("Please log in first.")){
+           // return false;
+       //}
+       // } catch (IOException e) {
+           // e.printStackTrace();
+        //}
 
 
         System.out.println("Available users:");
