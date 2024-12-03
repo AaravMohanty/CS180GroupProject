@@ -1,502 +1,207 @@
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Scanner;
 
-/**
- * The Client class to prompt the user and interact with the server.
- * <p>
- * Purdue University -- CS18000 -- Fall 2024
- *
- * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
- * @version November 17th, 2024
- */
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.Socket;
 
 public class Client {
-     private static boolean loggedin;
+    private static Socket socket;
+    private static PrintWriter out;
+    private static BufferedReader in;
 
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in); // Initialize the scanner
-        loggedin = false;
-
         try {
-            Socket socket = new Socket("localhost", 1234);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            while (true) {
-                System.out.println("Main Menu:");
-                System.out.println("1. Create a New User");
-                System.out.println("2. Login");
-                System.out.println("3. Exit");
-                System.out.print("Enter your choice (1, 2, or 3): ");
+            socket = new Socket("localhost", 1234);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream(), true);
 
-                String choice = scan.nextLine().trim();
-                out.println(choice); //matches
-                if (choice == null) {
-                    break;
-                }
-                //System.out.println(choice);
-
-                switch (choice) {
-                    case "1":
-                        if(createNewAcc(scan, in, out) == 1){
-                            break;
-                        }
-
-                    case "2":
-                        //loggedin = false;
-                        while (!loggedin) {
-                           logIn(scan, in, out);
-                        } //gui -> make back button so can cancel & break
-
-                        boolean soFar = true;
-
-                        while (soFar) {
-
-
-                            System.out.println("User Menu:");
-                            System.out.println("1. Add Friend");
-                            System.out.println("2. Remove Friend");
-                            System.out.println("3. Block/Unblock User");
-                            System.out.println("4. Send Message");
-                            System.out.println("5. Send Photo");
-                            System.out.println("6. Delete Message");
-                            System.out.println("7. View Profile");
-                            System.out.println("8. Search Users");
-                            System.out.println("9. Logout");
-                            System.out.print("Enter your choice (1-9): ");
-                            String userChoice = scan.nextLine().trim();
-                            out.println(userChoice);
-
-                            switch (userChoice) {
-                                case "1":
-                                    if(!addFriend(scan, in, out)) {
-                                        break;
-                                    };
-                                    break;
-
-                                case "2":
-                                    if(!removeFriend(scan, in, out)) {
-                                        break;
-                                    };
-                                    break;
-
-                                case "3":
-                                    System.out.println("Enter 1 to block a user or 2 to unblock a user:");
-                                    String userChoice2 = scan.nextLine().trim();
-                                    out.println(userChoice2);
-
-                                    switch (userChoice2) {
-                                        case "1":
-                                            if(!blockUser(scan, in, out)) {
-                                                break;
-                                            };
-                                            break;
-
-                                        case "2":
-                                            if(!unBlockUser(scan, in, out)) {
-                                                break;
-                                            };
-                                            break;
-
-                                        default:
-                                            System.out.println("Invalid choice. You need to enter 1 or 2.");
-                                            break;
-                                    }
-                                    break;
-
-
-                                case "4":
-                                    if(!sendMessage(scan, in, out)) {
-                                        break;
-                                    }
-                                    break;
-
-                                case "5":
-                                    if(!sendPhotoMsg(scan, in, out)) {
-                                        break;
-                                    }
-                                    break;
-
-                                case "6":
-                                    if(!deleteMsg(scan, in, out)) {
-                                        break;
-                                    }
-                                    break;
-
-
-                                case "7":
-                                    if(!viewProfile(scan, in, out)) {
-                                        break;
-                                    }
-                                    break;
-
-
-                                case "8":
-                                    if(!searchUsers(scan, in, out)) {
-                                        break;
-                                    }
-                                    break;
-
-
-                                case "9":
-                                    System.out.println("Logging out...");
-                                    loggedin = false;
-                                    soFar = false;
-                                    break;
-
-
-                                default:
-                                    System.out.println("Invalid choice. Please try again.");
-                                    break;
-                            }
-                        }
-                        break;
-                    case "3":
-                        System.out.println("Have a nice day!");
-                        out.println("terminate");
-                        scan.close();
-                        socket.close();
-                        return;
-
-                    default:
-                        System.out.println("Invalid choice. Please enter 1, 2, or 3.");
-                }
-                ////System.out.println("Thank you, bye!");
-                //socket.close();
-            }
-
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            SwingUtilities.invokeLater(Client::createLoginGUI);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Cannot connect to the server.");
         }
     }
 
+    private static void createLoginGUI() {
+        JFrame frame = new JFrame("Login");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
 
-    public static int createNewAcc(Scanner scan, BufferedReader in, PrintWriter out) {
-        System.out.println("Welcome to ProjectMedia! Please create a new account.");
-        System.out.print("Enter username: ");
-        String username = scan.nextLine().trim();
-        out.println(username);
-        System.out.print("Enter password: ");
-        String password = scan.nextLine().trim();
-        out.println(password);
+        JPanel panel = new JPanel();
+        frame.add(panel);
+        panel.setLayout(new GridLayout(3, 2));
 
-        System.out.print("Enter bio: ");
-        String bio = scan.nextLine().trim();
-        out.println(bio);
-        System.out.print("Enter profile picture filename: ");
-        String pfp = scan.nextLine().trim();
-        out.println(pfp);
-        if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-            System.out.println("All fields are required. Please try again.");
-            return 1; // failed return to beginning to reprompy
-        }
-        try {
-            String successOrFailure = in.readLine();
-            System.out.println(successOrFailure);
-            while (true) {
-                if (successOrFailure.equals("success")) {
-                    System.out.println("Account created successfully!\n");
-                    return 1;  //or just return
+        JLabel userLabel = new JLabel("Username:");
+        JTextField userText = new JTextField(20);
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordText = new JPasswordField(20);
+        JButton loginButton = new JButton("Login");
+        JButton createAccountButton = new JButton("Create Account");
+
+        panel.add(userLabel);
+        panel.add(userText);
+        panel.add(passwordLabel);
+        panel.add(passwordText);
+        panel.add(loginButton);
+        panel.add(createAccountButton);
+
+        loginButton.addActionListener(e -> {
+            String username = userText.getText();
+            String password = new String(passwordText.getPassword());
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                return;
+            }
+            out.println("2"); // Login action
+            out.println(username);
+            out.println(password);
+            try {
+                String response = in.readLine();
+                if ("success".equals(response)) {
+                    frame.dispose();
+                    createMainMenuGUI();
                 } else {
-                    System.out.println("Username already taken.\nPlease re-run the program to try again.");
-                    return 1;
+                    JOptionPane.showMessageDialog(frame, "Invalid credentials. Try again.");
                 }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-            return 1;
-        }
+        });
 
+        createAccountButton.addActionListener(e -> {
+            frame.dispose();
+            createAccountGUI();
+        });
 
-    public static void logIn(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.println("Log In to ProjectMedia");
-        System.out.print("Enter username: ");
-        String userInputUsername = scan.nextLine().trim();
-        out.println(userInputUsername);
-
-        System.out.print("Enter password: ");
-        String userInputPassword = scan.nextLine().trim();
-        out.println(userInputPassword);
-
-        try{
-            String newLine = in.readLine();
-            if (newLine.equals("success")) {
-               // String result = in.readLine();
-                //System.out.println(result);
-                loggedin = true;
-            } else {
-                System.out.println("Invalid username or password. Try again");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        frame.setVisible(true);
     }
 
-    public static boolean addFriend(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the friend you want to add: ");
-        try {
-            String friendName = scan.nextLine().trim();
+    private static void createAccountGUI() {
+        JFrame frame = new JFrame("Create Account");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
 
-            if (friendName.isEmpty()) {
-                System.out.println("Username cannot be empty.");
-                return false;
+        JPanel panel = new JPanel();
+        frame.add(panel);
+        panel.setLayout(new GridLayout(5, 2));
+
+        JLabel userLabel = new JLabel("Username:");
+        JTextField userText = new JTextField(20);
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordText = new JPasswordField(20);
+        JLabel bioLabel = new JLabel("Bio:");
+        JTextField bioText = new JTextField(20);
+        JLabel pfpLabel = new JLabel("Profile Picture:");
+        JTextField pfpText = new JTextField(20);
+
+        JButton createButton = new JButton("Create");
+        JButton backButton = new JButton("Back");
+
+        panel.add(userLabel);
+        panel.add(userText);
+        panel.add(passwordLabel);
+        panel.add(passwordText);
+        panel.add(bioLabel);
+        panel.add(bioText);
+        panel.add(pfpLabel);
+        panel.add(pfpText);
+        panel.add(createButton);
+        panel.add(backButton);
+
+        createButton.addActionListener(e -> {
+            String username = userText.getText();
+            String password = new String(passwordText.getPassword());
+            String bio = bioText.getText();
+            String pfp = pfpText.getText();
+
+            if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                return;
             }
-            out.println(friendName);
-
-            String result = in.readLine();
-            //System.out.print(result);
-            if (result.equals("success")) {
-                System.out.println(friendName + " has been added to your friends!");
-            }
-            else {
-                System.out.println("User is already added, null, does not exist, you have blocked them or they have blocked you");
-            }
-        } catch (Exception e) {
-            e.printStackTrace(); //when official gui make sure "ur server crashed"
-        }
-        return false;
-    }
-    public static boolean removeFriend(Scanner scan, BufferedReader in, PrintWriter out) {
-        System.out.print("Enter the username of the friend you want to remove: ");
-        String removeFriendName = scan.nextLine().trim();
-
-        if (removeFriendName.isEmpty()) {
-            //System.out.println("Username cannot be empty.");
-            return false;
-        }
-        out.println(removeFriendName);
-
-        try {
-            String readingLine = in.readLine();
-            //System.out.print(readingLine);
-            if (readingLine.equals("success")) {
-                System.out.println(removeFriendName + " has been removed to your friends!");
-            }
-            else {
-                System.out.println("User not found or is not already your friend");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    public static boolean blockUser(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the user to block: ");
-        String blockedUsername = scan.nextLine().trim();
-
-        while (blockedUsername.isEmpty()) {
-           // System.out.println("Username cannot be empty.");
-          //  System.out.print("Enter the username of the user to block: ");
-          //  blockedUsername = scan.nextLine().trim();
-            return false;
-        }
-
-        out.println(blockedUsername);
-        try {
-            String blockResponse = in.readLine();
-
-            if (blockResponse.equals("success")) {
-                System.out.println(blockedUsername + " has been blocked.");
-            }
-            else {
-                System.out.println("User could not be blocked. May be null. ");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-    public static boolean unBlockUser(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the user to unblock: ");
-        String unblockedUsername = scan.nextLine().trim();
-
-        while (unblockedUsername.isEmpty()) {
-            System.out.println("Username cannot be empty.");
-           // System.out.print("Enter the username of the user to unblock: ");
-           // unblockedUsername = scan.nextLine().trim();
-            return false;
-        }
-
-        out.println(unblockedUsername);
-        try {
-            String unblockResponse = in.readLine();
-
-            if (unblockResponse.equals("success")) {
-                System.out.println(unblockedUsername + " has been unblocked.");
-            } else {
-                System.out.println("User not found or could not be unblocked.");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static boolean sendMessage(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the receiver: ");
-        String receiverUsername = scan.nextLine().trim();
-        out.println(receiverUsername);
-        if (receiverUsername.isEmpty()) {
-            System.out.println("Username cannot be empty.");
-            return false;
-        }
-
-        try {
-
-            System.out.print("Enter your message: ");
-            String content = scan.nextLine().trim();
-            out.println(content);
-
-            String sent = in.readLine();
-            if (sent.equals("success")) {
-                System.out.println("Message sent!");
-            } else {
-                System.out.println("Failed to send message. Ensure you are friends with " + receiverUsername + " and " + receiverUsername + " is your friend and have not blocked each other.");
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static boolean sendPhotoMsg(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the receiver: ");
-        String receiveUsername = scan.nextLine().trim();
-        if(receiveUsername.isEmpty()){
-            return false;
-        }
-        out.println(receiveUsername);
-        try{
-        System.out.print("Enter your photo's filepath: ");
-        String contentThree = scan.nextLine().trim();
-
-        out.println(contentThree);
-        if (contentThree.isEmpty()) {
-            System.out.println("Message cannot be empty.");
-            return false;
-        }
-            String sentPhoto = in.readLine();
-            if (sentPhoto.equals("success")) {
-                System.out.println("Message sent!");
-            } else {
-                System.out.println("Failed to send Photo.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static boolean deleteMsg(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the user: ");
-        String newUsername = scan.nextLine().trim();
-        out.println(newUsername);
-        if (newUsername.isEmpty()) {
-            System.out.println("Username cannot be empty.");
-            return false;
-        }
-
-        System.out.print("Enter your message: ");
-        String newContent = scan.nextLine().trim();
-        out.println(newContent);
-        if (newContent.isEmpty()) {
-            System.out.println("Message cannot be empty.");
-            return false;
-        }
-        try {
-            String deleted = in.readLine();
-            if (deleted.equals("success")) {
-                System.out.println("Message deleted!");
-            } else {
-                System.out.println("Failed to delete message.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    public static boolean viewProfile(Scanner scan, BufferedReader in, PrintWriter out){
-        System.out.print("Enter the username of the profile you want to view: ");
-        String usernameToView = scan.nextLine().trim();
-        out.println(usernameToView);
-        try {
-            String isProfileUserValid = in.readLine();
-            if (isProfileUserValid.equals("success")) {
-                String next;
-                while (!(next = in.readLine()).equals("END")) {
-                    System.out.println(next);
+            out.println("1"); // Create account action
+            out.println(username);
+            out.println(password);
+            out.println(bio);
+            out.println(pfp);
+            try {
+                String response = in.readLine();
+                if ("success".equals(response)) {
+                    JOptionPane.showMessageDialog(frame, "Account created successfully!");
+                    frame.dispose();
+                    createLoginGUI();
+                } else if ("username_taken".equals(response)) {
+                    JOptionPane.showMessageDialog(frame, "Username already taken. Try another.");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Account creation failed. Please try again.");
                 }
-            } else {
-                System.out.println("User not found");
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        });
+
+        backButton.addActionListener(e -> {
+            frame.dispose();
+            createLoginGUI();
+        });
+
+        frame.setVisible(true);
     }
 
-    public static boolean searchUsers(Scanner scan, BufferedReader in, PrintWriter out){
-       // try{
-        //String allClear = in.readLine();
-       // System.out.println(allClear);
-       // if(allClear.equals("Please log in first.")){
-           // return false;
-       //}
-       // } catch (IOException e) {
-           // e.printStackTrace();
-        //}
+    private static void createMainMenuGUI() {
+        JFrame frame = new JFrame("Main Menu");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(600, 400);
 
+        JTabbedPane tabbedPane = new JTabbedPane();
 
-        System.out.println("Available users:");
-        ArrayList<String> usernamesArray = new ArrayList<>();
-        String userNames;
-        try {
-            userNames = in.readLine();
-            while (!(userNames).equals("END")) {
-                usernamesArray.add(userNames);
-                System.out.println("- " + userNames);
-                userNames = in.readLine();
-            }
-            System.out.print("Enter the username of the profile to view: ");
-            String usernameViewing = scan.nextLine().trim();
-            out.println(usernameViewing);
-            if (usernameViewing.isEmpty()) {
-                System.out.println("Username cannot be empty.");
-                return false;
-            }
-            else {
-                /*String next;
-                while (!(next = in.readLine()).equals("END")) {
-                    System.out.println(next);
-                }
-                return false;
-                */
-                String next = in.readLine();
+        // Conversations Tab
+        JPanel conversationsPanel = new JPanel(new BorderLayout());
+        JList<String> conversationsList = new JList<>(new String[]{"Conversation 1", "Conversation 2"});
+        JTextArea conversationArea = new JTextArea();
+        JTextField messageField = new JTextField();
+        JButton sendButton = new JButton("Send");
+        JButton deleteButton = new JButton("Delete");
 
-                if(next.equals("end")){
-                    String nextLine = in.readLine();
-                    System.out.println(nextLine);
-                     nextLine = in.readLine();
-                    System.out.println(nextLine);
-                     nextLine = in.readLine();
-                    System.out.println(nextLine);
-                }
-                else {
+        conversationsPanel.add(new JScrollPane(conversationsList), BorderLayout.WEST);
+        conversationsPanel.add(new JScrollPane(conversationArea), BorderLayout.CENTER);
 
-                    System.out.println("No user found");
-                }
-                 return false;
+        JPanel messagePanel = new JPanel(new BorderLayout());
+        messagePanel.add(messageField, BorderLayout.CENTER);
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(sendButton);
+        buttonPanel.add(deleteButton);
+        messagePanel.add(buttonPanel, BorderLayout.EAST);
+        conversationsPanel.add(messagePanel, BorderLayout.SOUTH);
 
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        // Friends Tab
+        JPanel friendsPanel = new JPanel(new BorderLayout());
+        JList<String> friendsList = new JList<>(new String[]{"Friend 1", "Friend 2"});
+        JButton addFriendButton = new JButton("Add Friend");
+        JButton removeFriendButton = new JButton("Remove Friend");
+        JButton blockFriendButton = new JButton("Block/Unblock Friend");
+        friendsPanel.add(new JScrollPane(friendsList), BorderLayout.CENTER);
+        JPanel friendsButtonPanel = new JPanel(new GridLayout(1, 3));
+        friendsButtonPanel.add(addFriendButton);
+        friendsButtonPanel.add(removeFriendButton);
+        friendsButtonPanel.add(blockFriendButton);
+        friendsPanel.add(friendsButtonPanel, BorderLayout.SOUTH);
+
+        // Search Users Tab
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        JTextField searchField = new JTextField();
+        JButton searchButton = new JButton("Search");
+        JList<String> searchResults = new JList<>(new String[]{"User 1", "User 2"});
+        searchPanel.add(searchField, BorderLayout.NORTH);
+        searchPanel.add(new JScrollPane(searchResults), BorderLayout.CENTER);
+        searchPanel.add(searchButton, BorderLayout.SOUTH);
+
+        tabbedPane.addTab("Conversations", conversationsPanel);
+        tabbedPane.addTab("Friends List", friendsPanel);
+        tabbedPane.addTab("Search Users", searchPanel);
+
+        frame.add(tabbedPane);
+        frame.setVisible(true);
     }
-
-
 }

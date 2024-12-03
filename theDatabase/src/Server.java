@@ -84,12 +84,12 @@ public class Server implements Runnable { //extends thread
                                 while (true) {
 
                                     String username1 = reader.readLine().trim();
-                                   // System.out.println("username " + username1);
+                                    // System.out.println("username " + username1);
                                     String pass = reader.readLine().trim();
-                                   // System.out.println("password '" + pass + "'");
+                                    // System.out.println("password '" + pass + "'");
                                     user = database.getUser(username1);
-                                   // System.out.println(user.displayUser());
-                                   // System.out.println("'" + user.getPassword() + "'");
+                                    // System.out.println(user.displayUser());
+                                    // System.out.println("'" + user.getPassword() + "'");
                                   /*  if (user != null) {
                                         System.out.println("user is not null");
                                     } else {
@@ -99,7 +99,7 @@ public class Server implements Runnable { //extends thread
                                    */
                                     if (database.authenticate(username1, pass)) {
                                         writer.println("success");
-                                       // writer.println("Login successful! Welcome back, " + username1 + "!");
+                                        // writer.println("Login successful! Welcome back, " + username1 + "!");
                                         break;
                                     } else {
                                         writer.println("Invalid username or password.");
@@ -143,15 +143,15 @@ public class Server implements Runnable { //extends thread
                                         User removeFriend = database.getUser(removeFriendName);
 
 
-                                            synchronized (LOCK) {
-                                                if(user.removeFriend(removeFriendName)) {
-                                                    writer.println("success");
-                                                }
-                                                else {
-                                                    writer.println("not able to remove friend");
-                                                }
+                                        synchronized (LOCK) {
+                                            if(user.removeFriend(removeFriendName)) {
+                                                writer.println("success");
                                             }
-                                            break;
+                                            else {
+                                                writer.println("not able to remove friend");
+                                            }
+                                        }
+                                        break;
 
 
 
@@ -190,8 +190,8 @@ public class Server implements Runnable { //extends thread
 
 
 
-                                                        if (user.unblockUser(unblockedUser)) {
-                                                            writer.println("success");
+                                                    if (user.unblockUser(unblockedUser)) {
+                                                        writer.println("success");
 
                                                     }
 
@@ -202,7 +202,7 @@ public class Server implements Runnable { //extends thread
                                                 break;
 
                                             default:
-                                               // writer.println("Invalid choice.");
+                                                // writer.println("Invalid choice.");
                                                 break;
                                         }
                                         break;
@@ -299,11 +299,11 @@ public class Server implements Runnable { //extends thread
                                         break;
 
                                     case "8":
-                                       // if (user == null) {
-                                           // writer.println("Please log in first.");
-                                          //  break;
-                                       // }
-                                       // writer.println("all good");
+                                        // if (user == null) {
+                                        // writer.println("Please log in first.");
+                                        //  break;
+                                        // }
+                                        // writer.println("all good");
                                         synchronized (LOCK) {
 
                                             for (User user1 : database.getUsers()) {
@@ -338,14 +338,14 @@ public class Server implements Runnable { //extends thread
                                         break;
 
                                     default:
-                                      //  writer.println("Invalid choice. Please try again.");
+                                        //  writer.println("Invalid choice. Please try again.");
                                         break;
                                 }
 
                             }
                             break;
                         case "terminate":
-                          //  writer.println("Have a nice day!");
+                            //  writer.println("Have a nice day!");
                             reader.close();
                             writer.close();
                             return;
