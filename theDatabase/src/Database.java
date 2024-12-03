@@ -1,3 +1,5 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList; // Import ArrayList for storing users and messages
 
@@ -13,14 +15,12 @@ import java.util.ArrayList; // Import ArrayList for storing users and messages
 // The Database class manages users and messages in a simple in-memory storage system.
 public class Database implements DatabaseInterface {
     public static ArrayList<User> users; // List to store User objects
-    private ArrayList<Message> messages; // List to store Message objects
     public static final String DATABASE_FILE = "database.txt"; // Initializing the database file
     Object o = new Object();
 
     // Constructor initializes the users and messages lists.
     public Database() {
         users = new ArrayList<>(); // Initialize the users list
-        messages = new ArrayList<>(); // Initialize the messages list
         synchronized (o) {
             File databaseFile = new File(DATABASE_FILE); // create database file
 
@@ -90,9 +90,58 @@ public class Database implements DatabaseInterface {
         return user != null && user.getPassword().equals(password); // Check if password matches
     }
 
-    public ArrayList<User> getUsers() {
-        return users;
+    public boolean saveProfilePicture(String username, String photoPath) {
+        if (username == null || photoPath == null || !new File(photoPath).exists()) {
+            return false; // Invalid input or file does not exist
+        }
+
+        String profilePictureFileName = username + "_profile.jpg"; // Define unique file name for profile picture
+
+        try {
+            // Load the original image
+            BufferedImage image = ImageIO.read(new File(photoPath));
+
+            // Save the profile picture to the disk
+            File profilePictureFile = new File(profilePictureFileName);
+            ImageIO.write(image, "jpg", profilePictureFile);
+
+            // Update the user's record in the database
+            synchronized (o) {
+                for (User user : users) {
+                    if (user.getUsername().equals(username)) {
+                        user.setPfp(profilePictureFileName); // Update user's profile picture field
+                        saveDatabase(); // Persist the changes
+                        return true; // Indicate success
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error saving profile picture: " + e.getMessage());
+            return false;
+        }
+
+        return false; // User not found or operation failed
     }
 
+    // Helper method to save the entire database back to the file
+    private void saveDatabase() {
+        synchronized (o) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATABASE_FILE, false))) {
+                for (User user : users) {
+                    String userEntry = String.format("%s,%s,%s,%s",
+                            user.getUsername(), user.getPassword(), user.getBio(), user.getPfp());
+                    writer.write(userEntry);
+                    writer.newLine();
+                }
+            } catch (IOException e) {
+                System.err.println("Error saving database: " + e.getMessage());
+            }
+        }
+    }
+
+
+    public synchronized ArrayList<User> getUsers() {
+        return new ArrayList<>(users);
+    }
 
 }
