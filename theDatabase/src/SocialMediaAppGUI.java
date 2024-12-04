@@ -197,66 +197,78 @@ public class SocialMediaAppGUI {
 
     private static JPanel createConversationsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        DefaultListModel<String> conversationsModel = new DefaultListModel<>();
-        JList<String> conversationsList = new JList<>(conversationsModel);
+        JPanel conversationsPanel = new JPanel();
+        conversationsPanel.setLayout(new BoxLayout(conversationsPanel, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(conversationsPanel);
+
         JTextArea conversationArea = new JTextArea();
+        conversationArea.setEditable(false);
         JTextField messageField = new JTextField();
         JButton sendButton = new JButton("Send");
         JButton refreshButton = new JButton("Refresh");
 
-        conversationsList.addListSelectionListener(e -> {
-            String selectedConversation = conversationsList.getSelectedValue();
-            if (selectedConversation == null) return;
-            conversationArea.setText("");
+        // Function to load conversations
+        Runnable loadConversations = () -> {
+            SwingUtilities.invokeLater(() -> conversationsPanel.removeAll()); // Clear the panel
             try {
-                out.println("load_conversation");
-                out.println(selectedConversation);
-                String message;
-                while (!(message = in.readLine()).equals("END")) {
-                    conversationArea.append(message + "\n");
+                out.println("get_conversations");
+                String conversation;
+                while (!(conversation = in.readLine()).equals("END")) {
+                    String finalConversation = conversation; // For use in lambda
+                    JButton conversationButton = new JButton(conversation);
+                    conversationButton.addActionListener(e -> {
+                        conversationArea.setText(""); // Clear the message area
+                        try {
+                            out.println("load_conversation");
+                            out.println(finalConversation);
+                            String message;
+                            while (!(message = in.readLine()).equals("END")) {
+                                conversationArea.append(message + "\n");
+                            }
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(null, "Failed to load messages.");
+                        }
+                    });
+                    SwingUtilities.invokeLater(() -> conversationsPanel.add(conversationButton)); // Add button dynamically
                 }
+                SwingUtilities.invokeLater(() -> conversationsPanel.revalidate());
+                SwingUtilities.invokeLater(() -> conversationsPanel.repaint());
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Failed to load messages.");
+                JOptionPane.showMessageDialog(null, "Error loading conversations.");
             }
-        });
+        };
 
-        refreshButton.addActionListener(e -> {
-            new Thread(() -> {
-                try {
-                    out.println("get_conversations"); // Assuming the command exists
-                    String conversation;
-                    conversationsModel.clear(); // Clear existing entries
-                    while (!(conversation = in.readLine()).equals("END")) {
-                        conversationsModel.addElement(conversation);
-                    }
-                } catch (IOException ex) {
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error refreshing conversations."));
-                }
-            }).start();
-        });
+        // Load conversations when the tab is created
+        new Thread(loadConversations).start();
 
+        // Refresh button action
+        refreshButton.addActionListener(e -> new Thread(loadConversations).start());
+
+        // Send button action
         sendButton.addActionListener(e -> {
             String message = messageField.getText().trim();
-            if (!message.isEmpty()) {
+            if (!message.isEmpty() && conversationArea.getText() != null) {
                 out.println("send_message");
-                out.println(conversationsList.getSelectedValue());
+                out.println(conversationArea.getName()); // Conversation identifier
                 out.println(message);
                 messageField.setText("");
                 conversationArea.append(currentUser + ": " + message + "\n");
             }
         });
 
-        panel.add(new JScrollPane(conversationsList), BorderLayout.WEST);
-        panel.add(new JScrollPane(conversationArea), BorderLayout.CENTER);
-
+        // Layout components
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.add(messageField, BorderLayout.CENTER);
         messagePanel.add(sendButton, BorderLayout.EAST);
+
+        panel.add(scrollPane, BorderLayout.WEST);
+        panel.add(new JScrollPane(conversationArea), BorderLayout.CENTER);
         panel.add(messagePanel, BorderLayout.SOUTH);
-        panel.add(refreshButton, BorderLayout.SOUTH); // Add refresh button to the panel
+        panel.add(refreshButton, BorderLayout.NORTH);
 
         return panel;
     }
+
 
     private static JPanel createFriendsPanel(DefaultListModel<String> friendsModel) {
         JPanel panel = new JPanel(new BorderLayout());

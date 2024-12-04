@@ -83,17 +83,50 @@ public class Server implements Runnable {
                         }
                         break;
 
-                    case "load_conversation": // Load messages for a conversation
-                        String conversationName = reader.readLine();
-                        if (currentUser != null) {
-                            ArrayList<String> messages = currentUser.loadConversation(conversationName);
-                            if (messages != null) {
-                                for (String message : messages) {
-                                    writer.println(message);
+                    case "get_conversations": // Fetch all conversations for the current user
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+                            try {
+                                for (String conversation : currentUser.getConversations()) {
+                                    writer.println(conversation); // Send each conversation name
                                 }
+                                writer.println("END"); // End of conversations list
+                            } catch (Exception e) {
+                                writer.println("error");
+                                e.printStackTrace();
                             }
                         }
-                        writer.println("END");
+                        break;
+
+                    case "load_conversation": // Load messages for a specific conversation
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+                            String conversationName = reader.readLine();
+                            if (conversationName == null || conversationName.isEmpty()) {
+                                writer.println("error");
+                                break;
+                            }
+                            try {
+                                ArrayList<String> messages = currentUser.loadConversation(conversationName);
+                                if (messages != null) {
+                                    for (String message : messages) {
+                                        writer.println(message); // Send each message
+                                    }
+                                } else {
+                                    writer.println("conversation_not_found");
+                                }
+                                writer.println("END"); // End of messages
+                            } catch (Exception e) {
+                                writer.println("error");
+                                e.printStackTrace();
+                            }
+                        }
                         break;
 
                     case "search_user": // Search for a user
