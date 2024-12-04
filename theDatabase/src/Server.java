@@ -13,9 +13,13 @@ public class Server implements Runnable {
             serverSocket = new ServerSocket(1234); // Start the server
             System.out.println("Server is running on port 1234...");
 
-            while (true) {
-                Thread t = new Thread(new Server());
-                t.start();
+            try {
+                while (true) {
+                    Thread t = new Thread(new Server());
+                    t.start();
+                }
+            } catch (OutOfMemoryError e) {
+                System.out.println("Server is running on port 1234...");
             }
         } catch (IOException | OutOfMemoryError e) {
             e.printStackTrace();

@@ -202,6 +202,7 @@ public class SocialMediaAppGUI {
         JTextArea conversationArea = new JTextArea();
         JTextField messageField = new JTextField();
         JButton sendButton = new JButton("Send");
+        JButton refreshButton = new JButton("Refresh");
 
         conversationsList.addListSelectionListener(e -> {
             String selectedConversation = conversationsList.getSelectedValue();
@@ -217,6 +218,21 @@ public class SocialMediaAppGUI {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Failed to load messages.");
             }
+        });
+
+        refreshButton.addActionListener(e -> {
+            new Thread(() -> {
+                try {
+                    out.println("get_conversations"); // Assuming the command exists
+                    String conversation;
+                    conversationsModel.clear(); // Clear existing entries
+                    while (!(conversation = in.readLine()).equals("END")) {
+                        conversationsModel.addElement(conversation);
+                    }
+                } catch (IOException ex) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error refreshing conversations."));
+                }
+            }).start();
         });
 
         sendButton.addActionListener(e -> {
@@ -237,6 +253,7 @@ public class SocialMediaAppGUI {
         messagePanel.add(messageField, BorderLayout.CENTER);
         messagePanel.add(sendButton, BorderLayout.EAST);
         panel.add(messagePanel, BorderLayout.SOUTH);
+        panel.add(refreshButton, BorderLayout.SOUTH); // Add refresh button to the panel
 
         return panel;
     }
@@ -247,6 +264,7 @@ public class SocialMediaAppGUI {
         JTextField friendTextField = new JTextField();
         JButton addFriendButton = new JButton("Add Friend");
         JButton removeFriendButton = new JButton("Remove Friend");
+        JButton refreshButton = new JButton("Refresh");
 
         // Populate friends list when the panel is opened
         new Thread(() -> {
@@ -262,6 +280,21 @@ public class SocialMediaAppGUI {
                 ex.printStackTrace();
             }
         }).start();
+
+        refreshButton.addActionListener(e -> {
+            new Thread(() -> {
+                try {
+                    out.println("get_friends");
+                    String friend;
+                    friendsModel.clear(); // Clear existing entries
+                    while (!(friend = in.readLine()).equals("END")) {
+                        friendsModel.addElement(friend);
+                    }
+                } catch (IOException ex) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error refreshing friends list."));
+                }
+            }).start();
+        });
 
         addFriendButton.addActionListener(e -> {
             String friendName = friendTextField.getText().trim();
@@ -324,6 +357,7 @@ public class SocialMediaAppGUI {
         panel.add(new JScrollPane(friendsList), BorderLayout.CENTER);
         panel.add(controlPanel, BorderLayout.NORTH);
         panel.add(removeFriendButton, BorderLayout.SOUTH);
+        panel.add(refreshButton, BorderLayout.EAST); // Add refresh button to the panel
 
         return panel;
     }
@@ -335,6 +369,7 @@ public class SocialMediaAppGUI {
         JTextField blockTextField = new JTextField();
         JButton blockUserButton = new JButton("Block User");
         JButton unblockUserButton = new JButton("Unblock User");
+        JButton refreshButton = new JButton("Refresh");
 
         // Populate blocked list when the panel is opened
         new Thread(() -> {
@@ -350,6 +385,21 @@ public class SocialMediaAppGUI {
                 ex.printStackTrace();
             }
         }).start();
+
+        refreshButton.addActionListener(e -> {
+            new Thread(() -> {
+                try {
+                    out.println("get_blocked_users");
+                    String blockedUser;
+                    blockedModel.clear(); // Clear existing entries
+                    while (!(blockedUser = in.readLine()).equals("END")) {
+                        blockedModel.addElement(blockedUser);
+                    }
+                } catch (IOException ex) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error refreshing blocked list."));
+                }
+            }).start();
+        });
 
         blockUserButton.addActionListener(e -> {
             String usernameToBlock = blockTextField.getText().trim();
@@ -414,6 +464,8 @@ public class SocialMediaAppGUI {
         controlPanel.add(blockTextField);
         controlPanel.add(blockUserButton);
 
+        panel.add(refreshButton, BorderLayout.EAST); // Add refresh button to the panel
+
         panel.add(new JScrollPane(blockedList), BorderLayout.CENTER);
         panel.add(controlPanel, BorderLayout.NORTH);
         panel.add(unblockUserButton, BorderLayout.SOUTH);
@@ -428,22 +480,39 @@ public class SocialMediaAppGUI {
         JList<String> searchResults = new JList<>(searchResultsModel);
         JTextField searchField = new JTextField();
         JButton searchButton = new JButton("Search");
+        JButton refreshButton = new JButton("Refresh");
+
+        // Load all users initially when the tab is opened
+        new Thread(() -> {
+            loadAllUsers(searchResultsModel);
+        }).start();
 
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
-            searchResultsModel.clear();
+            searchResultsModel.clear(); // Clear previous results
             if (!query.isEmpty()) {
-                out.println("search_user");
-                out.println(query);
-                try {
-                    String result;
-                    while (!(result = in.readLine()).equals("END")) {
-                        searchResultsModel.addElement(result);
+                new Thread(() -> {
+                    out.println("search_user");
+                    out.println(query);
+                    try {
+                        String result;
+                        while (!(result = in.readLine()).equals("END")) {
+                            if (result.equalsIgnoreCase(query)) { // Match exact username
+                                searchResultsModel.addElement(result);
+                            }
+                        }
+                    } catch (IOException ex) {
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch search results."));
                     }
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "Failed to fetch search results.");
-                }
+                }).start();
             }
+        });
+
+        refreshButton.addActionListener(e -> {
+            // Refresh to display all users again
+            new Thread(() -> {
+                loadAllUsers(searchResultsModel);
+            }).start();
         });
 
         searchResults.addListSelectionListener(new ListSelectionListener() {
@@ -491,11 +560,30 @@ public class SocialMediaAppGUI {
             }
         });
 
-        panel.add(searchField, BorderLayout.NORTH);
+        JPanel controlPanel = new JPanel(new GridLayout(1, 2));
+        controlPanel.add(searchField);
+        controlPanel.add(searchButton);
+
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.add(controlPanel, BorderLayout.NORTH);
+        buttonPanel.add(refreshButton, BorderLayout.SOUTH);
+
+        panel.add(buttonPanel, BorderLayout.NORTH);
         panel.add(new JScrollPane(searchResults), BorderLayout.CENTER);
-        panel.add(searchButton, BorderLayout.SOUTH);
 
         return panel;
     }
-}
 
+    private static void loadAllUsers(DefaultListModel<String> searchResultsModel) {
+        try {
+            out.println("get_users"); // Command to fetch all users
+            String user;
+            searchResultsModel.clear(); // Clear existing results
+            while (!(user = in.readLine()).equals("END")) {
+                searchResultsModel.addElement(user);
+            }
+        } catch (IOException ex) {
+            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to load users."));
+        }
+    }
+}
