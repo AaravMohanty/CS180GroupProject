@@ -18,7 +18,7 @@ public class Server implements Runnable {
                 t.start();
             }
         } catch (IOException | OutOfMemoryError e) {
-            ;
+            e.printStackTrace();
         }
     }
 
@@ -104,7 +104,6 @@ public class Server implements Runnable {
                         }
                         break;
 
-
                     case "get_user_details": // Fetch user details
                         synchronized (LOCK) {
                             String requestedUser = reader.readLine();
@@ -119,7 +118,7 @@ public class Server implements Runnable {
                         }
                         break;
 
-                    case "save_profile_picture":
+                    case "save_profile_picture": // Save profile picture
                         synchronized (LOCK) {
                             String username = reader.readLine();
                             String photoPath = reader.readLine();
@@ -127,7 +126,6 @@ public class Server implements Runnable {
                             writer.println(success ? "success" : "failure");
                         }
                         break;
-
 
                     case "send_message": // Send a message
                         String targetUser = reader.readLine();
@@ -142,6 +140,58 @@ public class Server implements Runnable {
                             }
                         }
                         break;
+
+                    case "add_friend": // Add a friend
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in"); // User not logged in
+                                break;
+                            }
+                            String friendName = reader.readLine().trim();
+                            if (friendName.isEmpty()) {
+                                writer.println("failure");
+                                break;
+                            }
+
+                            User friend = database.getUser(friendName); // Fetch the User object
+                            if (friend != null && !currentUser.getFriends().contains(friend)) {
+                                currentUser.addFriend(friend); // Add friend to current user's friend list
+                                friend.addFriend(currentUser); // Add current user to friend's friend list
+                                writer.println("success");
+                            } else {
+                                writer.println("failure"); // Friend doesn't exist or is already a friend
+                            }
+                        }
+                        break;
+
+                    case "remove_friend": // Remove a friend
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in"); // User not logged in
+                                break;
+                            }
+                            String friendName = reader.readLine().trim();
+                            if (friendName.isEmpty()) {
+                                writer.println("failure"); // Empty friend name provided
+                                break;
+                            }
+
+                            User friend = database.getUser(friendName); // Fetch the User object for the friend
+                            if (friend != null && currentUser.getFriends().contains(friend)) {
+                                // Remove the friend bidirectionally
+                                currentUser.removeFriend(friend.getUsername());
+                                friend.removeFriend(currentUser.getUsername());
+
+                                writer.println("success");
+                            } else {
+                                writer.println("failure"); // Friend not found or not in the list
+                            }
+                        }
+                        break;
+
+
+
+
 
                     default:
                         writer.println("Invalid command.");
