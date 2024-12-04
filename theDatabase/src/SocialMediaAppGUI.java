@@ -154,13 +154,20 @@ public class SocialMediaAppGUI {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
+        // Shared DefaultListModel for Friends List
+        DefaultListModel<String> friendsModel = new DefaultListModel<>();
+
+        // Friends List Tab
+        JPanel friendsPanel = createFriendsPanel(friendsModel);
+        tabbedPane.addTab("Friends List", friendsPanel);
+
+        // Blocked List Tab
+        JPanel blockedPanel = createBlockedListPanel(friendsModel);
+        tabbedPane.addTab("Blocked List", blockedPanel);
+
         // Conversations Tab
         JPanel conversationsPanel = createConversationsPanel();
         tabbedPane.addTab("Conversations", conversationsPanel);
-
-        // Friends List Tab
-        JPanel friendsPanel = createFriendsPanel();
-        tabbedPane.addTab("Friends List", friendsPanel);
 
         // Search Users Tab
         JPanel searchPanel = createSearchUsersPanel();
@@ -169,10 +176,10 @@ public class SocialMediaAppGUI {
         // Logout Button
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
-            out.println("9"); // Logout action
+            out.println("logout");
             try {
                 String response = in.readLine();
-                if ("success".equals(response)) {
+                if ("logout_success".equals(response)) {
                     frame.dispose();
                     createLoginGUI();
                 }
@@ -185,6 +192,8 @@ public class SocialMediaAppGUI {
         frame.add(logoutButton, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
+
+
 
     private static JPanel createConversationsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -232,29 +241,43 @@ public class SocialMediaAppGUI {
         return panel;
     }
 
-    private static JPanel createFriendsPanel() {
+    private static JPanel createFriendsPanel(DefaultListModel<String> friendsModel) {
         JPanel panel = new JPanel(new BorderLayout());
-        DefaultListModel<String> friendsModel = new DefaultListModel<>();
         JList<String> friendsList = new JList<>(friendsModel);
         JTextField friendTextField = new JTextField();
         JButton addFriendButton = new JButton("Add Friend");
         JButton removeFriendButton = new JButton("Remove Friend");
+
+        // Populate friends list when the panel is opened
+        new Thread(() -> {
+            try {
+                out.println("get_friends");
+                String friend;
+                friendsModel.clear(); // Clear existing entries before populating
+                while (!(friend = in.readLine()).equals("END")) {
+                    friendsModel.addElement(friend);
+                }
+            } catch (IOException ex) {
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
+                ex.printStackTrace();
+            }
+        }).start();
 
         addFriendButton.addActionListener(e -> {
             String friendName = friendTextField.getText().trim();
             if (!friendName.isEmpty()) {
                 new Thread(() -> {
                     try {
-                        out.println("add_friend"); // Send add friend command
-                        out.println(friendName);   // Send friend's username
+                        out.println("add_friend");
+                        out.println(friendName);
 
-                        String response = in.readLine(); // Wait for server's response
+                        String response = in.readLine();
                         SwingUtilities.invokeLater(() -> {
                             if ("success".equals(response)) {
-                                friendsModel.addElement(friendName); // Update the friends list
+                                friendsModel.addElement(friendName);
                                 JOptionPane.showMessageDialog(null, "Friend added successfully.");
                             } else {
-                                JOptionPane.showMessageDialog(null, "Failed to add friend. User may not exist or is already a friend.");
+                                JOptionPane.showMessageDialog(null, "Failed to add friend. User may not exist, is blocked, or is already a friend.");
                             }
                         });
                     } catch (IOException ex) {
@@ -272,16 +295,16 @@ public class SocialMediaAppGUI {
             if (selectedFriend != null) {
                 new Thread(() -> {
                     try {
-                        out.println("remove_friend"); // Send remove friend command
-                        out.println(selectedFriend);  // Send friend's username
+                        out.println("remove_friend");
+                        out.println(selectedFriend);
 
-                        String response = in.readLine(); // Wait for server's response
+                        String response = in.readLine();
                         SwingUtilities.invokeLater(() -> {
                             if ("success".equals(response)) {
-                                friendsModel.removeElement(selectedFriend); // Update the friends list
+                                friendsModel.removeElement(selectedFriend);
                                 JOptionPane.showMessageDialog(null, "Friend removed successfully.");
                             } else {
-                                JOptionPane.showMessageDialog(null, "Failed to remove friend. User may not exist in your friends list.");
+                                JOptionPane.showMessageDialog(null, "Failed to remove friend.");
                             }
                         });
                     } catch (IOException ex) {
@@ -304,6 +327,100 @@ public class SocialMediaAppGUI {
 
         return panel;
     }
+
+    private static JPanel createBlockedListPanel(DefaultListModel<String> friendsModel) {
+        JPanel panel = new JPanel(new BorderLayout());
+        DefaultListModel<String> blockedModel = new DefaultListModel<>();
+        JList<String> blockedList = new JList<>(blockedModel);
+        JTextField blockTextField = new JTextField();
+        JButton blockUserButton = new JButton("Block User");
+        JButton unblockUserButton = new JButton("Unblock User");
+
+        // Populate blocked list when the panel is opened
+        new Thread(() -> {
+            try {
+                out.println("get_blocked_users");
+                String blockedUser;
+                blockedModel.clear(); // Clear existing entries before populating
+                while (!(blockedUser = in.readLine()).equals("END")) {
+                    blockedModel.addElement(blockedUser);
+                }
+            } catch (IOException ex) {
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching blocked list."));
+                ex.printStackTrace();
+            }
+        }).start();
+
+        blockUserButton.addActionListener(e -> {
+            String usernameToBlock = blockTextField.getText().trim();
+            if (!usernameToBlock.isEmpty()) {
+                new Thread(() -> {
+                    try {
+                        out.println("block_user");
+                        out.println(usernameToBlock);
+
+                        String response = in.readLine();
+                        SwingUtilities.invokeLater(() -> {
+                            if ("success".equals(response)) {
+                                blockedModel.addElement(usernameToBlock); // Add to blocked list
+
+                                // Remove the user from the friends list if they exist
+                                if (friendsModel.contains(usernameToBlock)) {
+                                    friendsModel.removeElement(usernameToBlock);
+                                }
+                                JOptionPane.showMessageDialog(null, "User blocked successfully.");
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to block user. They may not exist or are already blocked.");
+                            }
+                        });
+                    } catch (IOException ex) {
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error communicating with the server."));
+                        ex.printStackTrace();
+                    }
+                }).start();
+            } else {
+                JOptionPane.showMessageDialog(null, "Username cannot be empty.");
+            }
+        });
+
+        unblockUserButton.addActionListener(e -> {
+            String selectedBlockedUser = blockedList.getSelectedValue();
+            if (selectedBlockedUser != null) {
+                new Thread(() -> {
+                    try {
+                        out.println("unblock_user");
+                        out.println(selectedBlockedUser);
+
+                        String response = in.readLine();
+                        SwingUtilities.invokeLater(() -> {
+                            if ("success".equals(response)) {
+                                blockedModel.removeElement(selectedBlockedUser);
+                                JOptionPane.showMessageDialog(null, "User unblocked successfully.");
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to unblock user.");
+                            }
+                        });
+                    } catch (IOException ex) {
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error communicating with the server."));
+                        ex.printStackTrace();
+                    }
+                }).start();
+            } else {
+                JOptionPane.showMessageDialog(null, "Please select a user to unblock.");
+            }
+        });
+
+        JPanel controlPanel = new JPanel(new GridLayout(1, 2));
+        controlPanel.add(blockTextField);
+        controlPanel.add(blockUserButton);
+
+        panel.add(new JScrollPane(blockedList), BorderLayout.CENTER);
+        panel.add(controlPanel, BorderLayout.NORTH);
+        panel.add(unblockUserButton, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
 
     private static JPanel createSearchUsersPanel() {
         JPanel panel = new JPanel(new BorderLayout());

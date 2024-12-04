@@ -141,57 +141,127 @@ public class Server implements Runnable {
                         }
                         break;
 
-                    case "add_friend": // Add a friend
+                    case "add_friend":
                         synchronized (LOCK) {
                             if (currentUser == null) {
                                 writer.println("not_logged_in"); // User not logged in
                                 break;
                             }
-                            String friendName = reader.readLine().trim();
-                            if (friendName.isEmpty()) {
-                                writer.println("failure");
-                                break;
-                            }
 
-                            User friend = database.getUser(friendName); // Fetch the User object
-                            if (friend != null && !currentUser.getFriends().contains(friend)) {
-                                currentUser.addFriend(friend); // Add friend to current user's friend list
-                                friend.addFriend(currentUser); // Add current user to friend's friend list
-                                writer.println("success");
-                            } else {
-                                writer.println("failure"); // Friend doesn't exist or is already a friend
-                            }
-                        }
-                        break;
-
-                    case "remove_friend": // Remove a friend
-                        synchronized (LOCK) {
-                            if (currentUser == null) {
-                                writer.println("not_logged_in"); // User not logged in
-                                break;
-                            }
                             String friendName = reader.readLine().trim();
                             if (friendName.isEmpty()) {
                                 writer.println("failure"); // Empty friend name provided
                                 break;
                             }
 
-                            User friend = database.getUser(friendName); // Fetch the User object for the friend
-                            if (friend != null && currentUser.getFriends().contains(friend)) {
-                                // Remove the friend bidirectionally
-                                currentUser.removeFriend(friend.getUsername());
-                                friend.removeFriend(currentUser.getUsername());
+                            User friend = database.getUser(friendName); // Fetch the User object
+                            if (friend == null) {
+                                writer.println("failure"); // Friend doesn't exist
+                                break;
+                            }
 
+                            // Use the addFriend method to validate the addition
+                            boolean success = currentUser.addFriend(friend);
+                            if (success) {
+                                friend.addFriend(currentUser); // Add current user to friend's list
                                 writer.println("success");
                             } else {
-                                writer.println("failure"); // Friend not found or not in the list
+                                writer.println("failure"); // Adding failed (already a friend, blocked, etc.)
                             }
                         }
                         break;
 
 
+                    case "get_friends":
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+                            for (String friend : currentUser.getFriends()) {
+                                writer.println(friend);
+                            }
+                            writer.println("END");
+                        }
+                        break;
 
 
+                    case "remove_friend":
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in"); // User not logged in
+                                break;
+                            }
+
+                            String friendName = reader.readLine().trim();
+                            if (friendName.isEmpty()) {
+                                writer.println("failure"); // Empty friend name provided
+                                break;
+                            }
+
+                            User friend = database.getUser(friendName); // Fetch the User object
+                            if (friend == null) {
+                                writer.println("failure"); // Friend doesn't exist
+                                break;
+                            }
+
+                            // Use the removeFriend method to validate the removal
+                            boolean success = currentUser.removeFriend(friendName);
+                            if (success) {
+                                friend.removeFriend(currentUser.getUsername()); // Remove the current user from the friend's list
+                                writer.println("success");
+                            } else {
+                                writer.println("failure"); // Removing failed (friend not in list, etc.)
+                            }
+                        }
+                        break;
+
+                    case "get_blocked_users":
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+                            for (String blockedUser : currentUser.getBlockedUsers()) {
+                                writer.println(blockedUser);
+                            }
+                            writer.println("END");
+                        }
+                        break;
+
+                    case "block_user":
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+
+                            String usernameToBlock = reader.readLine().trim();
+                            User userToBlock = database.getUser(usernameToBlock);
+                            if (userToBlock != null && currentUser.blockUser(userToBlock)) {
+                                writer.println("success");
+                            } else {
+                                writer.println("failure");
+                            }
+                        }
+                        break;
+
+                    case "unblock_user":
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+
+                            String usernameToUnblock = reader.readLine().trim();
+                            User userToUnblock = database.getUser(usernameToUnblock);
+                            if (userToUnblock != null && currentUser.unblockUser(userToUnblock)) {
+                                writer.println("success");
+                            } else {
+                                writer.println("failure");
+                            }
+                        }
+                        break;
 
                     default:
                         writer.println("Invalid command.");
