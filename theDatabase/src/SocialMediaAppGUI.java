@@ -218,6 +218,7 @@ public class SocialMediaAppGUI {
                     JButton conversationButton = new JButton(conversation);
                     conversationButton.addActionListener(e -> {
                         conversationArea.setText(""); // Clear the message area
+                        conversationArea.setName(finalConversation);
                         try {
                             out.println("load_conversation");
                             out.println(finalConversation);
@@ -246,15 +247,39 @@ public class SocialMediaAppGUI {
 
         // Send button action
         sendButton.addActionListener(e -> {
-            String message = messageField.getText().trim();
-            if (!message.isEmpty() && conversationArea.getText() != null) {
-                out.println("send_message");
-                out.println(conversationArea.getName()); // Conversation identifier
-                out.println(message);
-                messageField.setText("");
-                conversationArea.append(currentUser + ": " + message + "\n");
+            // Get the input text from messageField
+            String message = messageField.getText();
+            String selectedConversation = conversationArea.getName(); // Get the name of the selected conversation
+
+            if (message == null || message.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Message cannot be empty."); // Show an error message
+                return;
+            }
+
+            if (selectedConversation == null) {
+                JOptionPane.showMessageDialog(null, "No conversation selected."); // Ensure a conversation is selected
+                return;
+            }
+
+            try {
+                out.println("send_message"); // Send the command to the server
+                out.println(selectedConversation); // Send the selected conversation
+                out.println(message); // Send the message content
+
+                String response = in.readLine(); // Read the server's response
+                if ("success".equals(response)) {
+                    messageField.setText(""); // Clear the text field
+                    conversationArea.append(currentUser + ": " + message + "\n"); // Append the message locally
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to send message.");
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Error communicating with the server.");
+                ex.printStackTrace();
             }
         });
+
+
 
         // Layout components
         JPanel messagePanel = new JPanel(new BorderLayout());

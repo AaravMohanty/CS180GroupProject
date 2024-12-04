@@ -164,16 +164,33 @@ public class Server implements Runnable {
                         }
                         break;
 
-                    case "send_message": // Send a message
-                        String targetUser = reader.readLine();
-                        String messageContent = reader.readLine();
-                        if (currentUser != null && !messageContent.isEmpty()) {
-                            User receiver = database.getUser(targetUser);
-                            if (receiver != null) {
-                                boolean success = currentUser.sendMessage(receiver, messageContent);
-                                writer.println(success ? "success" : "failure");
-                            } else {
-                                writer.println("user_not_found");
+                    case "send_message": // Send a message to a conversation
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+                            String conversationName = reader.readLine(); // Conversation file name
+                            String messageContent = reader.readLine(); // Message content
+                            if (conversationName == null || messageContent == null || conversationName.isEmpty() || messageContent.isEmpty()) {
+                                writer.println("error");
+                                break;
+                            }
+                            try {
+                                // Find the other user in the conversation based on the file name
+                                String[] users = conversationName.split("_Messages.txt")[0].split("_");
+                                String otherUser = users[0].equals(currentUser.getUsername()) ? users[1] : users[0];
+
+                                User receiver = database.getUser(otherUser); // Fetch the other user
+                                if (receiver != null) {
+                                    boolean success = currentUser.sendMessage(receiver, messageContent);
+                                    writer.println(success ? "success" : "failure");
+                                } else {
+                                    writer.println("user_not_found");
+                                }
+                            } catch (Exception e) {
+                                writer.println("error");
+                                e.printStackTrace();
                             }
                         }
                         break;
