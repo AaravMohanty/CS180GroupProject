@@ -10,6 +10,8 @@ public class SocialMediaAppGUI {
     private static String currentUser;
     private static volatile boolean loggedIn = true; // Controls thread execution
     private static Timer autoRefreshTimer;
+    // Timer for auto-refreshing the message area
+    private static Timer messageRefreshTimer;
     private static JList<String> friendsList;
 
     public static void main(String[] args) {
@@ -90,51 +92,58 @@ public class SocialMediaAppGUI {
 
     // Method to load messages for the selected conversation
     private static void loadSelectedConversation(JList<String> conversationsList, JTextArea conversationArea) {
-        String selectedConversation = conversationsList.getSelectedValue();
-        if (selectedConversation == null) return;
+        String selectedFriend = conversationsList.getSelectedValue();
+        if (selectedFriend == null) return;
 
-        try {
-            out.println("load_conversation");
-            out.println(selectedConversation); // Send the selected conversation to the server
+        // Synchronize access to prevent race conditions
+        synchronized (conversationArea) {
+            try {
+                out.println("load_conversation");
+                out.println(selectedFriend); // Send the friend's name to the server
 
-            String message;
-            conversationArea.setText(""); // Clear the message area before loading
-            while (!(message = in.readLine()).equals("END")) {
-                // Skip adding "success" or other server response keywords to the message area
-                if (!message.equals("success") && !message.equals("failure")) {
-                    conversationArea.append(message + "\n");
+                String message;
+                StringBuilder messageBuffer = new StringBuilder();
+                while (!(message = in.readLine()).equals("END")) {
+                    // Append message to buffer
+                    messageBuffer.append(message).append("\n");
                 }
+
+                // Update UI in the event-dispatching thread
+                SwingUtilities.invokeLater(() -> {
+                    conversationArea.setText(messageBuffer.toString());
+                });
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Failed to load messages.");
             }
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Failed to load messages.");
         }
     }
 
-
-    private static void refreshConversationsList(JSplitPane splitPane) {
-        // Locate the conversations list inside the left panel of the split pane
-        JPanel leftPanel = (JPanel) splitPane.getLeftComponent();
-        JScrollPane scrollPane = (JScrollPane) leftPanel.getComponent(1);
-        JList<String> conversationsList = (JList<String>) scrollPane.getViewport().getView();
-
-        DefaultListModel<String> conversationsModel = (DefaultListModel<String>) conversationsList.getModel();
-
-        // Refresh the list dynamically
+    private static void refreshConversationsList(DefaultListModel<String> conversationsModel, JList<String> conversationsList) {
         new Thread(() -> {
             try {
-                out.println("get_users");
-                String conversation;
-                SwingUtilities.invokeLater(conversationsModel::clear);
-                while (!(conversation = in.readLine()).equals("END")) {
-                    String finalConversation = conversation;
-                    SwingUtilities.invokeLater(() -> conversationsModel.addElement(finalConversation));
+                if (!loggedIn || out == null) return; // Stop if logged out or connection is closed
+                out.println("get_friends"); // Request the user's friends list from the server
+                String friend;
+
+                // Store the currently selected friend
+                String selectedFriend = conversationsList.getSelectedValue();
+
+                SwingUtilities.invokeLater(conversationsModel::clear); // Clear the current list
+
+                while (loggedIn && (friend = in.readLine()) != null && !friend.equals("END")) {
+                    String finalFriend = friend; // Final variable for lambda
+                    SwingUtilities.invokeLater(() -> conversationsModel.addElement(finalFriend));
                 }
+
+                // Restore the previous selection
+                SwingUtilities.invokeLater(() -> conversationsList.setSelectedValue(selectedFriend, true));
             } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching conversations list."));
+                if (loggedIn) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
+                }
             }
         }).start();
     }
-
 
     private static void clearSearchResults(DefaultListModel<String> searchResultsModel) {
         searchResultsModel.clear();
@@ -339,37 +348,37 @@ public class SocialMediaAppGUI {
     private static JPanel createConversationsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Model to hold conversation names
+        // Model to hold friend's names
         DefaultListModel<String> conversationsModel = new DefaultListModel<>();
         JList<String> conversationsList = new JList<>(conversationsModel);
         JTextArea conversationArea = new JTextArea();
         conversationArea.setEditable(false); // Read-only conversation area
         JTextField messageField = new JTextField();
         JButton sendButton = new JButton("Send");
-        //JButton refreshButton = new JButton("Refresh"); // Manual Refresh Button
         JButton deleteButton = new JButton("Delete");
+        JButton refreshButton = new JButton("Refresh");
 
-        // Timer to refresh every X milliseconds (e.g., 5000 = 5 seconds)
-//        int refreshInterval = 500; // Change this value for different intervals
-//        Timer autoRefreshTimer = new Timer(refreshInterval, e -> loadSelectedConversation(conversationsList, conversationArea));
-
-        autoRefreshTimer = new Timer(500, e -> {
-            if (loggedIn) {
+        // Timer for auto-refreshing messages
+        Timer messageRefreshTimer = new Timer(1000, e -> {
+            String selectedFriend = conversationsList.getSelectedValue();
+            if (loggedIn && selectedFriend != null) {
                 loadSelectedConversation(conversationsList, conversationArea);
             }
         });
-        autoRefreshTimer.start();
 
-        // Left Panel - Conversations List
+        // Start the timer initially
+        messageRefreshTimer.start();
+
+        // Left Panel - Friends List
         JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(new JLabel("Conversations"), BorderLayout.NORTH);
+        leftPanel.add(new JLabel("Friends"), BorderLayout.NORTH);
         leftPanel.add(new JScrollPane(conversationsList), BorderLayout.CENTER);
+        leftPanel.add(refreshButton, BorderLayout.SOUTH); // Add refresh button to left panel
 
         // Right Panel - Message Area
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(new JLabel("Messages"), BorderLayout.NORTH);
         rightPanel.add(new JScrollPane(conversationArea), BorderLayout.CENTER);
-        //rightPanel.add(refreshButton, BorderLayout.NORTH); // Add manual refresh button at the top
 
         // Bottom Panel - Message Input
         JPanel messagePanel = new JPanel(new BorderLayout());
@@ -378,57 +387,44 @@ public class SocialMediaAppGUI {
         messagePanel.add(deleteButton, BorderLayout.WEST);
         rightPanel.add(messagePanel, BorderLayout.SOUTH);
 
-
         // Split the left and right panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         splitPane.setDividerLocation(200); // Set the initial size of the split
         panel.add(splitPane, BorderLayout.CENTER);
 
-        // Load conversations into the list dynamically
-        new Thread(() -> {
-            try {
-                out.println("get_users"); // Command to fetch all users (conversations)
-                String conversation;
-                while (!(conversation = in.readLine()).equals("END")) {
-                    final String conversationCopy = conversation;
-                    SwingUtilities.invokeLater(() -> conversationsModel.addElement(conversationCopy));
-                }
-            } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to load conversations."));
-            }
-        }).start();
+        // Refresh Button Logic
+        refreshButton.addActionListener(e -> refreshConversationsList(conversationsModel, conversationsList));
 
-        // Load messages when a conversation is selected
+        // Load friends dynamically on initialization
+        refreshConversationsList(conversationsModel, conversationsList);
+
+        // Update messages when a friend is selected
         conversationsList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
+                messageRefreshTimer.stop(); // Stop timer while updating
                 loadSelectedConversation(conversationsList, conversationArea);
+                messageRefreshTimer.start(); // Restart timer for the new selection
             }
         });
-
-        // Refresh button reloads the currently selected conversation
-        //refreshButton.addActionListener(e -> loadSelectedConversation(conversationsList, conversationArea));
-
-        // Automatically refresh messages every X seconds
-        //autoRefreshTimer.start();
 
         // Send message functionality
         sendButton.addActionListener(e -> {
             String message = messageField.getText().trim();
-            String selectedConversation = conversationsList.getSelectedValue();
+            String selectedFriend = conversationsList.getSelectedValue();
 
-            if (message.isEmpty() || selectedConversation == null) {
-                JOptionPane.showMessageDialog(panel, "Please select a conversation and enter a message.");
+            if (message.isEmpty() || selectedFriend == null) {
+                JOptionPane.showMessageDialog(panel, "Please select a friend and enter a message.");
                 return;
             }
 
             try {
                 out.println("send_message");
-                out.println(selectedConversation);
+                out.println(selectedFriend);
                 out.println(message);
 
                 String response = in.readLine(); // Read server response
                 if ("not_friends".equals(response)) {
-                    JOptionPane.showMessageDialog(panel, "You and the other user must be friends to send messages.");
+                    JOptionPane.showMessageDialog(panel, "You and the selected user must be friends to send messages.");
                 } else if ("failure".equals(response)) {
                     JOptionPane.showMessageDialog(panel, "Failed to send the message. Please check restrictions.");
                 } else {
@@ -442,21 +438,21 @@ public class SocialMediaAppGUI {
 
         deleteButton.addActionListener(e -> {
             String message = messageField.getText().trim();
-            String selectedConversation = conversationsList.getSelectedValue();
+            String selectedFriend = conversationsList.getSelectedValue();
 
-            if (message.isEmpty() || selectedConversation == null) {
-                JOptionPane.showMessageDialog(panel, "Please select a conversation and enter a message to delete.");
+            if (message.isEmpty() || selectedFriend == null) {
+                JOptionPane.showMessageDialog(panel, "Please select a friend and enter a message to delete.");
                 return;
             }
 
             try {
                 out.println("delete_message");
-                out.println(selectedConversation);
+                out.println(selectedFriend);
                 out.println(message);
 
                 String response = in.readLine(); // Read server response
                 if ("not_friends".equals(response)) {
-                    JOptionPane.showMessageDialog(panel, "You and the other user must be friends to delete messages.");
+                    JOptionPane.showMessageDialog(panel, "You and the selected user must be friends to delete messages.");
                 } else if ("failure".equals(response)) {
                     JOptionPane.showMessageDialog(panel, "Failed to delete the message. It may not exist.");
                 } else {
@@ -469,7 +465,6 @@ public class SocialMediaAppGUI {
 
         return panel;
     }
-
 
     private static JPanel createFriendsPanel(DefaultListModel<String> friendsModel) {
         JPanel panel = new JPanel(new BorderLayout());

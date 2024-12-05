@@ -120,7 +120,7 @@ public class Server implements Runnable {
                                         writer.println(message); // Send each message
                                     }
                                 } else {
-                                    writer.println("conversation_not_found");
+                                    writer.println("Send a message to start the conversation :)");
                                 }
                                 writer.println("END"); // End of messages
                             } catch (Exception e) {
