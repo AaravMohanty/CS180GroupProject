@@ -265,14 +265,11 @@ public class User implements UserInterface {
 
     // method to send messages and write that to the convo file
     public synchronized boolean sendMessage(User receiver, String message) {
-        // Check if both users exist and if the receiver has not blocked the sender
-        if (receiver == null || receiver == this || message == null || !this.friends.contains(receiver.getUsername())
-                || !receiver.getFriends().contains(username)
-                || message.trim().isEmpty() || receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
-            return false; // Return failure if receiver is invalid, message is empty, or blocked
+        if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
+                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+            return false; // Invalid operation
         }
 
-        // Define a consistent file name based on lexicographical order to avoid duplicate files
         String conversationFile;
         if (username.compareTo(receiver.getUsername()) < 0) {
             conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
@@ -280,68 +277,38 @@ public class User implements UserInterface {
             conversationFile = receiver.getUsername() + "_" + username + "_Messages.txt";
         }
 
-        // Check if this conversation file is already recorded in both users' conversation lists
-        if (!conversations.contains(conversationFile)) {
+        int index = conversations.indexOf(conversationFile);
+        if (index == -1) {
             conversations.add(conversationFile);
-
-        }
-        if (!receiver.conversations.contains(conversationFile)) {
-            receiver.conversations.add(conversationFile);
-
-        }
-        // Update the sender's conversation file
-        rewriteToFile(conversationsFileName, conversations);
-        messages.add(new ArrayList<>());
-        // Update the receiver's conversation file
-        receiver.rewriteToFile(receiver.conversationsFileName,
-                receiver.conversations);
-
-        // Write the message to the conversation file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile, true))) {
-            writer.write(username + ": " + message); // Prefix the message with sender's username
-            writer.newLine();
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false; // Return failure if writing message fails
+            messages.add(new ArrayList<>());
+            index = conversations.size() - 1;
         }
 
-        // Populate the messages array with conversations
-        for (int index = 0; index < conversations.size(); index++) {
-            String conversationFileName = conversations.get(index); // Get the filename of the conversation
-            messages.set(index, new ArrayList<>()); // Initialize the ArrayList for each conversation
+        // Reload messages from file to ensure synchronization
+        reloadMessagesFromFile(conversationFile, index);
 
-            try (BufferedReader reader1 = new BufferedReader(new FileReader(conversationFileName))) {
-                String line1;
-                while ((line1 = reader1.readLine()) != null) {
-                    messages.get(index).add(line1); // Now this won't throw an ArrayIndexOutOfBoundsException
-                }
-            } catch (IOException e) {
-                System.err.println("Error reading conversation file: " + e.getMessage());
-            }
-        }
+        ArrayList<String> conversationMessages = messages.get(index);
+        String nMessage = username + ": " + message;
+        conversationMessages.add(nMessage);
 
-        return true; // Indicate success
+        rewriteToFile(conversationFile, conversationMessages);
+
+        // Reload messages from the file to keep all clients synchronized
+        reloadMessagesFromFile(conversationFile, index);
+
+        return true;
     }
-
 
 
     // method to delete messages and write that to the convo file
     public synchronized boolean deleteMessage(User receiver, String message) {
-        String nMessage = username + ": " + message;
+        String nMessage = username + ": " + message; // Message format including the current user's username
 
-        // Check if both users exist and if the receiver has not blocked the sender
         if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
                 receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
-            return false; // Return failure if receiver is invalid, message is empty, or blocked
+            return false; // Invalid operation
         }
 
-        // Prevent users from deleting messages they sent to themselves
-        if (receiver.getUsername().equals(username)) {
-            return false; // Cannot delete messages to oneself
-        }
-
-        // Define a consistent file name based on lexicographical order to avoid duplicate files
         String conversationFile;
         if (username.compareTo(receiver.getUsername()) < 0) {
             conversationFile = username + "_" + receiver.getUsername() + "_Messages.txt";
@@ -349,54 +316,54 @@ public class User implements UserInterface {
             conversationFile = receiver.getUsername() + "_" + username + "_Messages.txt";
         }
 
-        // Check if the conversation file exists
         File file = new File(conversationFile);
         if (!file.exists()) {
-            // Notify that the conversation does not exist
-            System.out.println("Conversation with "
-                    + receiver.getUsername()
-                    + " does not exist.");
-            return false; // Return false if the conversation file does not exist
+            return false; // Conversation file does not exist
         }
 
-        // Find the index of the conversation in the messages array
         int index = conversations.indexOf(conversationFile);
-        if (index == -1 || messages.get(index) == null) {
-            // Notify that the conversation does not exist
-            System.out.println("Conversation with "
-                    + receiver.getUsername()
-                    + " does not exist.");
-            return false; // If the conversation doesn't exist or messages are not initialized
+        if (index == -1) {
+            return false; // Conversation not found in memory
         }
 
-        // Check if the message to be deleted exists in the corresponding ArrayList
-        if (!messages.get(index).contains(nMessage)) {
-            // Notify that the message does not exist
-            System.out.println("Message does not exist in the conversation with "
-                    + receiver.getUsername() + ".");
-            return false; // Return false if the message does not exist
-        }
+        // Reload messages from file to ensure synchronization
+        reloadMessagesFromFile(conversationFile, index);
 
-        // Remove the message from the corresponding ArrayList
-        boolean messageRemoved = messages.get(index).remove(nMessage);
+        ArrayList<String> conversationMessages = messages.get(index);
+        boolean messageRemoved = false;
 
-        if (messageRemoved) {
-            // Rewrite the messages back to the conversation file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(conversationFile))) {
-                for (String msg : messages.get(index)) {
-                    writer.write(msg); // Write each message back to the file
-                    writer.newLine();
-                    writer.flush();
-                }
-            } catch (IOException e) {
-                System.err.println("Error writing messages to conversation file: " + e.getMessage());
-                return false; // Return false if writing fails
+        for (int i = 0; i < conversationMessages.size(); i++) {
+            String currentMessage = conversationMessages.get(i);
+            if (currentMessage.equals(nMessage)) { // Delete only the current user's message
+                conversationMessages.remove(i);
+                messageRemoved = true;
+                break;
             }
         }
 
-        return messageRemoved; // Return true if the message was successfully removed
+        if (messageRemoved) {
+            // Rewrite updated messages to the file
+            rewriteToFile(conversationFile, conversationMessages);
+        }
+
+        // Reload messages from the file to keep all clients synchronized
+        reloadMessagesFromFile(conversationFile, index);
+
+        return messageRemoved;
     }
 
+    private synchronized void reloadMessagesFromFile(String conversationFile, int index) {
+        ArrayList<String> updatedMessages = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(conversationFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                updatedMessages.add(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reloading messages from file: " + e.getMessage());
+        }
+        messages.set(index, updatedMessages); // Update the in-memory messages
+    }
 
     public synchronized boolean sendPhoto(User receiver, String photoPath) {
         // Check if the receiver is valid, the photo path exists, and the users are not blocked

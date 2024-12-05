@@ -74,15 +74,20 @@ public class SocialMediaAppGUI {
         try {
             out.println("load_conversation");
             out.println(selectedConversation); // Send the selected conversation to the server
+
             String message;
             conversationArea.setText(""); // Clear the message area before loading
             while (!(message = in.readLine()).equals("END")) {
-                conversationArea.append(message + "\n"); // Append each message
+                // Skip adding "success" or other server response keywords to the message area
+                if (!message.equals("success") && !message.equals("failure")) {
+                    conversationArea.append(message + "\n");
+                }
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Failed to load messages.");
         }
     }
+
 
     private static void refreshConversationsList(JSplitPane splitPane) {
         // Locate the conversations list inside the left panel of the split pane
@@ -299,6 +304,7 @@ public class SocialMediaAppGUI {
         JTextField messageField = new JTextField();
         JButton sendButton = new JButton("Send");
         JButton refreshButton = new JButton("Refresh"); // Manual Refresh Button
+        JButton deleteButton = new JButton("Delete");
 
         // Timer to refresh every X milliseconds (e.g., 5000 = 5 seconds)
         int refreshInterval = 5000; // Change this value for different intervals
@@ -319,7 +325,9 @@ public class SocialMediaAppGUI {
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.add(messageField, BorderLayout.CENTER);
         messagePanel.add(sendButton, BorderLayout.EAST);
+        messagePanel.add(deleteButton, BorderLayout.WEST);
         rightPanel.add(messagePanel, BorderLayout.SOUTH);
+
 
         // Split the left and right panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
@@ -368,9 +376,38 @@ public class SocialMediaAppGUI {
                 out.println(selectedConversation);
                 out.println(message);
                 messageField.setText(""); // Clear the input field
-                conversationArea.append(currentUser + ": " + message + "\n"); // Update the message area with the sent message
+
+                // Reload the messages in the conversation area without adding a success message
+                loadSelectedConversation(conversationsList, conversationArea);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Failed to send message.");
+            }
+        });
+
+
+        deleteButton.addActionListener(e -> {
+            String message = messageField.getText().trim();
+            String selectedConversation = conversationsList.getSelectedValue();
+
+            if (message.isEmpty() || selectedConversation == null) {
+                JOptionPane.showMessageDialog(panel, "Please select a conversation and enter a message to delete.");
+                return;
+            }
+
+            try {
+                out.println("delete_message");
+                out.println(selectedConversation);
+                out.println(message);
+
+                String response = in.readLine();
+                if ("success".equals(response)) {
+                    // Reload the messages in the conversation area without adding a success message
+                    loadSelectedConversation(conversationsList, conversationArea);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Failed to delete the message. It may not exist.");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error while deleting the message.");
             }
         });
 

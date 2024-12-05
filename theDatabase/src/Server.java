@@ -196,6 +196,38 @@ public class Server implements Runnable {
                         }
                         break;
 
+                    case "delete_message":
+                        synchronized (LOCK) {
+                            if (currentUser == null) {
+                                writer.println("not_logged_in");
+                                break;
+                            }
+
+                            String conversationName = reader.readLine();
+                            String messageContent = reader.readLine();
+                            if (conversationName == null || messageContent == null || conversationName.isEmpty() || messageContent.isEmpty()) {
+                                writer.println("error");
+                                break;
+                            }
+
+                            try {
+                                String[] users = conversationName.split("_Messages.txt")[0].split("_");
+                                String otherUser = users[0].equals(currentUser.getUsername()) ? users[1] : users[0];
+
+                                User receiver = database.getUser(otherUser);
+                                if (receiver != null) {
+                                    boolean success = currentUser.deleteMessage(receiver, messageContent);
+                                    writer.println(success ? "success" : "failure");
+                                } else {
+                                    writer.println("user_not_found");
+                                }
+                            } catch (Exception e) {
+                                writer.println("error");
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
+
                     case "add_friend":
                         synchronized (LOCK) {
                             if (currentUser == null) {
