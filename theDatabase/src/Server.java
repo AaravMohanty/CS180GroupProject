@@ -165,29 +165,28 @@ public class Server implements Runnable {
                         }
                         break;
 
-                    case "send_message": // Send a message to a conversation
+                    case "send_message":
                         synchronized (LOCK) {
                             if (currentUser == null) {
                                 writer.println("not_logged_in");
                                 break;
                             }
-                            String conversationName = reader.readLine(); // Conversation file name
-                            String messageContent = reader.readLine(); // Message content
+                            String conversationName = reader.readLine();
+                            String messageContent = reader.readLine();
                             if (conversationName == null || messageContent == null || conversationName.isEmpty() || messageContent.isEmpty()) {
                                 writer.println("error");
                                 break;
                             }
                             try {
-                                // Find the other user in the conversation based on the file name
                                 String[] users = conversationName.split("_Messages.txt")[0].split("_");
                                 String otherUser = users[0].equals(currentUser.getUsername()) ? users[1] : users[0];
 
-                                User receiver = database.getUser(otherUser); // Fetch the other user
-                                if (receiver != null) {
+                                User receiver = database.getUser(otherUser);
+                                if (receiver != null && currentUser.getFriends().contains(otherUser) && receiver.getFriends().contains(currentUser.getUsername())) {
                                     boolean success = currentUser.sendMessage(receiver, messageContent);
                                     writer.println(success ? "success" : "failure");
                                 } else {
-                                    writer.println("user_not_found");
+                                    writer.println("not_friends");
                                 }
                             } catch (Exception e) {
                                 writer.println("error");
@@ -202,24 +201,22 @@ public class Server implements Runnable {
                                 writer.println("not_logged_in");
                                 break;
                             }
-
                             String conversationName = reader.readLine();
                             String messageContent = reader.readLine();
                             if (conversationName == null || messageContent == null || conversationName.isEmpty() || messageContent.isEmpty()) {
                                 writer.println("error");
                                 break;
                             }
-
                             try {
                                 String[] users = conversationName.split("_Messages.txt")[0].split("_");
                                 String otherUser = users[0].equals(currentUser.getUsername()) ? users[1] : users[0];
 
                                 User receiver = database.getUser(otherUser);
-                                if (receiver != null) {
+                                if (receiver != null && currentUser.getFriends().contains(otherUser) && receiver.getFriends().contains(currentUser.getUsername())) {
                                     boolean success = currentUser.deleteMessage(receiver, messageContent);
                                     writer.println(success ? "success" : "failure");
                                 } else {
-                                    writer.println("user_not_found");
+                                    writer.println("not_friends");
                                 }
                             } catch (Exception e) {
                                 writer.println("error");

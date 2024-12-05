@@ -267,7 +267,8 @@ public class User implements UserInterface {
     // method to send messages and write that to the convo file
     public synchronized boolean sendMessage(User receiver, String message) {
         if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
-                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+                receiver.isBlocked(username) || isBlocked(receiver.getUsername()) ||
+                !friends.contains(receiver.getUsername()) || !receiver.getFriends().contains(username)) {
             return false; // Invalid operation
         }
 
@@ -300,13 +301,13 @@ public class User implements UserInterface {
         return true;
     }
 
-
     // method to delete messages and write that to the convo file
     public synchronized boolean deleteMessage(User receiver, String message) {
-        String nMessage = username + ": " + message; // Message format including the current user's username
+        String nMessage = username + ": " + message;
 
         if (receiver == null || receiver == this || message == null || message.trim().isEmpty() ||
-                receiver.isBlocked(username) || isBlocked(receiver.getUsername())) {
+                receiver.isBlocked(username) || isBlocked(receiver.getUsername()) ||
+                !friends.contains(receiver.getUsername()) || !receiver.getFriends().contains(username)) {
             return false; // Invalid operation
         }
 

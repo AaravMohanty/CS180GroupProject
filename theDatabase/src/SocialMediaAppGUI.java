@@ -10,6 +10,8 @@ public class SocialMediaAppGUI {
     private static PrintWriter out;
     private static BufferedReader in;
     private static String currentUser;
+    private static volatile boolean loggedIn = true;
+
 
     public static void main(String[] args) {
         try {
@@ -247,46 +249,68 @@ public class SocialMediaAppGUI {
 
     // Updated createMainMenuGUI method
     private static void createMainMenuGUI() {
-        JFrame frame = new JFrame("Main Menu");
+        JFrame frame = new JFrame(currentUser);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Friends List Tab with Refresh Button
+        // Friends List Tab without Refresh Button
         DefaultListModel<String> friendsModel = new DefaultListModel<>();
         JPanel friendsPanel = createFriendsPanel(friendsModel);
-        Runnable refreshFriends = () -> refreshFriendsList(friendsModel);
-        tabbedPane.addTab("Friends List", addRefreshablePanel(friendsPanel, refreshFriends));
+        tabbedPane.addTab("Friends List", friendsPanel);
 
-        // Blocked List Tab with Refresh Button
+        // Blocked List Tab without Refresh Button
         JPanel blockedPanel = createBlockedListPanel(friendsModel);
-        Runnable refreshBlocked = () -> refreshBlockedList((DefaultListModel<String>) ((JList) blockedPanel.getComponent(0)).getModel());
-        tabbedPane.addTab("Blocked List", addRefreshablePanel(blockedPanel, refreshBlocked));
+        tabbedPane.addTab("Blocked List", blockedPanel);
 
-        // Conversations Tab with Refresh Button
-        // Conversations Tab with Refresh Button
-        JSplitPane conversationsSplitPane = (JSplitPane) createConversationsPanel().getComponent(0);
-        Runnable refreshConversations = () -> refreshConversationsList(conversationsSplitPane);
-        tabbedPane.addTab("Conversations", addRefreshablePanel(createConversationsPanel(), refreshConversations));
-
+        // Conversations Tab without Refresh Button
+        tabbedPane.addTab("Conversations", createConversationsPanel());
 
         // Search Users Tab with Refresh Button
-        JPanel searchPanel = createSearchUsersPanel();
-        Runnable refreshSearch = () -> clearSearchResults((DefaultListModel<String>) ((JList) searchPanel.getComponent(1)).getModel());
-        tabbedPane.addTab("Search Users", addRefreshablePanel(searchPanel, refreshSearch));
+        tabbedPane.addTab("Search Users", createSearchUsersPanel());
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
-            out.println("logout");
             try {
-                String response = in.readLine();
-                if ("logout_success".equals(response)) {
-                    frame.dispose();
+                if (out != null) {
+                    out.println("logout"); // Notify the server
+                }
+
+                // Read server response (optional to verify)
+                if (in != null && "logout_success".equals(in.readLine())) {
+                    currentUser = null; // Reset the current user session
+
+                    // Signal threads to stop
+                    loggedIn = false;
+
+                    // Clear all data models
+                    SwingUtilities.invokeLater(() -> {
+                        if (friendsModel != null) friendsModel.clear();
+//                        if (blockedModel != null) blockedModel.clear();
+//                        if (conversationsModel != null) conversationsModel.clear();
+//                        if (searchResultsModel != null) searchResultsModel.clear();
+                    });
+
+                    // Close and reset the main GUI
+                    if (frame != null) {
+                        frame.dispose();
+                    }
+
+                    // Fully reset connection and state
+                    if (socket != null) {
+                        socket.close();
+                    }
+                    socket = null;
+                    in = null;
+                    out = null;
+
+                    // Relaunch login GUI
                     createLoginGUI();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred while logging out. Please try again.");
             }
         });
 
@@ -294,8 +318,6 @@ public class SocialMediaAppGUI {
         frame.add(logoutButton, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
-
-
 
     private static JPanel createConversationsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -307,7 +329,7 @@ public class SocialMediaAppGUI {
         conversationArea.setEditable(false); // Read-only conversation area
         JTextField messageField = new JTextField();
         JButton sendButton = new JButton("Send");
-        JButton refreshButton = new JButton("Refresh"); // Manual Refresh Button
+        //JButton refreshButton = new JButton("Refresh"); // Manual Refresh Button
         JButton deleteButton = new JButton("Delete");
 
         // Timer to refresh every X milliseconds (e.g., 5000 = 5 seconds)
@@ -323,7 +345,7 @@ public class SocialMediaAppGUI {
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(new JLabel("Messages"), BorderLayout.NORTH);
         rightPanel.add(new JScrollPane(conversationArea), BorderLayout.CENTER);
-        rightPanel.add(refreshButton, BorderLayout.NORTH); // Add manual refresh button at the top
+        //rightPanel.add(refreshButton, BorderLayout.NORTH); // Add manual refresh button at the top
 
         // Bottom Panel - Message Input
         JPanel messagePanel = new JPanel(new BorderLayout());
@@ -360,7 +382,7 @@ public class SocialMediaAppGUI {
         });
 
         // Refresh button reloads the currently selected conversation
-        refreshButton.addActionListener(e -> loadSelectedConversation(conversationsList, conversationArea));
+        //refreshButton.addActionListener(e -> loadSelectedConversation(conversationsList, conversationArea));
 
         // Automatically refresh messages every X seconds
         autoRefreshTimer.start();
@@ -379,15 +401,20 @@ public class SocialMediaAppGUI {
                 out.println("send_message");
                 out.println(selectedConversation);
                 out.println(message);
-                messageField.setText(""); // Clear the input field
 
-                // Reload the messages in the conversation area without adding a success message
-                loadSelectedConversation(conversationsList, conversationArea);
+                String response = in.readLine(); // Read server response
+                if ("not_friends".equals(response)) {
+                    JOptionPane.showMessageDialog(panel, "You and the other user must be friends to send messages.");
+                } else if ("failure".equals(response)) {
+                    JOptionPane.showMessageDialog(panel, "Failed to send the message. Please check restrictions.");
+                } else {
+                    messageField.setText(""); // Clear the input field
+                    loadSelectedConversation(conversationsList, conversationArea);
+                }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Failed to send message.");
             }
         });
-
 
         deleteButton.addActionListener(e -> {
             String message = messageField.getText().trim();
@@ -403,12 +430,13 @@ public class SocialMediaAppGUI {
                 out.println(selectedConversation);
                 out.println(message);
 
-                String response = in.readLine();
-                if ("success".equals(response)) {
-                    // Reload the messages in the conversation area without adding a success message
-                    loadSelectedConversation(conversationsList, conversationArea);
-                } else {
+                String response = in.readLine(); // Read server response
+                if ("not_friends".equals(response)) {
+                    JOptionPane.showMessageDialog(panel, "You and the other user must be friends to delete messages.");
+                } else if ("failure".equals(response)) {
                     JOptionPane.showMessageDialog(panel, "Failed to delete the message. It may not exist.");
+                } else {
+                    loadSelectedConversation(conversationsList, conversationArea);
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Error while deleting the message.");
@@ -427,7 +455,7 @@ public class SocialMediaAppGUI {
         JButton removeFriendButton = new JButton("Remove Friend");
 
         // Set up auto-refresh
-        int refreshInterval = 10000; // Refresh every 10 seconds
+        int refreshInterval = 1000; // Refresh every 1 seconds
         Timer autoRefreshTimer = new Timer(refreshInterval, e -> refreshFriendsList(friendsModel));
         autoRefreshTimer.start();
 
@@ -599,73 +627,112 @@ public class SocialMediaAppGUI {
         JList<String> searchResults = new JList<>(searchResultsModel);
         JTextField searchField = new JTextField();
         JButton searchButton = new JButton("Search");
+        JButton refreshButton = new JButton("Refresh");
 
-        searchButton.addActionListener(e -> {
-            String query = searchField.getText().trim();
-            searchResultsModel.clear();
-            if (!query.isEmpty()) {
-                out.println("search_user");
-                out.println(query);
+        // Method to load all users
+        Runnable loadAllUsers = () -> {
+            new Thread(() -> {
                 try {
-                    String result;
-                    while (!(result = in.readLine()).equals("END")) {
-                        searchResultsModel.addElement(result);
+                    out.println("get_users"); // Command to fetch all users
+                    String user;
+                    SwingUtilities.invokeLater(searchResultsModel::clear); // Clear the current list
+                    while (!(user = in.readLine()).equals("END")) {
+                        String finalUser = user;
+                        SwingUtilities.invokeLater(() -> searchResultsModel.addElement(finalUser));
                     }
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "Failed to fetch search results.");
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch users."));
                 }
-            }
-        });
+            }).start();
+        };
 
-        searchResults.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    String selectedUser = searchResults.getSelectedValue();
-                    if (selectedUser != null) {
-                        // Fetch user details from the server
-                        new Thread(() -> {
-                            try {
-                                out.println("get_user_details");
-                                out.println(selectedUser);
+        // Load all users when the panel is initialized
+        loadAllUsers.run();
 
-                                String username = in.readLine();
-                                String bio = in.readLine();
-                                String pfp = in.readLine();
-
-                                SwingUtilities.invokeLater(() -> {
-                                    // Display user details
-                                    JFrame detailsFrame = new JFrame("User Details");
-                                    detailsFrame.setSize(400, 300);
-                                    detailsFrame.setLayout(new GridLayout(4, 1));
-
-                                    JLabel usernameLabel = new JLabel("Username: " + username);
-                                    JLabel bioLabel = new JLabel("Bio: " + bio);
-                                    JLabel pfpLabel = new JLabel("Profile Picture: " + pfp);
-
-                                    JButton closeButton = new JButton("Close");
-                                    closeButton.addActionListener(closeEvent -> detailsFrame.dispose());
-
-                                    detailsFrame.add(usernameLabel);
-                                    detailsFrame.add(bioLabel);
-                                    detailsFrame.add(pfpLabel);
-                                    detailsFrame.add(closeButton);
-
-                                    detailsFrame.setVisible(true);
-                                });
-                            } catch (IOException ex) {
-                                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch user details."));
-                            }
-                        }).start();
+        // Search functionality
+        searchButton.addActionListener(e -> {
+            String query = searchField.getText().trim();
+            searchResultsModel.clear(); // Clear current search results
+            if (!query.isEmpty()) {
+                new Thread(() -> {
+                    out.println("search_user");
+                    out.println(query);
+                    try {
+                        String result;
+                        while (!(result = in.readLine()).equals("END")) {
+                            String finalResult = result;
+                            SwingUtilities.invokeLater(() -> searchResultsModel.addElement(finalResult));
+                        }
+                    } catch (IOException ex) {
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch search results."));
                     }
+                }).start();
+            } else {
+                loadAllUsers.run(); // Reload all users if the search field is empty
+            }
+        });
+
+        // Refresh button resets the tab to its original state
+        refreshButton.addActionListener(e -> {
+            searchField.setText(""); // Clear the search field
+            loadAllUsers.run(); // Reload all users
+        });
+
+        // Handle selection of a user in the search results
+        searchResults.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedUser = searchResults.getSelectedValue();
+                if (selectedUser != null) {
+                    // Fetch user details from the server
+                    new Thread(() -> {
+                        try {
+                            out.println("get_user_details");
+                            out.println(selectedUser);
+
+                            String username = in.readLine();
+                            String bio = in.readLine();
+                            String pfp = in.readLine();
+
+                            SwingUtilities.invokeLater(() -> {
+                                // Display user details
+                                JFrame detailsFrame = new JFrame("User Details");
+                                detailsFrame.setSize(400, 300);
+                                detailsFrame.setLayout(new GridLayout(4, 1));
+
+                                JLabel usernameLabel = new JLabel("Username: " + username);
+                                JLabel bioLabel = new JLabel("Bio: " + bio);
+                                JLabel pfpLabel = new JLabel("Profile Picture: " + pfp);
+
+                                JButton closeButton = new JButton("Close");
+                                closeButton.addActionListener(closeEvent -> detailsFrame.dispose());
+
+                                detailsFrame.add(usernameLabel);
+                                detailsFrame.add(bioLabel);
+                                detailsFrame.add(pfpLabel);
+                                detailsFrame.add(closeButton);
+
+                                detailsFrame.setVisible(true);
+                            });
+                        } catch (IOException ex) {
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch user details."));
+                        }
+                    }).start();
                 }
             }
         });
 
-        panel.add(searchField, BorderLayout.NORTH);
+        // Create a control panel for the search field and buttons
+        JPanel controlPanel = new JPanel(new BorderLayout());
+        controlPanel.add(searchField, BorderLayout.CENTER);
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(searchButton);
+        buttonPanel.add(refreshButton);
+        controlPanel.add(buttonPanel, BorderLayout.EAST);
+
+        panel.add(controlPanel, BorderLayout.NORTH);
         panel.add(new JScrollPane(searchResults), BorderLayout.CENTER);
-        panel.add(searchButton, BorderLayout.SOUTH);
 
         return panel;
     }
+
 }
