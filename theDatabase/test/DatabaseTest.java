@@ -45,15 +45,18 @@ class DatabaseTest {
     @Test
     void testCreateUser() {
         // Should succeed
-        Assertions.assertTrue(database.createUser("testUser", "password123", "This is a bio.", "pfp.png"));
+        Assertions.assertTrue(database.createUser("testUser", "password123", "This is a bio."));
+        //        Assertions.assertTrue(database.createUser("testUser", "password123", "This is a bio.", "pfp.png"));
         // Should fail (duplicate)
-        Assertions.assertFalse(database.createUser("testUser", "password456", "Another bio.", "pfp2.png"));
+        Assertions.assertFalse(database.createUser("testUser", "password456", "Another bio."));
+        //        Assertions.assertFalse(database.createUser("testUser", "password456", "Another bio.", "pfp2.png"));
     }
 
 
     @Test
     void testGetUser() {
-        database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
+        database.createUser("testUser", "password123", "This is a bio.");
+        //database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
         User user = database.getUser("testUser");
         assertNotNull(user); // User should be found
         Assertions.assertEquals("testUser", user.getUsername()); // Check username
@@ -63,7 +66,8 @@ class DatabaseTest {
 
     @Test
     void testAuthenticate() {
-        boolean userCreated = database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
+        boolean userCreated = database.createUser("testUser", "password123", "This is a bio.");
+        //boolean userCreated = database.createUser("testUser", "password123", "This is a bio.", "pfp.png");
         assertTrue(userCreated, "User creation failed; test cannot proceed.");
 
         Assertions.assertTrue(database.authenticate("testUser", "password123")); // Should succeed

@@ -223,8 +223,8 @@ public class SocialMediaAppGUI {
         JPasswordField passwordText = new JPasswordField(20);
         JLabel bioLabel = new JLabel("Bio:");
         JTextField bioText = new JTextField(20);
-        JLabel pfpLabel = new JLabel("Profile Picture:");
-        JTextField pfpText = new JTextField(20);
+//        JLabel pfpLabel = new JLabel("Profile Picture:");
+//        JTextField pfpText = new JTextField(20);
         JButton createButton = new JButton("Create");
         JButton backButton = new JButton("Back");
 
@@ -234,8 +234,8 @@ public class SocialMediaAppGUI {
         panel.add(passwordText);
         panel.add(bioLabel);
         panel.add(bioText);
-        panel.add(pfpLabel);
-        panel.add(pfpText);
+        //panel.add(pfpLabel);
+        //panel.add(pfpText);
         panel.add(createButton);
         panel.add(backButton);
 
@@ -243,18 +243,23 @@ public class SocialMediaAppGUI {
             String username = userText.getText().trim();
             String password = new String(passwordText.getPassword()).trim();
             String bio = bioText.getText().trim();
-            String pfp = pfpText.getText().trim();
+            //String pfp = pfpText.getText().trim();
 
-            if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+            if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
                 return;
             }
+
+//            if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
+//                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+//                return;
+//            }
 
             out.println("1");
             out.println(username);
             out.println(password);
             out.println(bio);
-            out.println(pfp);
+            //out.println(pfp);
 
             try {
                 String response = in.readLine();
@@ -713,7 +718,7 @@ public class SocialMediaAppGUI {
 
                             String username = in.readLine();
                             String bio = in.readLine();
-                            String pfp = in.readLine();
+                            //String pfp = in.readLine();
 
                             SwingUtilities.invokeLater(() -> {
                                 // Display user details
@@ -723,14 +728,14 @@ public class SocialMediaAppGUI {
 
                                 JLabel usernameLabel = new JLabel("Username: " + username);
                                 JLabel bioLabel = new JLabel("Bio: " + bio);
-                                JLabel pfpLabel = new JLabel("Profile Picture: " + pfp);
+                                //JLabel pfpLabel = new JLabel("Profile Picture: " + pfp);
 
                                 JButton closeButton = new JButton("Close");
                                 closeButton.addActionListener(closeEvent -> detailsFrame.dispose());
 
                                 detailsFrame.add(usernameLabel);
                                 detailsFrame.add(bioLabel);
-                                detailsFrame.add(pfpLabel);
+                                //detailsFrame.add(pfpLabel);
                                 detailsFrame.add(closeButton);
 
                                 detailsFrame.setVisible(true);

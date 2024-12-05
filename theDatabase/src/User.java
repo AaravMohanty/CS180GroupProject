@@ -1,10 +1,9 @@
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.Array;
-import java.util.ArrayList; // Import ArrayList for storing friends and blocked users
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List; // Import List interface for returning lists
+import java.util.List;
 
 /**
  * The class to create a user
@@ -20,7 +19,7 @@ public class User implements UserInterface {
     private String username; // The user's unique username
     private String password; // The user's password
     private String bio; // A short biography or description of the user
-    private String pfp; //A string that stores the filename for the profile picture
+    //private String pfp; //A string that stores the filename for the profile picture
     private ArrayList<String> friends; // List of the user's friends
     private ArrayList<String> blockedUsers; // List of users that this user has blocked
     private ArrayList<String> conversations; // All conversations with other
@@ -31,11 +30,11 @@ public class User implements UserInterface {
     public Object o = new Object();
 
     // Constructor initializes user properties and creates empty lists for friends and blocked users
-    public User(String username, String password, String bio, String pfp) {
+    public User(String username, String password, String bio) {
         this.username = username; // Set the username
         this.password = password; // Set the password
         this.bio = bio; // Set the bio
-        this.pfp = pfp;
+        //this.pfp = pfp;
         this.friends = new ArrayList<>(); // Initialize the friends list
         this.blockedUsers = new ArrayList<>(); // Initialize the blocked users list
         this.conversations = new ArrayList<>(); // Initialize the conversations list
@@ -82,8 +81,10 @@ public class User implements UserInterface {
             // Only write to the database file if the user does not already exist
             if (!userExists) {
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(Database.DATABASE_FILE, true))) {
-                    String userEntry = String.format("%s,%s,%s,%s,%s,%s,%s",
-                            username, password, bio, pfp, friendsFileName, blockedUsersFileName, conversationsFileName);
+                    String userEntry = String.format("%s,%s,%s,%s,%s,%s",
+                            username, password, bio, friendsFileName, blockedUsersFileName, conversationsFileName);
+//                    String userEntry = String.format("%s,%s,%s,%s,%s,%s,%s",
+//                            username, password, bio, pfp, friendsFileName, blockedUsersFileName, conversationsFileName);
                     writer.write(userEntry);
                     writer.newLine();
                     writer.flush();
@@ -170,13 +171,13 @@ public class User implements UserInterface {
         this.bio = bio; // Update the bio
     }
 
-    public String getPfp() {
-        return pfp;
-    }
+//    public String getPfp() {
+//        return pfp;
+//    }
 
-    public void setPfp(String pfp) {
-        this.pfp = pfp;
-    }
+//    public void setPfp(String pfp) {
+//        this.pfp = pfp;
+//    }
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
@@ -427,10 +428,8 @@ public class User implements UserInterface {
             System.err.println("Failed to save or write photo: " + e.getMessage());
             return false;
         }
-
         return true; // Indicate success
     }
-
 
     // Method to add any info to a specific file.
     // Used to write contents of the arraylists into the specific files
@@ -448,8 +447,10 @@ public class User implements UserInterface {
     }
 
     public String displayUser() {
-        return String.format("username: \"%s\"\nbio: \"%s\"\nprofile picture: \"%s\"",
-                username, bio, pfp);
+//        return String.format("username: \"%s\"\nbio: \"%s\"\nprofile picture: \"%s\"",
+//                username, bio, pfp);
+        return String.format("username: \"%s\"\nbio: \"%s\"\n\"",
+                username, bio);
     }
 
 

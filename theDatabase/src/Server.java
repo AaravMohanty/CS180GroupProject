@@ -44,9 +44,12 @@ public class Server implements Runnable {
                             String username = reader.readLine();
                             String password = reader.readLine();
                             String bio = reader.readLine();
-                            String pfp = reader.readLine();
+                            //String pfp = reader.readLine();
 
-                            if (database.createUser(username, password, bio, pfp)) {
+//                            if (database.createUser(username, password, bio, pfp)) {
+//                                writer.println("success");
+//                            }
+                            if (database.createUser(username, password, bio)) {
                                 writer.println("success");
                             } else {
                                 writer.println("username_taken");
@@ -149,7 +152,7 @@ public class Server implements Runnable {
                             if (user != null) {
                                 writer.println(user.getUsername());
                                 writer.println(user.getBio());
-                                writer.println(user.getPfp());
+                                //writer.println(user.getPfp());
                             } else {
                                 writer.println("User not found");
                             }

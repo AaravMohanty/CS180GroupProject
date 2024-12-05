@@ -11,7 +11,8 @@ import java.util.ArrayList;
 
 public interface DatabaseInterface {
     // Creates a new user if the username is not already taken
-    boolean createUser(String username, String password, String bio, String pfp);
+    boolean createUser(String username, String password, String bio);
+    //boolean createUser(String username, String password, String bio, String pfp);
 
     // Searches for a user by username
     User getUser(String username);

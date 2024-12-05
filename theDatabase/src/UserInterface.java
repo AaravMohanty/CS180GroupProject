@@ -19,9 +19,9 @@ public interface UserInterface {
 
     void setBio(String bio);
 
-    String getPfp();
+    //String getPfp();
 
-    void setPfp(String pfp);
+    //void setPfp(String pfp);
 
     boolean addFriend(User friend);
 

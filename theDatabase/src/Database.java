@@ -40,8 +40,11 @@ public class Database implements DatabaseInterface {
 
                             // Avoid adding duplicate users
                             if (getUser(username) == null) {
-                                users.add(new User(username, password, bio, pfp));
+                                users.add(new User(username, password, bio));
                             }
+//                            if (getUser(username) == null) {
+//                                users.add(new User(username, password, bio, pfp));
+//                            }
                         }
                     }
                 }
@@ -52,16 +55,27 @@ public class Database implements DatabaseInterface {
     }
 
     // Creates a new user if the username is not already taken
-    public boolean createUser(String username, String password, String bio, String pfp) {
+    public boolean createUser(String username, String password, String bio) {
         if (getUser(username) == null) { // Check if the username is available
             // Create the user and add it to the in-memory list
-            User newUser = new User(username, password, bio, pfp);
+            User newUser = new User(username, password, bio);
             users.add(newUser);
 
             return true; // Indicate success
         }
         return false; // Indicate failure (username already taken)
     }
+
+//    public boolean createUser(String username, String password, String bio, String pfp) {
+//        if (getUser(username) == null) { // Check if the username is available
+//            // Create the user and add it to the in-memory list
+//            User newUser = new User(username, password, bio, pfp);
+//            users.add(newUser);
+//
+//            return true; // Indicate success
+//        }
+//        return false; // Indicate failure (username already taken)
+//    }
 
 
     // Searches for a user by username
@@ -109,7 +123,7 @@ public class Database implements DatabaseInterface {
             synchronized (o) {
                 for (User user : users) {
                     if (user.getUsername().equals(username)) {
-                        user.setPfp(profilePictureFileName); // Update user's profile picture field
+                        //user.setPfp(profilePictureFileName); // Update user's profile picture field
                         saveDatabase(); // Persist the changes
                         return true; // Indicate success
                     }
@@ -128,8 +142,10 @@ public class Database implements DatabaseInterface {
         synchronized (o) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATABASE_FILE, false))) {
                 for (User user : users) {
-                    String userEntry = String.format("%s,%s,%s,%s",
-                            user.getUsername(), user.getPassword(), user.getBio(), user.getPfp());
+                    String userEntry = String.format("%s,%s,%s",
+                            user.getUsername(), user.getPassword(), user.getBio());
+//                    String userEntry = String.format("%s,%s,%s,%s",
+//                            user.getUsername(), user.getPassword(), user.getBio(), user.getPfp());
                     writer.write(userEntry);
                     writer.newLine();
                 }
