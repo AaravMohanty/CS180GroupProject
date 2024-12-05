@@ -39,17 +39,21 @@ public class SocialMediaAppGUI {
     private static void refreshFriendsList(DefaultListModel<String> friendsModel) {
         new Thread(() -> {
             try {
-                out.println("get_friends");
+                out.println("get_friends"); // Request the friends list from the server
                 String friend;
-                friendsModel.clear();
+                SwingUtilities.invokeLater(friendsModel::clear); // Clear the current list
+
+                // Add each friend to the model
                 while (!(friend = in.readLine()).equals("END")) {
-                    friendsModel.addElement(friend);
+                    String finalFriend = friend;
+                    SwingUtilities.invokeLater(() -> friendsModel.addElement(finalFriend));
                 }
             } catch (IOException ex) {
                 SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
             }
         }).start();
     }
+
 
     private static void refreshBlockedList(DefaultListModel<String> blockedModel) {
         new Thread(() -> {
@@ -307,7 +311,7 @@ public class SocialMediaAppGUI {
         JButton deleteButton = new JButton("Delete");
 
         // Timer to refresh every X milliseconds (e.g., 5000 = 5 seconds)
-        int refreshInterval = 5000; // Change this value for different intervals
+        int refreshInterval = 500; // Change this value for different intervals
         Timer autoRefreshTimer = new Timer(refreshInterval, e -> loadSelectedConversation(conversationsList, conversationArea));
 
         // Left Panel - Conversations List
@@ -422,20 +426,13 @@ public class SocialMediaAppGUI {
         JButton addFriendButton = new JButton("Add Friend");
         JButton removeFriendButton = new JButton("Remove Friend");
 
-        // Populate friends list when the panel is opened
-        new Thread(() -> {
-            try {
-                out.println("get_friends");
-                String friend;
-                friendsModel.clear(); // Clear existing entries before populating
-                while (!(friend = in.readLine()).equals("END")) {
-                    friendsModel.addElement(friend);
-                }
-            } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
-                ex.printStackTrace();
-            }
-        }).start();
+        // Set up auto-refresh
+        int refreshInterval = 10000; // Refresh every 10 seconds
+        Timer autoRefreshTimer = new Timer(refreshInterval, e -> refreshFriendsList(friendsModel));
+        autoRefreshTimer.start();
+
+        // Populate friends list initially
+        refreshFriendsList(friendsModel);
 
         addFriendButton.addActionListener(e -> {
             String friendName = friendTextField.getText().trim();

@@ -247,14 +247,9 @@ public class Server implements Runnable {
                                 break;
                             }
 
-                            // Use the addFriend method to validate the addition
+                            // Only add the friend to the current user's list
                             boolean success = currentUser.addFriend(friend);
-                            if (success) {
-                                friend.addFriend(currentUser); // Add current user to friend's list
-                                writer.println("success");
-                            } else {
-                                writer.println("failure"); // Adding failed (already a friend, blocked, etc.)
-                            }
+                            writer.println(success ? "success" : "failure");
                         }
                         break;
 
@@ -286,20 +281,9 @@ public class Server implements Runnable {
                                 break;
                             }
 
-                            User friend = database.getUser(friendName); // Fetch the User object
-                            if (friend == null) {
-                                writer.println("failure"); // Friend doesn't exist
-                                break;
-                            }
-
-                            // Use the removeFriend method to validate the removal
+                            // Only remove the friend from the current user's list
                             boolean success = currentUser.removeFriend(friendName);
-                            if (success) {
-                                friend.removeFriend(currentUser.getUsername()); // Remove the current user from the friend's list
-                                writer.println("success");
-                            } else {
-                                writer.println("failure"); // Removing failed (friend not in list, etc.)
-                            }
+                            writer.println(success ? "success" : "failure");
                         }
                         break;
 

@@ -180,36 +180,37 @@ public class User implements UserInterface {
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
-        if (friend == null || friend == this || friends.contains(friend.getUsername()) || blockedUsers.contains(friend.getUsername()) || friend.getBlockedUsers().contains(username)) {
-            return false; // Return false if friend is null, the same user, or already a friend
+        if (friend == null || friend == this || friends.contains(friend.getUsername()) || blockedUsers.contains(friend.getUsername())) {
+            return false; // Invalid conditions for adding a friend
         }
-        if (Database.users.contains(friend)) { // Check if the friend is not already in the list
-            friends.add(friend.getUsername()); // Add the friend
-            // write the friend to the file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))) {
-                writer.write(friend.getUsername());
-                writer.newLine();
-                writer.flush();
-            } catch (IOException e) {
-                System.err.println("Error adding friend: " + e.getMessage());
-                return false;
-            }
-            return true;
+
+        friends.add(friend.getUsername()); // Add the friend to the current user's list
+        // Write the friend to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(friendsFileName, true))) {
+            writer.write(friend.getUsername());
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            System.err.println("Error adding friend: " + e.getMessage());
+            return false;
         }
-        return false;
+
+        return true;
     }
 
     // Removes a friend from the user's friends list
-    public boolean removeFriend(String friend) {
-        if (friend == null || friend.isEmpty() || !friends.contains(friend)) {
-            return false; // return false if friend is null, empty, or not in the list
+    public boolean removeFriend(String friendName) {
+        if (friendName == null || friendName.isEmpty() || !friends.contains(friendName)) {
+            return false; // Invalid conditions for removing a friend
         }
-        boolean removed = friends.remove(friend); // boolean to store whether friend was removed or not
+
+        boolean removed = friends.remove(friendName); // Remove the friend from the list
         if (removed) {
-            rewriteToFile(friendsFileName, friends); // if it was removed then rewrite the friends file
+            rewriteToFile(friendsFileName, friends); // Update the friends file
         }
-        return removed; // Remove the friend and return the result
+        return removed;
     }
+
 
     // Blocks a user, preventing them from interacting with this user
     public boolean blockUser(User user) {
