@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
@@ -10,8 +8,9 @@ public class SocialMediaAppGUI {
     private static PrintWriter out;
     private static BufferedReader in;
     private static String currentUser;
-    private static volatile boolean loggedIn = true;
-
+    private static volatile boolean loggedIn = true; // Controls thread execution
+    private static Timer autoRefreshTimer;
+    private static JList<String> friendsList;
 
     public static void main(String[] args) {
         try {
@@ -38,36 +37,53 @@ public class SocialMediaAppGUI {
         return panel;
     }
 
-    private static void refreshFriendsList(DefaultListModel<String> friendsModel) {
+    private static void refreshFriendsList(DefaultListModel<String> friendsModel, JList<String> friendsList) {
         new Thread(() -> {
             try {
+                if (!loggedIn || out == null) return; // Stop if logged out or connection is closed
                 out.println("get_friends"); // Request the friends list from the server
                 String friend;
+
+                // Store the currently selected friend
+                String selectedFriend = SocialMediaAppGUI.friendsList.getSelectedValue();
+
                 SwingUtilities.invokeLater(friendsModel::clear); // Clear the current list
 
-                // Add each friend to the model
-                while (!(friend = in.readLine()).equals("END")) {
-                    String finalFriend = friend;
+                while (loggedIn && (friend = in.readLine()) != null && !friend.equals("END")) {
+                    String finalFriend = friend; // Final variable for lambda
                     SwingUtilities.invokeLater(() -> friendsModel.addElement(finalFriend));
                 }
+
+                // Restore the previous selection
+                SwingUtilities.invokeLater(() -> SocialMediaAppGUI.friendsList.setSelectedValue(selectedFriend, true));
             } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
+                if (loggedIn) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
+                }
+            } catch (NullPointerException npe) {
+                System.err.println("Thread terminated: Connection is closed.");
             }
         }).start();
     }
 
-
     private static void refreshBlockedList(DefaultListModel<String> blockedModel) {
         new Thread(() -> {
             try {
+                if (!loggedIn || out == null) return; // Stop if logged out or connection is closed
                 out.println("get_blocked_users");
                 String blockedUser;
-                blockedModel.clear();
-                while (!(blockedUser = in.readLine()).equals("END")) {
-                    blockedModel.addElement(blockedUser);
+                SwingUtilities.invokeLater(blockedModel::clear);
+
+                while (loggedIn && (blockedUser = in.readLine()) != null && !blockedUser.equals("END")) {
+                    String finalBlockedUser = blockedUser; // Declare a final variable for the lambda
+                    SwingUtilities.invokeLater(() -> blockedModel.addElement(finalBlockedUser));
                 }
             } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching blocked users list."));
+                if (loggedIn) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching blocked users list."));
+                }
+            } catch (NullPointerException npe) {
+                System.err.println("Thread terminated: Connection is closed.");
             }
         }).start();
     }
@@ -145,17 +161,25 @@ public class SocialMediaAppGUI {
         panel.add(createAccountButton);
 
         loginButton.addActionListener(e -> {
-            String username = userText.getText().trim();
-            String password = new String(passwordText.getPassword()).trim();
-            if (username.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
-                return;
-            }
-            out.println("2");
-            out.println(username);
-            out.println(password);
             try {
+                if (socket == null || socket.isClosed()) {
+                    socket = new Socket("localhost", 1234);
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                }
+
+                String username = userText.getText().trim();
+                String password = new String(passwordText.getPassword()).trim();
+                if (username.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                    return;
+                }
+
+                out.println("2");
+                out.println(username);
+                out.println(password);
                 String response = in.readLine();
+
                 if ("success".equals(response)) {
                     currentUser = username;
                     frame.dispose();
@@ -165,6 +189,7 @@ public class SocialMediaAppGUI {
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "Error connecting to the server. Please try again.");
             }
         });
 
@@ -249,55 +274,45 @@ public class SocialMediaAppGUI {
 
     // Updated createMainMenuGUI method
     private static void createMainMenuGUI() {
+        loggedIn = true;
         JFrame frame = new JFrame(currentUser);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Friends List Tab without Refresh Button
+        // Friends List Tab
         DefaultListModel<String> friendsModel = new DefaultListModel<>();
         JPanel friendsPanel = createFriendsPanel(friendsModel);
         tabbedPane.addTab("Friends List", friendsPanel);
 
-        // Blocked List Tab without Refresh Button
+        // Blocked List Tab
+        DefaultListModel<String> blockedModel = new DefaultListModel<>();
         JPanel blockedPanel = createBlockedListPanel(friendsModel);
         tabbedPane.addTab("Blocked List", blockedPanel);
 
-        // Conversations Tab without Refresh Button
+        // Conversations Tab
         tabbedPane.addTab("Conversations", createConversationsPanel());
 
-        // Search Users Tab with Refresh Button
+        // Search Users Tab
+        DefaultListModel<String> searchResultsModel = new DefaultListModel<>();
         tabbedPane.addTab("Search Users", createSearchUsersPanel());
 
+        // Add logout functionality
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
             try {
                 if (out != null) {
-                    out.println("logout"); // Notify the server
+                    out.println("logout");
                 }
-
-                // Read server response (optional to verify)
                 if (in != null && "logout_success".equals(in.readLine())) {
-                    currentUser = null; // Reset the current user session
+                    loggedIn = false; // Stop all background threads
+                    currentUser = null;
 
-                    // Signal threads to stop
-                    loggedIn = false;
-
-                    // Clear all data models
-                    SwingUtilities.invokeLater(() -> {
-                        if (friendsModel != null) friendsModel.clear();
-//                        if (blockedModel != null) blockedModel.clear();
-//                        if (conversationsModel != null) conversationsModel.clear();
-//                        if (searchResultsModel != null) searchResultsModel.clear();
-                    });
-
-                    // Close and reset the main GUI
                     if (frame != null) {
                         frame.dispose();
                     }
 
-                    // Fully reset connection and state
                     if (socket != null) {
                         socket.close();
                     }
@@ -305,14 +320,16 @@ public class SocialMediaAppGUI {
                     in = null;
                     out = null;
 
-                    // Relaunch login GUI
                     createLoginGUI();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "An error occurred while logging out. Please try again.");
+                JOptionPane.showMessageDialog(null, "Error during logout. Please try again.");
             }
         });
+
+        // Refresh the friends list
+        refreshFriendsList(friendsModel, friendsList);
 
         frame.add(tabbedPane, BorderLayout.CENTER);
         frame.add(logoutButton, BorderLayout.SOUTH);
@@ -333,8 +350,15 @@ public class SocialMediaAppGUI {
         JButton deleteButton = new JButton("Delete");
 
         // Timer to refresh every X milliseconds (e.g., 5000 = 5 seconds)
-        int refreshInterval = 500; // Change this value for different intervals
-        Timer autoRefreshTimer = new Timer(refreshInterval, e -> loadSelectedConversation(conversationsList, conversationArea));
+//        int refreshInterval = 500; // Change this value for different intervals
+//        Timer autoRefreshTimer = new Timer(refreshInterval, e -> loadSelectedConversation(conversationsList, conversationArea));
+
+        autoRefreshTimer = new Timer(500, e -> {
+            if (loggedIn) {
+                loadSelectedConversation(conversationsList, conversationArea);
+            }
+        });
+        autoRefreshTimer.start();
 
         // Left Panel - Conversations List
         JPanel leftPanel = new JPanel(new BorderLayout());
@@ -385,7 +409,7 @@ public class SocialMediaAppGUI {
         //refreshButton.addActionListener(e -> loadSelectedConversation(conversationsList, conversationArea));
 
         // Automatically refresh messages every X seconds
-        autoRefreshTimer.start();
+        //autoRefreshTimer.start();
 
         // Send message functionality
         sendButton.addActionListener(e -> {
@@ -449,18 +473,20 @@ public class SocialMediaAppGUI {
 
     private static JPanel createFriendsPanel(DefaultListModel<String> friendsModel) {
         JPanel panel = new JPanel(new BorderLayout());
-        JList<String> friendsList = new JList<>(friendsModel);
+        friendsList = new JList<>(friendsModel); // Initialize the class-wide friendsList variable
         JTextField friendTextField = new JTextField();
         JButton addFriendButton = new JButton("Add Friend");
         JButton removeFriendButton = new JButton("Remove Friend");
 
-        // Set up auto-refresh
-        int refreshInterval = 1000; // Refresh every 1 seconds
-        Timer autoRefreshTimer = new Timer(refreshInterval, e -> refreshFriendsList(friendsModel));
+        autoRefreshTimer = new Timer(1000, e -> {
+            if (loggedIn) {
+                refreshFriendsList(friendsModel, friendsList); // No need to pass friendsList here
+            }
+        });
         autoRefreshTimer.start();
 
         // Populate friends list initially
-        refreshFriendsList(friendsModel);
+        refreshFriendsList(friendsModel, friendsList);
 
         addFriendButton.addActionListener(e -> {
             String friendName = friendTextField.getText().trim();
@@ -526,6 +552,7 @@ public class SocialMediaAppGUI {
 
         return panel;
     }
+
 
     private static JPanel createBlockedListPanel(DefaultListModel<String> friendsModel) {
         JPanel panel = new JPanel(new BorderLayout());
