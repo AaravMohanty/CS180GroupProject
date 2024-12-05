@@ -485,14 +485,20 @@ public class User implements UserInterface {
 
 
     // Method to load messages for a given conversation
-    public synchronized ArrayList<String> loadConversation(String conversationName) {
-        // Check if the conversation exists
-        if (!conversations.contains(conversationName)) {
-            return null; // Conversation not found
-        }
+    public synchronized ArrayList<String> loadConversation(String selectedUser) {
+        // Generate conversation file name in lexicographical order
+        String conversationFile = (username.compareTo(selectedUser) < 0)
+                ? username + "_" + selectedUser + "_Messages.txt"
+                : selectedUser + "_" + username + "_Messages.txt";
 
         ArrayList<String> messagesForConversation = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(conversationName))) {
+        File convFile = new File(conversationFile);
+
+        if (!convFile.exists()) {
+            return null; // Return null if the conversation file doesn't exist
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(convFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 messagesForConversation.add(line);
@@ -500,7 +506,9 @@ public class User implements UserInterface {
         } catch (IOException e) {
             System.err.println("Error loading conversation: " + e.getMessage());
         }
-        return messagesForConversation; // Return all messages for the conversation
+
+        return messagesForConversation;
     }
+
 
 }
