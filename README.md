@@ -132,7 +132,8 @@ This class is in correlation to the User class, and works to test it and works s
 
 
 ## Testing Information for I/O Functionality
-Manual testing of I/O functionality ensures correctness:
+
+Simply follow the buttons on the GUI.
 
 User Registration:
 Enter invalid or duplicate usernames to confirm appropriate error messages. Create account and check database.
