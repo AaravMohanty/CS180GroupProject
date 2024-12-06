@@ -181,7 +181,7 @@ public class User implements UserInterface {
 
     // Adds a friend to the user's friends list
     public boolean addFriend(User friend) {
-        if (friend == null || friend == this || friends.contains(friend.getUsername()) || blockedUsers.contains(friend.getUsername())) {
+        if (friend == null || friend == this || friends.contains(friend.getUsername()) || blockedUsers.contains(friend.getUsername()) || friend.blockedUsers.contains(username)) {
             return false; // Invalid conditions for adding a friend
         }
 

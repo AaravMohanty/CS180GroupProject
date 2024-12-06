@@ -24,6 +24,7 @@ public class SocialMediaAppGUI {
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Cannot connect to the server.");
+            return; // Ensure execution stops if the connection is not established
         }
     }
 
@@ -177,6 +178,7 @@ public class SocialMediaAppGUI {
                     out = new PrintWriter(socket.getOutputStream(), true);
                 }
 
+                // Existing logic
                 String username = userText.getText().trim();
                 String password = new String(passwordText.getPassword()).trim();
                 if (username.isEmpty() || password.isEmpty()) {
@@ -240,28 +242,27 @@ public class SocialMediaAppGUI {
         panel.add(backButton);
 
         createButton.addActionListener(e -> {
-            String username = userText.getText().trim();
-            String password = new String(passwordText.getPassword()).trim();
-            String bio = bioText.getText().trim();
-            //String pfp = pfpText.getText().trim();
-
-            if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
-                return;
-            }
-
-//            if (username.isEmpty() || password.isEmpty() || bio.isEmpty() || pfp.isEmpty()) {
-//                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
-//                return;
-//            }
-
-            out.println("1");
-            out.println(username);
-            out.println(password);
-            out.println(bio);
-            //out.println(pfp);
-
             try {
+                if (socket == null || socket.isClosed()) {
+                    socket = new Socket("localhost", 1234);
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                }
+
+                String username = userText.getText().trim();
+                String password = new String(passwordText.getPassword()).trim();
+                String bio = bioText.getText().trim();
+
+                if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                    return;
+                }
+
+                out.println("1");
+                out.println(username);
+                out.println(password);
+                out.println(bio);
+
                 String response = in.readLine();
                 if ("success".equals(response)) {
                     JOptionPane.showMessageDialog(frame, "Account created successfully!");
@@ -274,6 +275,7 @@ public class SocialMediaAppGUI {
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "Error connecting to the server. Please try again.");
             }
         });
 
@@ -760,6 +762,19 @@ public class SocialMediaAppGUI {
         panel.add(new JScrollPane(searchResults), BorderLayout.CENTER);
 
         return panel;
+    }
+
+    // In SocialMediaAppGUI.java
+    public static void setSocket(Socket testSocket) {
+        socket = testSocket;
+    }
+
+    public static void setInputReader(BufferedReader testIn) {
+        in = testIn;
+    }
+
+    public static void setOutputWriter(PrintWriter testOut) {
+        out = testOut;
     }
 
 }

@@ -124,6 +124,7 @@ public class UserTest {
 //        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         db.getUser("user1").addFriend(db.getUser("user2"));
+        db.getUser("user2").addFriend(db.getUser("user1"));
         Assertions.assertTrue(db.getUser("user1").sendMessage(db.getUser("user2"), "Hello!"),
                    "Message should be sent successfully");
         Assertions.assertFalse(db.getUser("user1").sendMessage(null, "Hello!"),
