@@ -36,7 +36,7 @@ public class Server implements Runnable {
             User currentUser = null;
 
             while (true) {
-                String command = reader.readLine();
+                String command = reader.    readLine();
                 if (command == null) break; // Terminate if no command is received
                 switch (command) {
                     case "1": // Create Account
