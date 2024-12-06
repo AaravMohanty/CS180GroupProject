@@ -1,4 +1,4 @@
-# README
+# README -- Chattr 
 
 **How to compile and run the program:**
 1. Go to your project directory which contains all of this project’s files on terminal and run the command: javac *.java to compile all of the files
@@ -136,34 +136,90 @@ Relationship to other classes:
 This class is in correlation to the User class, and works to test it and works smoothly.
 
 
-## Testing Information for I/O Functionality
+# How to Run and Use the Application
 
-Simply follow the buttons on the GUI. The following features exist:
+## Prerequisites
 
-User Registration:
-Enter invalid or duplicate usernames to confirm appropriate error messages. Create account and check database.
+- **Java Development Kit (JDK)**: Ensure you have JDK 11 or above installed.
+- **IDE**: An IDE like IntelliJ IDEA or Eclipse for easier development and execution.
 
-Login:
-Test with valid and invalid credentials.
+## Setup and Installation
 
-Message Sending and Deletion:
-Verify messages are saved correctly in conversation files. Verify messages are deleted in messages file and updated.
+1. Clone the repository
+2. Open the project in your preferred Java IDE.
+3. Ensure all dependencies are resolved (e.g., standard Java libraries).
 
-Adding and Removing Friends:
-Check updates for the friends list after adding or removing friends.
-
-Blocking and Unblocking Users:
-Test blocking and unblocking functionality to ensure users are restricted appropriately.
-
-Search Users:
-Search for a username and view their username and their bio
-
-Refresh:
-Refresh all the user's conversations with their friends and the search feature.
+### Server Setup
+1. Run the Server.java file to start the backend server.
+   - The server listens on port 1234 by default.
+2. You should see a message like Server is running on port 1234....
+### Client Setup
+1. Run the SocialMediaAppGUI.java file to launch the client interface.
+2. The application will connect to the server running on localhost:1234.
 
 
+#### User Management
+- **Sign Up**:
+  - Click on "Create Account" in the login GUI.
+  - Provide the following details:
+    - **Username**: A unique identifier for your account.
+    - **Password**: A secure password.
+    - **Bio**: A short biography or description about yourself.
+  - Click "Create" to register.
+  - If the username is already taken, you'll be prompted to choose another username.
+- **Log In**:
+  - Enter your registered username and password in the login screen.
+  - Click "Login" to access your account.
+  - If the credentials are invalid, you will be notified to try again.
 
+#### Friend Management
+- **Add Friend**:
+  - Navigate to the **Friends List** tab in the main menu.
+  - Type the username of the user you want to add in the input field.
+  - Click "Add Friend" to send a friend request.
+  - If successful, the friend will be added to your list. If the user doesn't exist or is already your friend, you'll receive an error message.
+- **Remove Friend**:
+  - Select a friend from the displayed friend list.
+  - Click "Remove Friend" to delete them from your list.
 
+#### Conversations
+- **View Conversations**:
+  - Navigate to the **Conversations** tab in the main menu.
+  - Select a friend from the list to load past messages.
+  - You may have to click the refresh button if a conversation was recently added or deleted and when new users are made while the client is running.
+- **Send Messages**:
+  - Type your message in the text input box.
+  - Click the "Send" button to deliver the message.
+  - Messages are displayed with the sender's username for context.
+- **Delete Messages**:
+  - Select the message you want to delete and type it in the input box.
+  - Click the "Delete" button to remove it.
+  - Only messages sent by you can be deleted.
 
+#### Blocking System
+- **Block User**:
+  - Go to the **Blocked List** tab.
+  - Enter the username of the user you want to block.
+  - Click "Block User" to prevent interactions with that user.
+  - Blocking removes the user from your friends list automatically.
+- **Unblock User**:
+  - Select a blocked user from the displayed list.
+  - Click "Unblock User" to allow them to interact with you again.
 
+#### Search Users
+- Navigate to the **Search Users** tab.
+- Enter a username or partial query in the search box.
+- Click "Search" to find matching users.
+- Select a user from the results to view their profile details, including their username and bio.
+
+#### Logout
+- Click the **Logout** button in the main menu to log out of a user.
+- You will be redirected to the login screen.
+- All active threads for fetching data will be stopped to ensure proper disconnection.
+- Exit all clients and terminate the server to stop the program.
+- Disclaimer: exiting out of one client will not cause the others to stop or the server to stop.
+
+---
+
+Follow these instructions to make the most out of the application. For any issues, check the `Issues` section of this repository or create a new issue for further support.
 
