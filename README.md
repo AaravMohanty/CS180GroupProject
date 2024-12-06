@@ -90,7 +90,7 @@ Implements the runnable interface and communicates with the client class to rece
 ## Server Interface
 
 Functionality: 
-Defines the methods used in the Client class.
+Defines the methods used in the Server class.
 
 ## ServerTest Class
 
@@ -103,12 +103,12 @@ There was no testing for this test class.
 Relationship to other classes:
 This class is in correlation to the User class, and works to test it and works smoothly.
 
-## SocialMediaGUI Interface
+## SocialMediaAppGUI Interface
 
 Functionality: 
 Defines the methods used in the Server class.
 
-## SocialMediaGUI Class
+## SocialMediaAppGUI Class
 
 Functionality:
 The client class handles all the prompting for our user as well as sends information to the server class so that the appropriate logic can be executed based on the user's input into the client.
@@ -119,7 +119,12 @@ There was no JUnit test for this class as it all involved Network IO.
 Relationship to other classes:
 Sends and receives information from the server class.
 
-## SocialMediaGUI Test Class
+## SocialMediaAppGUI Interface
+
+Functionality: 
+Defines the methods used in the SocialMediaAppGUI class.
+
+## SocialMediaAppGUI Test Class
 
 Functionality: 
 Utilizes JUnitTest cases in order to ensure the functionality of the SocialMediaGUI class.  
