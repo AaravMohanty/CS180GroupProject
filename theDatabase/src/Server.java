@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-public class Server implements Runnable {
+public class Server implements Runnable, ServerInterface {
     public static final Object LOCK = new Object();
     private static Database database;
     private static ServerSocket serverSocket;
