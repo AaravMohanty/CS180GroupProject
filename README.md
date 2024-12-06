@@ -133,7 +133,7 @@ This class is in correlation to the User class, and works to test it and works s
 
 ## Testing Information for I/O Functionality
 
-Simply follow the buttons on the GUI.
+Simply follow the buttons on the GUI. The following features exist:
 
 User Registration:
 Enter invalid or duplicate usernames to confirm appropriate error messages. Create account and check database.
@@ -141,14 +141,20 @@ Enter invalid or duplicate usernames to confirm appropriate error messages. Crea
 Login:
 Test with valid and invalid credentials.
 
-Message Sending:
+Message Sending and Deletion:
 Verify messages are saved correctly in conversation files. Verify messages are deleted in messages file and updated.
 
-Friends List:
-Check updates after adding or removing friends.
+Adding and Removing Friends:
+Check updates for the friends list after adding or removing friends.
 
-Blocked Users:
+Blocking and Unblocking Users:
 Test blocking and unblocking functionality to ensure users are restricted appropriately.
+
+Search Users:
+Search for a username and view their username and their bio
+
+Refresh:
+Refresh all the user's conversations with their friends and the search feature.
 
 
 
