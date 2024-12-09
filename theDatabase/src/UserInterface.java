@@ -2,12 +2,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The interface to create a user
+ * The interface to create a new user.
  * <p>
  * Purdue University -- CS18000 -- Fall 2024
  *
- * @author Elan Smyla, Aarav Mohanty
- * @version November 3rd, 2024
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version December 8th, 2024
  */
 
 public interface UserInterface {
@@ -18,10 +18,6 @@ public interface UserInterface {
     String getBio();
 
     void setBio(String bio);
-
-    //String getPfp();
-
-    //void setPfp(String pfp);
 
     boolean addFriend(User friend);
 

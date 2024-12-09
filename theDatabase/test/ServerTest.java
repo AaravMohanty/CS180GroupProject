@@ -3,7 +3,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.net.Socket;
+
+/**
+ * The tests for the server class.
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ *
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version December 8th, 2024
+ */
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +27,7 @@ class ServerTest {
     void tearDown() {
         File databaseFile = new File(Database.DATABASE_FILE);
         if (databaseFile.exists()) {
-            databaseFile.delete(); // Clean up database file
+            databaseFile.delete();
         }
     }
 

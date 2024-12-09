@@ -8,6 +8,15 @@ import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The tests for the GUI/Client.
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ *
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version December 8th, 2024
+ */
+
 class SocialMediaAppGUITest {
 
     private Socket mockSocket;
@@ -51,7 +60,6 @@ class SocialMediaAppGUITest {
         DefaultListModel<String> friendsModel = new DefaultListModel<>();
         JList<String> friendsList = new JList<>(friendsModel);
 
-        // Simulate server sending friend data
         Thread serverSimulation = new Thread(() -> {
             try {
                 out.println("friend1");
@@ -66,19 +74,14 @@ class SocialMediaAppGUITest {
         });
         serverSimulation.start();
 
-        // Use reflection to access the private method
         java.lang.reflect.Method method = SocialMediaAppGUI.class.getDeclaredMethod(
                 "refreshFriendsList", DefaultListModel.class, JList.class);
-        method.setAccessible(true); // Make the private method accessible
+        method.setAccessible(true);
 
-        // Wait for server simulation to send all data
         serverSimulation.join();
 
-        // Invoke the private method
         method.invoke(null, friendsModel, friendsList);
 
-        // Debugging output to verify contents of the friendsModel
-        System.out.println("Size of friendsModel: " + friendsModel.size());
         for (int i = 0; i < friendsModel.size(); i++) {
             System.out.println("Friend: " + friendsModel.get(i));
         }
@@ -97,7 +100,6 @@ class SocialMediaAppGUITest {
         });
         serverSimulation.start();
 
-        // Read directly from the input stream to confirm data
         String friend1 = in.readLine();
         String friend2 = in.readLine();
         String end = in.readLine();

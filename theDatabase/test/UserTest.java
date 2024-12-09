@@ -1,18 +1,15 @@
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-
 /**
- * The test to create a user
+ * The tests for user.
  * <p>
  * Purdue University -- CS18000 -- Fall 2024
  *
- * @author Elan Smyla, 11
- * @version November 3rd, 2024
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version December 8th, 2024
  */
 
 public class UserTest {
@@ -25,15 +22,10 @@ public class UserTest {
 
     @BeforeEach
     public void setUp() {
-        // Create test users
         Database db = new Database();
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         user1 = db.getUser("user1");
         user2 = db.getUser("user2");
@@ -47,14 +39,15 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
-        Assertions.assertTrue(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should be added as a friend");
-        Assertions.assertFalse(db.getUser("user1").addFriend(db.getUser("user2")), "User2 should not be added again");
-        Assertions.assertFalse(db.getUser("user1").addFriend(null), "Adding null should return false");
-        Assertions.assertFalse(db.getUser("user1").addFriend(db.getUser("user1")), "User1 cannot add themselves as a friend");
+        Assertions.assertTrue(db.getUser("user1").addFriend(db.getUser("user2")),
+                "User2 should be added as a friend");
+        Assertions.assertFalse(db.getUser("user1").addFriend(db.getUser("user2")),
+                "User2 should not be added again");
+        Assertions.assertFalse(db.getUser("user1").addFriend(null),
+                "Adding null should return false");
+        Assertions.assertFalse(db.getUser("user1").addFriend(db.getUser("user1")),
+                "User1 cannot add themselves as a friend");
 
     }
 
@@ -64,15 +57,14 @@ public class UserTest {
         Database db = new Database();
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
+
         db.getUser("user1").addFriend(user2);
         Assertions.assertTrue(db.getUser("user1").removeFriend(db.getUser("user2").getUsername()),
-                   "User2 should be removed as a friend");
+                "User2 should be removed as a friend");
         Assertions.assertFalse(db.getUser("user1").removeFriend(db.getUser("user2").getUsername()),
-                    "User2 should already be removed");
+                "User2 should already be removed");
         Assertions.assertFalse(db.getUser("user1").removeFriend("nonExistentUser"),
-                    "Removing a non-existent friend should return false");
+                "Removing a non-existent friend should return false");
     }
 
     @Test
@@ -80,16 +72,15 @@ public class UserTest {
         Database db = new Database();
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
+
         Assertions.assertFalse(db.getUser("user1").blockUser(db.getUser("user2")),
-                    "User2 should be blocked");
+                "User2 should be blocked");
         Assertions.assertFalse(db.getUser("user1").blockUser(db.getUser("user2")),
-                    "User2 should not be blocked again");
+                "User2 should not be blocked again");
         Assertions.assertFalse(db.getUser("user1").blockUser(null),
-                    "Blocking null should return false");
+                "Blocking null should return false");
         Assertions.assertFalse(db.getUser("user1").blockUser(db.getUser("user1")),
-                    "User1 cannot block themselves");
+                "User1 cannot block themselves");
     }
 
 
@@ -99,17 +90,14 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         db.getUser("user1").blockUser(db.getUser("user2"));
         Assertions.assertTrue(db.getUser("user1").unblockUser(db.getUser("user2")),
-                   "User2 should be unblocked");
+                "User2 should be unblocked");
         Assertions.assertFalse(db.getUser("user1").unblockUser(db.getUser("user2")),
-                    "User2 should already be unblocked");
+                "User2 should already be unblocked");
         Assertions.assertFalse(db.getUser("user1").unblockUser(db.getUser("user3")),
-                    "User3 is not blocked, should return false");
+                "User3 is not blocked, should return false");
     }
 
 
@@ -119,22 +107,19 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         db.getUser("user1").addFriend(db.getUser("user2"));
         db.getUser("user2").addFriend(db.getUser("user1"));
         Assertions.assertTrue(db.getUser("user1").sendMessage(db.getUser("user2"), "Hello!"),
-                   "Message should be sent successfully");
+                "Message should be sent successfully");
         Assertions.assertFalse(db.getUser("user1").sendMessage(null, "Hello!"),
-                    "Sending message to null should return false");
+                "Sending message to null should return false");
         Assertions.assertFalse(db.getUser("user1").sendMessage(db.getUser("user2"), ""),
-                    "Sending an empty message should return false");
+                "Sending an empty message should return false");
         Assertions.assertTrue(db.getUser("user1").blockUser(db.getUser("user2")),
-                   "User2 should be blocked");
+                "User2 should be blocked");
         Assertions.assertFalse(db.getUser("user1").sendMessage(db.getUser("user2"), "Should not be sent"),
-                    "Message should not be sent to a blocked user");
+                "Message should not be sent to a blocked user");
     }
 
 
@@ -144,17 +129,13 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         db.getUser("user1").blockUser(db.getUser("user2"));
         Assertions.assertTrue(db.getUser("user1").isBlocked(db.getUser("user2").getUsername()),
-                   "User2 should be blocked by user1");
+                "User2 should be blocked by user1");
         Assertions.assertFalse(db.getUser("user1").isBlocked(db.getUser("user3").getUsername()),
-                    "User3 is not blocked by user1");
+                "User3 is not blocked by user1");
     }
-
 
     @Test
     public void testGetFriends() {
@@ -162,15 +143,12 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         db.getUser("user1").addFriend(db.getUser("user2"));
         Assertions.assertEquals(1, db.getUser("user1").getFriends().size(),
-                     "User1 should have one friend");
+                "User1 should have one friend");
         Assertions.assertTrue(db.getUser("user1").getFriends().contains(db.getUser("user2").getUsername()),
-                   "User1's friends should include user2");
+                "User1's friends should include user2");
     }
 
     @Test
@@ -179,16 +157,13 @@ public class UserTest {
         db.createUser("user1", "password1", "Bio of user1");
         db.createUser("user2", "password2", "Bio of user2");
         db.createUser("user3", "password3", "Bio of user3");
-//        db.createUser("user1", "password1", "Bio of user1", "user1.jpg");
-//        db.createUser("user2", "password2", "Bio of user2", "user2.jpg");
-//        db.createUser("user3", "password3", "Bio of user3", "user3.jpg");
 
         db.getUser("user1").blockUser(db.getUser("user2"));
         Assertions.assertEquals(1, db.getUser("user1").getBlockedUsers().size(),
-                     "User1 should have one blocked user");
-        Assertions.assertFalse(db.getUser("user1").getBlockedUsers().contains(db.getUser("user1").getUsername()),
-                    "User1's blocked users should include user2");
+                "User1 should have one blocked user");
+        Assertions.assertFalse(db.getUser("user1").getBlockedUsers().contains(
+                        db.getUser("user1").getUsername()),
+                "User1's blocked users should include user2");
     }
-
 
 }

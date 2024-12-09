@@ -3,14 +3,22 @@ import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * The client/GUI for the project.
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ *
+ * @author Elan Smyla, Aarav Mohanty, Hannah Cha, Kai Nietzche
+ * @version December 8th, 2024
+ */
+
 public class SocialMediaAppGUI {
     private static Socket socket;
     private static PrintWriter out;
     private static BufferedReader in;
     private static String currentUser;
-    private static volatile boolean loggedIn = true; // Controls thread execution
+    private static volatile boolean loggedIn = true;
     private static Timer autoRefreshTimer;
-    // Timer for auto-refreshing the message area
     private static Timer messageRefreshTimer;
     private static JList<String> friendsList;
 
@@ -24,7 +32,6 @@ public class SocialMediaAppGUI {
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Cannot connect to the server.");
-            return; // Ensure execution stops if the connection is not established
         }
     }
 
@@ -43,25 +50,25 @@ public class SocialMediaAppGUI {
     private static void refreshFriendsList(DefaultListModel<String> friendsModel, JList<String> friendsList) {
         new Thread(() -> {
             try {
-                if (!loggedIn || out == null) return; // Stop if logged out or connection is closed
-                out.println("get_friends"); // Request the friends list from the server
+                if (!loggedIn || out == null) return;
+                out.println("get_friends");
                 String friend;
 
-                // Store the currently selected friend
                 String selectedFriend = SocialMediaAppGUI.friendsList.getSelectedValue();
 
-                SwingUtilities.invokeLater(friendsModel::clear); // Clear the current list
+                SwingUtilities.invokeLater(friendsModel::clear);
 
                 while (loggedIn && (friend = in.readLine()) != null && !friend.equals("END")) {
-                    String finalFriend = friend; // Final variable for lambda
+                    String finalFriend = friend;
                     SwingUtilities.invokeLater(() -> friendsModel.addElement(finalFriend));
                 }
 
-                // Restore the previous selection
-                SwingUtilities.invokeLater(() -> SocialMediaAppGUI.friendsList.setSelectedValue(selectedFriend, true));
+                SwingUtilities.invokeLater(() ->
+                        SocialMediaAppGUI.friendsList.setSelectedValue(selectedFriend, true));
             } catch (IOException ex) {
                 if (loggedIn) {
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                            "Error fetching friends list."));
                 }
             } catch (NullPointerException npe) {
                 System.err.println("Thread terminated: Connection is closed.");
@@ -72,18 +79,19 @@ public class SocialMediaAppGUI {
     private static void refreshBlockedList(DefaultListModel<String> blockedModel) {
         new Thread(() -> {
             try {
-                if (!loggedIn || out == null) return; // Stop if logged out or connection is closed
+                if (!loggedIn || out == null) return;
                 out.println("get_blocked_users");
                 String blockedUser;
                 SwingUtilities.invokeLater(blockedModel::clear);
 
                 while (loggedIn && (blockedUser = in.readLine()) != null && !blockedUser.equals("END")) {
-                    String finalBlockedUser = blockedUser; // Declare a final variable for the lambda
+                    String finalBlockedUser = blockedUser;
                     SwingUtilities.invokeLater(() -> blockedModel.addElement(finalBlockedUser));
                 }
             } catch (IOException ex) {
                 if (loggedIn) {
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching blocked users list."));
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                            "Error fetching blocked users list."));
                 }
             } catch (NullPointerException npe) {
                 System.err.println("Thread terminated: Connection is closed.");
@@ -91,25 +99,21 @@ public class SocialMediaAppGUI {
         }).start();
     }
 
-    // Method to load messages for the selected conversation
     private static void loadSelectedConversation(JList<String> conversationsList, JTextArea conversationArea) {
         String selectedFriend = conversationsList.getSelectedValue();
         if (selectedFriend == null) return;
 
-        // Synchronize access to prevent race conditions
         synchronized (conversationArea) {
             try {
                 out.println("load_conversation");
-                out.println(selectedFriend); // Send the friend's name to the server
+                out.println(selectedFriend);
 
                 String message;
                 StringBuilder messageBuffer = new StringBuilder();
                 while (!(message = in.readLine()).equals("END")) {
-                    // Append message to buffer
                     messageBuffer.append(message).append("\n");
                 }
 
-                // Update UI in the event-dispatching thread
                 SwingUtilities.invokeLater(() -> {
                     conversationArea.setText(messageBuffer.toString());
                 });
@@ -119,28 +123,28 @@ public class SocialMediaAppGUI {
         }
     }
 
-    private static void refreshConversationsList(DefaultListModel<String> conversationsModel, JList<String> conversationsList) {
+    private static void refreshConversationsList(
+            DefaultListModel<String> conversationsModel, JList<String> conversationsList) {
         new Thread(() -> {
             try {
-                if (!loggedIn || out == null) return; // Stop if logged out or connection is closed
-                out.println("get_friends"); // Request the user's friends list from the server
+                if (!loggedIn || out == null) return;
+                out.println("get_friends");
                 String friend;
 
-                // Store the currently selected friend
                 String selectedFriend = conversationsList.getSelectedValue();
 
-                SwingUtilities.invokeLater(conversationsModel::clear); // Clear the current list
+                SwingUtilities.invokeLater(conversationsModel::clear);
 
                 while (loggedIn && (friend = in.readLine()) != null && !friend.equals("END")) {
-                    String finalFriend = friend; // Final variable for lambda
+                    String finalFriend = friend;
                     SwingUtilities.invokeLater(() -> conversationsModel.addElement(finalFriend));
                 }
 
-                // Restore the previous selection
                 SwingUtilities.invokeLater(() -> conversationsList.setSelectedValue(selectedFriend, true));
             } catch (IOException ex) {
                 if (loggedIn) {
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching friends list."));
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                            "Error fetching friends list."));
                 }
             }
         }).start();
@@ -178,7 +182,6 @@ public class SocialMediaAppGUI {
                     out = new PrintWriter(socket.getOutputStream(), true);
                 }
 
-                // Existing logic
                 String username = userText.getText().trim();
                 String password = new String(passwordText.getPassword()).trim();
                 if (username.isEmpty() || password.isEmpty()) {
@@ -225,8 +228,6 @@ public class SocialMediaAppGUI {
         JPasswordField passwordText = new JPasswordField(20);
         JLabel bioLabel = new JLabel("Bio:");
         JTextField bioText = new JTextField(20);
-//        JLabel pfpLabel = new JLabel("Profile Picture:");
-//        JTextField pfpText = new JTextField(20);
         JButton createButton = new JButton("Create");
         JButton backButton = new JButton("Back");
 
@@ -236,8 +237,6 @@ public class SocialMediaAppGUI {
         panel.add(passwordText);
         panel.add(bioLabel);
         panel.add(bioText);
-        //panel.add(pfpLabel);
-        //panel.add(pfpText);
         panel.add(createButton);
         panel.add(backButton);
 
@@ -288,7 +287,6 @@ public class SocialMediaAppGUI {
         frame.setVisible(true);
     }
 
-    // Updated createMainMenuGUI method
     private static void createMainMenuGUI() {
         loggedIn = true;
         JFrame frame = new JFrame(currentUser);
@@ -297,24 +295,19 @@ public class SocialMediaAppGUI {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Friends List Tab
         DefaultListModel<String> friendsModel = new DefaultListModel<>();
         JPanel friendsPanel = createFriendsPanel(friendsModel);
         tabbedPane.addTab("Friends List", friendsPanel);
 
-        // Blocked List Tab
         DefaultListModel<String> blockedModel = new DefaultListModel<>();
         JPanel blockedPanel = createBlockedListPanel(friendsModel);
         tabbedPane.addTab("Blocked List", blockedPanel);
 
-        // Conversations Tab
         tabbedPane.addTab("Conversations", createConversationsPanel());
 
-        // Search Users Tab
         DefaultListModel<String> searchResultsModel = new DefaultListModel<>();
         tabbedPane.addTab("Search Users", createSearchUsersPanel());
 
-        // Add logout functionality
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
             try {
@@ -322,7 +315,7 @@ public class SocialMediaAppGUI {
                     out.println("logout");
                 }
                 if (in != null && "logout_success".equals(in.readLine())) {
-                    loggedIn = false; // Stop all background threads
+                    loggedIn = false;
                     currentUser = null;
 
                     if (frame != null) {
@@ -344,7 +337,6 @@ public class SocialMediaAppGUI {
             }
         });
 
-        // Refresh the friends list
         refreshFriendsList(friendsModel, friendsList);
 
         frame.add(tabbedPane, BorderLayout.CENTER);
@@ -355,17 +347,15 @@ public class SocialMediaAppGUI {
     private static JPanel createConversationsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Model to hold friend's names
         DefaultListModel<String> conversationsModel = new DefaultListModel<>();
         JList<String> conversationsList = new JList<>(conversationsModel);
         JTextArea conversationArea = new JTextArea();
-        conversationArea.setEditable(false); // Read-only conversation area
+        conversationArea.setEditable(false);
         JTextField messageField = new JTextField();
         JButton sendButton = new JButton("Send");
         JButton deleteButton = new JButton("Delete");
         JButton refreshButton = new JButton("Refresh");
 
-        // Timer for auto-refreshing messages
         Timer messageRefreshTimer = new Timer(1000, e -> {
             String selectedFriend = conversationsList.getSelectedValue();
             if (loggedIn && selectedFriend != null) {
@@ -373,48 +363,39 @@ public class SocialMediaAppGUI {
             }
         });
 
-        // Start the timer initially
         messageRefreshTimer.start();
 
-        // Left Panel - Friends List
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.add(new JLabel("Friends"), BorderLayout.NORTH);
         leftPanel.add(new JScrollPane(conversationsList), BorderLayout.CENTER);
-        leftPanel.add(refreshButton, BorderLayout.SOUTH); // Add refresh button to left panel
+        leftPanel.add(refreshButton, BorderLayout.SOUTH);
 
-        // Right Panel - Message Area
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(new JLabel("Messages"), BorderLayout.NORTH);
         rightPanel.add(new JScrollPane(conversationArea), BorderLayout.CENTER);
 
-        // Bottom Panel - Message Input
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.add(messageField, BorderLayout.CENTER);
         messagePanel.add(sendButton, BorderLayout.EAST);
         messagePanel.add(deleteButton, BorderLayout.WEST);
         rightPanel.add(messagePanel, BorderLayout.SOUTH);
 
-        // Split the left and right panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-        splitPane.setDividerLocation(200); // Set the initial size of the split
+        splitPane.setDividerLocation(200);
         panel.add(splitPane, BorderLayout.CENTER);
 
-        // Refresh Button Logic
         refreshButton.addActionListener(e -> refreshConversationsList(conversationsModel, conversationsList));
 
-        // Load friends dynamically on initialization
         refreshConversationsList(conversationsModel, conversationsList);
 
-        // Update messages when a friend is selected
         conversationsList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                messageRefreshTimer.stop(); // Stop timer while updating
+                messageRefreshTimer.stop();
                 loadSelectedConversation(conversationsList, conversationArea);
-                messageRefreshTimer.start(); // Restart timer for the new selection
+                messageRefreshTimer.start();
             }
         });
 
-        // Send message functionality
         sendButton.addActionListener(e -> {
             String message = messageField.getText().trim();
             String selectedFriend = conversationsList.getSelectedValue();
@@ -429,13 +410,15 @@ public class SocialMediaAppGUI {
                 out.println(selectedFriend);
                 out.println(message);
 
-                String response = in.readLine(); // Read server response
+                String response = in.readLine();
                 if ("not_friends".equals(response)) {
-                    JOptionPane.showMessageDialog(panel, "You and the selected user must be friends to send messages.");
+                    JOptionPane.showMessageDialog(panel,
+                            "You and the selected user must be friends to send messages.");
                 } else if ("failure".equals(response)) {
-                    JOptionPane.showMessageDialog(panel, "Failed to send the message. Please check restrictions.");
+                    JOptionPane.showMessageDialog(panel,
+                            "Failed to send the message. Please check restrictions.");
                 } else {
-                    messageField.setText(""); // Clear the input field
+                    messageField.setText("");
                     loadSelectedConversation(conversationsList, conversationArea);
                 }
             } catch (Exception ex) {
@@ -457,11 +440,13 @@ public class SocialMediaAppGUI {
                 out.println(selectedFriend);
                 out.println(message);
 
-                String response = in.readLine(); // Read server response
+                String response = in.readLine();
                 if ("not_friends".equals(response)) {
-                    JOptionPane.showMessageDialog(panel, "You and the selected user must be friends to delete messages.");
+                    JOptionPane.showMessageDialog(panel,
+                            "You and the selected user must be friends to delete messages.");
                 } else if ("failure".equals(response)) {
-                    JOptionPane.showMessageDialog(panel, "Failed to delete the message. It may not exist.");
+                    JOptionPane.showMessageDialog(panel,
+                            "Failed to delete the message. It may not exist.");
                 } else {
                     loadSelectedConversation(conversationsList, conversationArea);
                 }
@@ -475,19 +460,18 @@ public class SocialMediaAppGUI {
 
     private static JPanel createFriendsPanel(DefaultListModel<String> friendsModel) {
         JPanel panel = new JPanel(new BorderLayout());
-        friendsList = new JList<>(friendsModel); // Initialize the class-wide friendsList variable
+        friendsList = new JList<>(friendsModel);
         JTextField friendTextField = new JTextField();
         JButton addFriendButton = new JButton("Add Friend");
         JButton removeFriendButton = new JButton("Remove Friend");
 
         autoRefreshTimer = new Timer(1000, e -> {
             if (loggedIn) {
-                refreshFriendsList(friendsModel, friendsList); // No need to pass friendsList here
+                refreshFriendsList(friendsModel, friendsList);
             }
         });
         autoRefreshTimer.start();
 
-        // Populate friends list initially
         refreshFriendsList(friendsModel, friendsList);
 
         addFriendButton.addActionListener(e -> {
@@ -502,13 +486,17 @@ public class SocialMediaAppGUI {
                         SwingUtilities.invokeLater(() -> {
                             if ("success".equals(response)) {
                                 friendsModel.addElement(friendName);
-                                JOptionPane.showMessageDialog(null, "Friend added successfully.");
+                                JOptionPane.showMessageDialog(null,
+                                        "Friend added successfully.");
                             } else {
-                                JOptionPane.showMessageDialog(null, "Failed to add friend. User may not exist, is blocked, or is already a friend.");
+                                JOptionPane.showMessageDialog(null,
+                                        "Failed to add friend. " +
+                                                "User may not exist, is blocked, or is already a friend.");
                             }
                         });
                     } catch (IOException ex) {
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error communicating with the server."));
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                                "Error communicating with the server."));
                         ex.printStackTrace();
                     }
                 }).start();
@@ -529,13 +517,16 @@ public class SocialMediaAppGUI {
                         SwingUtilities.invokeLater(() -> {
                             if ("success".equals(response)) {
                                 friendsModel.removeElement(selectedFriend);
-                                JOptionPane.showMessageDialog(null, "Friend removed successfully.");
+                                JOptionPane.showMessageDialog(null,
+                                        "Friend removed successfully.");
                             } else {
-                                JOptionPane.showMessageDialog(null, "Failed to remove friend.");
+                                JOptionPane.showMessageDialog(null,
+                                        "Failed to remove friend.");
                             }
                         });
                     } catch (IOException ex) {
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error communicating with the server."));
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                                "Error communicating with the server."));
                         ex.printStackTrace();
                     }
                 }).start();
@@ -564,17 +555,17 @@ public class SocialMediaAppGUI {
         JButton blockUserButton = new JButton("Block User");
         JButton unblockUserButton = new JButton("Unblock User");
 
-        // Populate blocked list when the panel is opened
         new Thread(() -> {
             try {
                 out.println("get_blocked_users");
                 String blockedUser;
-                blockedModel.clear(); // Clear existing entries before populating
+                blockedModel.clear();
                 while (!(blockedUser = in.readLine()).equals("END")) {
                     blockedModel.addElement(blockedUser);
                 }
             } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error fetching blocked list."));
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                        "Error fetching blocked list."));
                 ex.printStackTrace();
             }
         }).start();
@@ -590,19 +581,21 @@ public class SocialMediaAppGUI {
                         String response = in.readLine();
                         SwingUtilities.invokeLater(() -> {
                             if ("success".equals(response)) {
-                                blockedModel.addElement(usernameToBlock); // Add to blocked list
+                                blockedModel.addElement(usernameToBlock);
 
-                                // Remove the user from the friends list if they exist
                                 if (friendsModel.contains(usernameToBlock)) {
                                     friendsModel.removeElement(usernameToBlock);
                                 }
-                                JOptionPane.showMessageDialog(null, "User blocked successfully.");
+                                JOptionPane.showMessageDialog(null,
+                                        "User blocked successfully.");
                             } else {
-                                JOptionPane.showMessageDialog(null, "Failed to block user. They may not exist or are already blocked.");
+                                JOptionPane.showMessageDialog(null,
+                                        "Failed to block user. They may not exist or are already blocked.");
                             }
                         });
                     } catch (IOException ex) {
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error communicating with the server."));
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                                "Error communicating with the server."));
                         ex.printStackTrace();
                     }
                 }).start();
@@ -623,13 +616,16 @@ public class SocialMediaAppGUI {
                         SwingUtilities.invokeLater(() -> {
                             if ("success".equals(response)) {
                                 blockedModel.removeElement(selectedBlockedUser);
-                                JOptionPane.showMessageDialog(null, "User unblocked successfully.");
+                                JOptionPane.showMessageDialog(null,
+                                        "User unblocked successfully.");
                             } else {
-                                JOptionPane.showMessageDialog(null, "Failed to unblock user.");
+                                JOptionPane.showMessageDialog(null,
+                                        "Failed to unblock user.");
                             }
                         });
                     } catch (IOException ex) {
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Error communicating with the server."));
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                                "Error communicating with the server."));
                         ex.printStackTrace();
                     }
                 }).start();
@@ -658,30 +654,28 @@ public class SocialMediaAppGUI {
         JButton searchButton = new JButton("Search");
         JButton refreshButton = new JButton("Refresh");
 
-        // Method to load all users
         Runnable loadAllUsers = () -> {
             new Thread(() -> {
                 try {
-                    out.println("get_users"); // Command to fetch all users
+                    out.println("get_users");
                     String user;
-                    SwingUtilities.invokeLater(searchResultsModel::clear); // Clear the current list
+                    SwingUtilities.invokeLater(searchResultsModel::clear);
                     while (!(user = in.readLine()).equals("END")) {
                         String finalUser = user;
                         SwingUtilities.invokeLater(() -> searchResultsModel.addElement(finalUser));
                     }
                 } catch (IOException ex) {
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch users."));
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                            "Failed to fetch users."));
                 }
             }).start();
         };
 
-        // Load all users when the panel is initialized
         loadAllUsers.run();
 
-        // Search functionality
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
-            searchResultsModel.clear(); // Clear current search results
+            searchResultsModel.clear();
             if (!query.isEmpty()) {
                 new Thread(() -> {
                     out.println("search_user");
@@ -693,26 +687,24 @@ public class SocialMediaAppGUI {
                             SwingUtilities.invokeLater(() -> searchResultsModel.addElement(finalResult));
                         }
                     } catch (IOException ex) {
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch search results."));
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                                "Failed to fetch search results."));
                     }
                 }).start();
             } else {
-                loadAllUsers.run(); // Reload all users if the search field is empty
+                loadAllUsers.run();
             }
         });
 
-        // Refresh button resets the tab to its original state
         refreshButton.addActionListener(e -> {
-            searchField.setText(""); // Clear the search field
-            loadAllUsers.run(); // Reload all users
+            searchField.setText("");
+            loadAllUsers.run();
         });
 
-        // Handle selection of a user in the search results
         searchResults.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedUser = searchResults.getSelectedValue();
                 if (selectedUser != null) {
-                    // Fetch user details from the server
                     new Thread(() -> {
                         try {
                             out.println("get_user_details");
@@ -720,37 +712,33 @@ public class SocialMediaAppGUI {
 
                             String username = in.readLine();
                             String bio = in.readLine();
-                            //String pfp = in.readLine();
 
                             SwingUtilities.invokeLater(() -> {
-                                // Display user details
                                 JFrame detailsFrame = new JFrame("User Details");
                                 detailsFrame.setSize(400, 300);
                                 detailsFrame.setLayout(new GridLayout(4, 1));
 
                                 JLabel usernameLabel = new JLabel("Username: " + username);
                                 JLabel bioLabel = new JLabel("Bio: " + bio);
-                                //JLabel pfpLabel = new JLabel("Profile Picture: " + pfp);
 
                                 JButton closeButton = new JButton("Close");
                                 closeButton.addActionListener(closeEvent -> detailsFrame.dispose());
 
                                 detailsFrame.add(usernameLabel);
                                 detailsFrame.add(bioLabel);
-                                //detailsFrame.add(pfpLabel);
                                 detailsFrame.add(closeButton);
 
                                 detailsFrame.setVisible(true);
                             });
                         } catch (IOException ex) {
-                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to fetch user details."));
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+                                    "Failed to fetch user details."));
                         }
                     }).start();
                 }
             }
         });
 
-        // Create a control panel for the search field and buttons
         JPanel controlPanel = new JPanel(new BorderLayout());
         controlPanel.add(searchField, BorderLayout.CENTER);
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
@@ -764,7 +752,6 @@ public class SocialMediaAppGUI {
         return panel;
     }
 
-    // In SocialMediaAppGUI.java
     public static void setSocket(Socket testSocket) {
         socket = testSocket;
     }
