@@ -221,5 +221,5 @@ This class is in correlation to the User class, and works to test it and works s
 
 ---
 
-Follow these instructions to make the most out of the application. For any issues, check the `Issues` section of this repository or create a new issue for further support.
+Follow these instructions to make the most out of the application.
 
