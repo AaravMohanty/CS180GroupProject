@@ -1,4 +1,4 @@
-# README -- Chattr 
+# README -- Clarity Social Messaging 
 
 **How to compile and run the program:**
 1. Go to your project directory which contains all of this project’s files on terminal and run the command: javac *.java to compile all of the files
